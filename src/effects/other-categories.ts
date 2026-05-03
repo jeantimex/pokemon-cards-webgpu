@@ -33,10 +33,5 @@ export function createOtherCategories(cards: Card[]) {
       'Generally quite similar to the normal V and VMax cards, with a different background texture.',
       cards.slice(64, 70),
     ),
-    createCategory(
-      'Shiny Vault',
-      'Foil background is a shiny silver color. Applied with radial gradients to darken the foil over the background.',
-      cards.slice(85, 91),
-    ),
   ];
 }

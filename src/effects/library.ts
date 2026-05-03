@@ -5,6 +5,7 @@ import { createGalaxyCosmosHolofoilCategory } from './galaxy-cosmos-holofoil/cat
 import { createHolofoilAmazingRareCategory } from './holofoil-amazing-rare/category';
 import { createHolofoilRareCategory } from './holofoil-rare/category';
 import { createSecretRareCategory } from './secret-rare/category';
+import { createShinyVaultCategory } from './shiny-vault/category';
 import { createPokemonVAlternateArtCategory } from './pokemon-v-alternate-art/category';
 import { createPokemonVCategory } from './pokemon-v/category';
 import { createPokemonVFullArtCategory } from './pokemon-v-full-art/category';
@@ -35,6 +36,7 @@ export function buildCardLibrary(cards: Card[], excludedCardIds: Set<string>): C
     createPokemonVFullArtCategory(cards),
     createPokemonVAlternateArtCategory(cards),
     createRainbowRareCategory(cards),
+    createShinyVaultCategory(cards),
     ...createOtherCategories(cards),
   ]
     .map((definition) => ({

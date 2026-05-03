@@ -11,6 +11,7 @@ const wanted = new Set([
   'rare holo v',
   'rare ultra',
   'rare secret',
+  'rare shiny',
 ]);
 
 const reverseIds = new Set([
@@ -27,7 +28,12 @@ const reverseIds = new Set([
 
 function getFoilParts(card) {
   const rarity = card.rarity.toLowerCase();
-  if (!wanted.has(rarity) && !reverseIds.has(card.id)) {
+  const isShiny = card.number.toLowerCase().startsWith('sv');
+  if (
+    !wanted.has(rarity) &&
+    !(isShiny && rarity === 'rare holo vmax') &&
+    !reverseIds.has(card.id)
+  ) {
     return null;
   }
 
@@ -37,29 +43,44 @@ function getFoilParts(card) {
     .toLowerCase()
     .replace(/(tg|gg|sv)/, '');
   const isGallery = !!card.number.match(/^[tg]g/i);
-  const isShiny = card.number.toLowerCase().startsWith('sv');
   const isReverse = reverseIds.has(card.id);
+  const displayRarity = isShiny
+    ? rarity === 'rare holo vmax' || card.subtypes.includes('VMAX')
+      ? 'rare shiny vmax'
+      : rarity === 'rare holo v' || card.subtypes.includes('V')
+        ? 'rare shiny v'
+        : 'rare shiny'
+    : rarity;
   const etch =
-    rarity === 'amazing rare' ||
-    rarity === 'rare ultra' ||
-    rarity === 'rare secret' ||
-    ((isGallery || isShiny) && rarity === 'rare holo v')
+    displayRarity === 'amazing rare' ||
+    displayRarity === 'rare ultra' ||
+    displayRarity === 'rare secret' ||
+    displayRarity === 'rare shiny' ||
+    displayRarity === 'rare shiny v' ||
+    displayRarity === 'rare shiny vmax' ||
+    ((isGallery || isShiny) && displayRarity === 'rare holo v')
       ? 'etched'
       : 'holo';
   const style =
-    rarity === 'amazing rare'
+    displayRarity === 'amazing rare'
       ? 'swsecret'
-      : rarity === 'rare holo'
+      : displayRarity === 'rare holo'
         ? 'swholo'
-        : rarity === 'rare holo v'
+        : displayRarity === 'rare holo v'
           ? 'sunpillar'
-          : rarity === 'rare ultra'
+          : displayRarity === 'rare ultra'
             ? 'sunpillar'
-            : rarity === 'rare secret'
+            : displayRarity === 'rare secret'
               ? 'swsecret'
-              : isReverse
-                ? 'reverse'
-                : 'cosmos';
+              : displayRarity === 'rare shiny'
+                ? 'sunpillar'
+                : displayRarity === 'rare shiny v'
+                  ? 'sunpillar'
+                  : displayRarity === 'rare shiny vmax'
+                    ? 'swsecret'
+                    : isReverse
+                      ? 'reverse'
+                      : 'cosmos';
 
   return { number, set, etch, style };
 }

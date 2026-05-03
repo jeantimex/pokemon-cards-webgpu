@@ -10,7 +10,12 @@ import './effects/pokemon-v-full-art/index.css';
 import './effects/pokemon-v-alternate-art/index.css';
 import './effects/radiant-holofoil/index.css';
 import './effects/rainbow-rare/index.css';
-import { getLocalCardImageUrl, getLocalFoilImageUrl } from './effects/asset-paths';
+import './effects/shiny-vault/index.css';
+import {
+  getDisplayRarity,
+  getLocalCardImageUrl,
+  getLocalFoilImageUrl,
+} from './effects/asset-paths';
 import { buildCardLibrary } from './effects/library';
 import type { Card } from './types';
 import shaderCode from './shaders.wgsl?raw';
@@ -181,7 +186,12 @@ async function init() {
     return seed;
   }
 
-  function updateCssCard(card: Card, imageUrl: string, variant: 'standard' | 'reverse-holo') {
+  function updateCssCard(
+    card: Card,
+    imageUrl: string,
+    categoryName: string,
+    variant: 'standard' | 'reverse-holo',
+  ) {
     const randomSeed = getCssCardSeed(card);
     const cosmosPosition = {
       x: Math.floor(randomSeed.x * 734),
@@ -189,17 +199,14 @@ async function init() {
     };
 
     cssCard.className = `${getCardClass(card)} loading`;
-    const maskUrl = getLocalFoilImageUrl(card, 'masks', variant);
-    const foilUrl = getLocalFoilImageUrl(card, 'foils', variant);
+    const maskUrl = getLocalFoilImageUrl(card, 'masks', categoryName, variant);
+    const foilUrl = getLocalFoilImageUrl(card, 'foils', categoryName, variant);
     cssCard.classList.toggle('masked', !!maskUrl);
     cssCard.dataset.number = card.number.toLowerCase();
     cssCard.dataset.set = card.set;
     cssCard.dataset.subtypes = (card.subtypes ?? []).join(' ').toLowerCase();
     cssCard.dataset.supertype = card.supertype.toLowerCase();
-    cssCard.dataset.rarity =
-      variant === 'reverse-holo'
-        ? `${card.rarity.toLowerCase()} reverse holo`
-        : card.rarity.toLowerCase();
+    cssCard.dataset.rarity = getDisplayRarity(card, categoryName, variant);
     cssCard.dataset.trainerGallery = String(!!card.number.match(/^[tg]g/i));
     cssCardRotator.setAttribute('aria-label', `Expand the Pokemon Card; ${card.name}.`);
     cssCardImage.alt = `Front design of the ${card.name} Pokemon Card, with the stats and info around the edge`;
@@ -264,7 +271,7 @@ async function init() {
 
   async function updateCard(card: Card, categoryName: string) {
     const imageUrl = getLocalCardImageUrl(card.images.large);
-    updateCssCard(card, imageUrl, cardLibrary.variants[categoryName]);
+    updateCssCard(card, imageUrl, categoryName, cardLibrary.variants[categoryName]);
     await updateTexture(imageUrl);
   }
 
