@@ -3,6 +3,7 @@ struct Uniforms {
     pointer: vec2f,
     rotation: vec2f,
     time: f32,
+    dpr: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -65,11 +66,21 @@ fn sdRoundedRect(p: vec2f, b: vec2f, r: f32) -> f32 {
     return min(max(q.x, q.y), 0.0) + length(max(q, vec2f(0.0))) - r;
 }
 
+fn getCardSize() -> vec2f {
+    let cardAspect = 0.718;
+    let canvasAspect = uniforms.resolution.x / uniforms.resolution.y;
+    let panePadding = 48.0 * uniforms.dpr;
+    let maxWidthFromHeight = 0.6;
+    let maxWidthFromPane = max((uniforms.resolution.x - panePadding) / uniforms.resolution.y, 0.0);
+    let cardWidth = min(maxWidthFromHeight, maxWidthFromPane);
+    return vec2f(cardWidth, cardWidth / cardAspect);
+}
+
 @fragment
 fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
-    let cardSize = vec2f(0.6, 0.6 / 0.718);
+    let cardSize = getCardSize();
     let cornerRadius = 0.04;
-    let pxToLocal = 2.0 / uniforms.resolution.y;
+    let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
     
     // Distance to card edge (for clipping and rounding)
     let dist = sdRoundedRect(localPos, cardSize, cornerRadius);

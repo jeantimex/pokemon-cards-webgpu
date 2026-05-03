@@ -28,16 +28,19 @@ async function init() {
   const canvas = document.querySelector<HTMLCanvasElement>('#webgpu-canvas')!;
   const cssCardImage = document.querySelector<HTMLImageElement>('#css-card-image')!;
   const cssPane = document.querySelector<HTMLElement>('.pane-css')!;
+  const webgpuPane = document.querySelector<HTMLElement>('.pane-webgpu')!;
   const context = canvas.getContext('webgpu')!;
 
-  const devicePixelRatio = window.devicePixelRatio || 1;
+  let devicePixelRatio = window.devicePixelRatio || 1;
   const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
 
-  context.configure({
+  const canvasConfiguration: GPUCanvasConfiguration = {
     device,
     format: presentationFormat,
     alphaMode: 'premultiplied',
-  });
+  };
+
+  context.configure(canvasConfiguration);
 
   // Fetch card data
   const cardsResponse = await fetch('/cards.json');
@@ -126,6 +129,11 @@ async function init() {
 
   let texture: GPUTexture | null = null;
   let bindGroup: GPUBindGroup | null = null;
+
+  function getLocalCardImageUrl(imageUrl: string) {
+    const url = new URL(imageUrl);
+    return `/cards${url.pathname}`;
+  }
 
   async function updateTexture(url: string) {
     cssCardImage.src = url;
@@ -259,7 +267,7 @@ async function init() {
             cardDropdown.options(getCardMap(cat));
             cardDropdown.updateDisplay();
             
-            await updateTexture(firstCard.images.large);
+            await updateTexture(getLocalCardImageUrl(firstCard.images.large));
         }
     });
 
@@ -272,12 +280,12 @@ async function init() {
     .onChange(async (id: string) => {
       const card = cards.find(c => c.id === id);
       if (card) {
-        await updateTexture(card.images.large);
+        await updateTexture(getLocalCardImageUrl(card.images.large));
       }
     });
 
   // Initial texture load
-  await updateTexture(initialCard.images.large);
+  await updateTexture(getLocalCardImageUrl(initialCard.images.large));
 
   let mouseX = 0.5;
   let mouseY = 0.5;
@@ -327,14 +335,30 @@ async function init() {
   window.addEventListener('blur', resetCardRotation);
 
   const startTime = performance.now();
+  let renderWidth = 1;
+  let renderHeight = 1;
+
+  function resizeCanvas() {
+    devicePixelRatio = window.devicePixelRatio || 1;
+
+    const rect = webgpuPane.getBoundingClientRect();
+    renderWidth = Math.max(1, Math.round(rect.width * devicePixelRatio));
+    renderHeight = Math.max(1, Math.round(rect.height * devicePixelRatio));
+
+    if (canvas.width !== renderWidth || canvas.height !== renderHeight) {
+      canvas.width = renderWidth;
+      canvas.height = renderHeight;
+      context.configure(canvasConfiguration);
+    }
+  }
+
+  const resizeObserver = new ResizeObserver(resizeCanvas);
+  resizeObserver.observe(webgpuPane);
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
 
   function frame() {
-    const width = canvas.clientWidth * devicePixelRatio;
-    const height = canvas.clientHeight * devicePixelRatio;
-    if (canvas.width !== width || canvas.height !== height) {
-      canvas.width = width;
-      canvas.height = height;
-    }
+    resizeCanvas();
 
     currentRotationX += (targetRotationX - currentRotationX) * 0.15;
     currentRotationY += (targetRotationY - currentRotationY) * 0.15;
@@ -343,10 +367,10 @@ async function init() {
     const time = (performance.now() - startTime) / 1000;
 
     const uniformData = new Float32Array([
-        width, height, 
+        renderWidth, renderHeight,
         mouseX, mouseY, 
         currentRotationX, currentRotationY,
-        time, 0 
+        time, devicePixelRatio 
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
