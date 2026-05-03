@@ -4,6 +4,7 @@ import { createCommonAndUncommonCategory } from './common-and-uncommon/category'
 import { createGalaxyCosmosHolofoilCategory } from './galaxy-cosmos-holofoil/category';
 import { createHolofoilAmazingRareCategory } from './holofoil-amazing-rare/category';
 import { createHolofoilRareCategory } from './holofoil-rare/category';
+import { createTrainerGalleryHoloCategory } from './trainer-gallery-holo/category';
 import { createSecretRareCategory } from './secret-rare/category';
 import { createShinyVaultCategory } from './shiny-vault/category';
 import { createPokemonVAlternateArtCategory } from './pokemon-v-alternate-art/category';
@@ -31,6 +32,7 @@ export function buildCardLibrary(cards: Card[], excludedCardIds: Set<string>): C
     createCommonAndUncommonCategory(cards),
     createReverseHoloCategory(cards),
     createHolofoilRareCategory(cards),
+    createTrainerGalleryHoloCategory(cards),
     createGalaxyCosmosHolofoilCategory(cards),
     createHolofoilAmazingRareCategory(cards),
     createRadiantHolofoilCategory(cards),

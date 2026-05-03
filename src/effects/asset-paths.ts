@@ -36,21 +36,23 @@ export function getLocalFoilImageUrl(
   variant: EffectVariant,
 ) {
   const rarity = getDisplayRarity(card, categoryName, variant);
+  const assetRarity = rarity === 'trainer gallery rare holo' ? 'rare holo' : rarity;
   const isReverse = variant === 'reverse-holo';
+  const isTrainerGalleryHolo = rarity === 'trainer gallery rare holo';
 
   if (
-    rarity !== 'rare holo cosmos' &&
-    rarity !== 'amazing rare' &&
-    rarity !== 'rare holo' &&
-    rarity !== 'rare holo v' &&
-    rarity !== 'rare holo vmax' &&
-    rarity !== 'rare holo vstar' &&
-    rarity !== 'rare ultra' &&
-    rarity !== 'rare secret' &&
-    rarity !== 'rare rainbow alt' &&
-    rarity !== 'rare shiny' &&
-    rarity !== 'rare shiny v' &&
-    rarity !== 'rare shiny vmax' &&
+    assetRarity !== 'rare holo cosmos' &&
+    assetRarity !== 'amazing rare' &&
+    assetRarity !== 'rare holo' &&
+    assetRarity !== 'rare holo v' &&
+    assetRarity !== 'rare holo vmax' &&
+    assetRarity !== 'rare holo vstar' &&
+    assetRarity !== 'rare ultra' &&
+    assetRarity !== 'rare secret' &&
+    assetRarity !== 'rare rainbow alt' &&
+    assetRarity !== 'rare shiny' &&
+    assetRarity !== 'rare shiny v' &&
+    assetRarity !== 'rare shiny vmax' &&
     !isReverse
   ) {
     return '';
@@ -63,44 +65,46 @@ export function getLocalFoilImageUrl(
     .replace(/(tg|gg|sv)/, '');
   const isGallery = !!card.number.match(/^[tg]g/i);
   const isShiny = card.number.toLowerCase().startsWith('sv');
-  const isVMaxAlt = rarity === 'rare rainbow alt' && card.subtypes?.includes('VMAX');
+  const isVMaxAlt = assetRarity === 'rare rainbow alt' && card.subtypes?.includes('VMAX');
   const etch =
-    rarity === 'amazing rare' ||
-    rarity === 'rare ultra' ||
-    rarity === 'rare secret' ||
-    rarity === 'rare holo vmax' ||
-    rarity === 'rare holo vstar' ||
-    rarity === 'rare rainbow alt' ||
-    rarity === 'rare shiny' ||
-    rarity === 'rare shiny v' ||
-    rarity === 'rare shiny vmax' ||
-    ((isGallery || isShiny) && rarity === 'rare holo v')
+    assetRarity === 'amazing rare' ||
+    assetRarity === 'rare ultra' ||
+    assetRarity === 'rare secret' ||
+    assetRarity === 'rare holo vmax' ||
+    assetRarity === 'rare holo vstar' ||
+    assetRarity === 'rare rainbow alt' ||
+    assetRarity === 'rare shiny' ||
+    assetRarity === 'rare shiny v' ||
+    assetRarity === 'rare shiny vmax' ||
+    ((isGallery || isShiny || isTrainerGalleryHolo) && assetRarity === 'rare holo v')
       ? 'etched'
       : 'holo';
   const style =
-    rarity === 'amazing rare'
+    assetRarity === 'amazing rare'
       ? 'swsecret'
-      : rarity === 'rare holo'
-        ? 'swholo'
-        : rarity === 'rare holo v'
+      : assetRarity === 'rare holo'
+        ? isTrainerGalleryHolo || isGallery
+          ? 'rainbow'
+          : 'swholo'
+        : assetRarity === 'rare holo v'
           ? 'sunpillar'
-          : rarity === 'rare holo vmax'
+          : assetRarity === 'rare holo vmax'
             ? 'sunpillar'
-            : rarity === 'rare holo vstar'
+            : assetRarity === 'rare holo vstar'
               ? 'sunpillar'
-              : rarity === 'rare ultra'
+              : assetRarity === 'rare ultra'
                 ? 'sunpillar'
-                : rarity === 'rare secret'
+                : assetRarity === 'rare secret'
                   ? 'swsecret'
-                  : rarity === 'rare rainbow alt'
+                  : assetRarity === 'rare rainbow alt'
                     ? isVMaxAlt
                       ? 'swsecret'
                       : 'sunpillar'
-                    : rarity === 'rare shiny'
+                    : assetRarity === 'rare shiny'
                       ? 'sunpillar'
-                      : rarity === 'rare shiny v'
+                      : assetRarity === 'rare shiny v'
                         ? 'sunpillar'
-                        : rarity === 'rare shiny vmax'
+                        : assetRarity === 'rare shiny vmax'
                           ? 'swsecret'
                           : isReverse
                             ? 'reverse'

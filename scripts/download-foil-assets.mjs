@@ -15,6 +15,7 @@ const wanted = new Set([
   'rare secret',
   'rare rainbow alt',
   'rare shiny',
+  'trainer gallery rare holo',
 ]);
 
 const reverseIds = new Set([
@@ -43,13 +44,14 @@ function getFoilParts(card) {
     .replace(/(tg|gg|sv)/, '');
   const isGallery = !!card.number.match(/^[tg]g/i);
   const isReverse = reverseIds.has(card.id);
+  const assetRarity = rarity === 'trainer gallery rare holo' ? 'rare holo' : rarity;
   const displayRarity = isShiny
-    ? rarity === 'rare holo vmax' || card.subtypes?.includes('VMAX')
+    ? assetRarity === 'rare holo vmax' || card.subtypes?.includes('VMAX')
       ? 'rare shiny vmax'
-      : rarity === 'rare holo v' || card.subtypes?.includes('V')
+      : assetRarity === 'rare holo v' || card.subtypes?.includes('V')
         ? 'rare shiny v'
         : 'rare shiny'
-    : rarity;
+    : assetRarity;
   const etch =
     displayRarity === 'amazing rare' ||
     displayRarity === 'rare ultra' ||
@@ -60,14 +62,15 @@ function getFoilParts(card) {
     displayRarity === 'rare shiny' ||
     displayRarity === 'rare shiny v' ||
     displayRarity === 'rare shiny vmax' ||
-    ((isGallery || isShiny) && displayRarity === 'rare holo v')
+    ((isGallery || isShiny || rarity === 'trainer gallery rare holo') &&
+      displayRarity === 'rare holo v')
       ? 'etched'
       : 'holo';
   let style = 'cosmos';
   if (displayRarity === 'amazing rare') {
     style = 'swsecret';
   } else if (displayRarity === 'rare holo') {
-    style = 'swholo';
+    style = isGallery || rarity === 'trainer gallery rare holo' ? 'rainbow' : 'swholo';
   } else if (displayRarity === 'rare holo v') {
     style = 'sunpillar';
   } else if (displayRarity === 'rare holo vmax') {
