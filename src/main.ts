@@ -3,6 +3,7 @@ import './effects/common-and-uncommon/index.css';
 import './effects/galaxy-cosmos-holofoil/index.css';
 import './effects/holofoil-amazing-rare/index.css';
 import './effects/holofoil-rare/index.css';
+import './effects/reverse-holo/index.css';
 import './effects/pokemon-v/index.css';
 import './effects/pokemon-v-full-art/index.css';
 import './effects/pokemon-v-alternate-art/index.css';
@@ -163,14 +164,16 @@ async function init() {
     return `/cards${url.pathname}`;
   }
 
-  function getLocalFoilImageUrl(card: Card, type: 'foils' | 'masks') {
+  function getLocalFoilImageUrl(card: Card, type: 'foils' | 'masks', category: string) {
     const rarity = card.rarity.toLowerCase();
+    const isReverse = category === 'Reverse Holo non-rares';
     if (
       rarity !== 'rare holo cosmos' &&
       rarity !== 'amazing rare' &&
       rarity !== 'rare holo' &&
       rarity !== 'rare holo v' &&
-      rarity !== 'rare ultra'
+      rarity !== 'rare ultra' &&
+      !isReverse
     ) {
       return '';
     }
@@ -197,7 +200,9 @@ async function init() {
             ? 'sunpillar'
             : rarity === 'rare ultra'
               ? 'sunpillar'
-              : 'cosmos';
+              : isReverse
+                ? 'reverse'
+                : 'cosmos';
 
     return `/foils/${foilSet}/${type}/upscaled/${foilNumber}_foil_${etch}_${style}_2x.webp`;
   }
@@ -234,7 +239,7 @@ async function init() {
     return seed;
   }
 
-  function updateCssCard(card: Card, imageUrl: string) {
+  function updateCssCard(card: Card, imageUrl: string, category: string) {
     const randomSeed = getCssCardSeed(card);
     const cosmosPosition = {
       x: Math.floor(randomSeed.x * 734),
@@ -242,14 +247,17 @@ async function init() {
     };
 
     cssCard.className = `${getCardClass(card)} loading`;
-    const maskUrl = getLocalFoilImageUrl(card, 'masks');
-    const foilUrl = getLocalFoilImageUrl(card, 'foils');
+    const maskUrl = getLocalFoilImageUrl(card, 'masks', category);
+    const foilUrl = getLocalFoilImageUrl(card, 'foils', category);
     cssCard.classList.toggle('masked', !!maskUrl);
     cssCard.dataset.number = card.number.toLowerCase();
     cssCard.dataset.set = card.set;
     cssCard.dataset.subtypes = (card.subtypes ?? []).join(' ').toLowerCase();
     cssCard.dataset.supertype = card.supertype.toLowerCase();
-    cssCard.dataset.rarity = card.rarity.toLowerCase();
+    cssCard.dataset.rarity =
+      category === 'Reverse Holo non-rares'
+        ? `${card.rarity.toLowerCase()} reverse holo`
+        : card.rarity.toLowerCase();
     cssCard.dataset.trainerGallery = String(!!card.number.match(/^[tg]g/i));
     cssCardRotator.setAttribute('aria-label', `Expand the Pokemon Card; ${card.name}.`);
     cssCardImage.alt = `Front design of the ${card.name} Pokemon Card, with the stats and info around the edge`;
@@ -310,9 +318,9 @@ async function init() {
     });
   }
 
-  async function updateCard(card: Card) {
+  async function updateCard(card: Card, category: string) {
     const imageUrl = getLocalCardImageUrl(card.images.large);
-    updateCssCard(card, imageUrl);
+    updateCssCard(card, imageUrl, category);
     await updateTexture(imageUrl);
   }
 
@@ -425,7 +433,7 @@ async function init() {
         cardDropdown.options(getCardMap(cat));
         cardDropdown.updateDisplay();
 
-        await updateCard(firstCard);
+        await updateCard(firstCard, cat);
       }
     });
 
@@ -439,12 +447,12 @@ async function init() {
     .onChange(async (id: string) => {
       const card = cards.find((c) => c.id === id);
       if (card) {
-        await updateCard(card);
+        await updateCard(card, guiState.category);
       }
     });
 
   // Initial texture load
-  await updateCard(initialCard);
+  await updateCard(initialCard, guiState.category);
 
   let mouseX = 0.5;
   let mouseY = 0.5;

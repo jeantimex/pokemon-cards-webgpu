@@ -12,9 +12,21 @@ const wanted = new Set([
   'rare ultra',
 ]);
 
+const reverseIds = new Set([
+  'swsh12-127',
+  'swsh12-85',
+  'swsh12-116',
+  'swsh9-120',
+  'swsh12-49',
+  'swsh8-138',
+  'pgo-69',
+  'swsh1-173',
+  'swsh9-150',
+]);
+
 function getFoilParts(card) {
   const rarity = card.rarity.toLowerCase();
-  if (!wanted.has(rarity)) {
+  if (!wanted.has(rarity) && !reverseIds.has(card.id)) {
     return null;
   }
 
@@ -25,6 +37,7 @@ function getFoilParts(card) {
     .replace(/(tg|gg|sv)/, '');
   const isGallery = !!card.number.match(/^[tg]g/i);
   const isShiny = card.number.toLowerCase().startsWith('sv');
+  const isReverse = reverseIds.has(card.id);
   const etch =
     rarity === 'amazing rare' ||
     rarity === 'rare ultra' ||
@@ -40,7 +53,9 @@ function getFoilParts(card) {
           ? 'sunpillar'
           : rarity === 'rare ultra'
             ? 'sunpillar'
-            : 'cosmos';
+            : isReverse
+              ? 'reverse'
+              : 'cosmos';
 
   return { number, set, etch, style };
 }
