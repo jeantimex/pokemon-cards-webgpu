@@ -194,12 +194,38 @@ async function init() {
     'Shiny Vault': cards.slice(85, 91),
   };
 
+  const descriptions: Record<string, string> = {
+    'Secret Rare (Gold)': 'GOLD! Here we apply two glitter layers on top of each other with a overlay effect and slide the two layers in opposite directions.',
+    'Common & Uncommon': 'All cards get a 3d rotation with CSS based on the cursor position. The default basic non-holo cards simply apply a flare/glare effect.',
+    'Reverse Holo non-rares': 'Reverse holo cards come in many shapes and sizes. The background uses a foil and a mask layer along with a glare.',
+    'Holofoil Rare': 'Holo cards have an additional vertical beam holo effect. This uses a combintation of repeating gradients and filters.',
+    'Galaxy/Cosmos Holofoil': 'Special image background of a galaxy effect with a gradient rainbow set to color-dodge & color-burn on top.',
+    'Holofoil Amazing Rare': 'Unique shiny foil that extends past the frame and is much shinier than a regular holo effect, and textured.',
+    'Radiant Holofoil': 'The newest holofoil added to the series! Uses a criss-cross linear gradient pattern that moves across the card.',
+    'Trainer Gallery Holofoil': 'Kind of metallic effect with iridescent shine. Achieved with a large color dodge linear gradient.',
+    'Pokemon V': 'Diagonal holographic effect which that appears to travel in opposite directions when you tilt the card.',
+    'Pokemon V (Full Art)': 'Similar to the Pokemon V effect, but they have additional texture when looked at from certain angles.',
+    'Pokemon V (Alternate Art)': 'Practically the same holo effect as the Ultra Rare (Full Art) cards. The only difference is the pattern texture.',
+    'VMax': 'The gradient effect of Pokemon VMax is more subtle, using a larger background gradient which moves more slowly.',
+    'VMax (Alternate/Rainbow)': 'Vibrant and glittery overlay. Achieved with a background image of glitter/sparkles sandwiching linear gradients.',
+    'VStar': 'Diagonal gradients overlaying a texture. Brighter with a pastel hue, making the gradient and texture more subtle.',
+    'Trainer Holo': 'Diagonal gradients overlaying a texture, quite similar to the Ultra Rare cards but generally brighter.',
+    'Rainbow Rare': 'Super glittery effect on top of pastel gradients. Achieved with background glitter and color-burn/hard-light blends.',
+    'Trainer Gallery (V / VMax)': 'Generally quite similar to the normal V and VMax cards, with a different background texture.',
+    'Shiny Vault': 'Foil background is a shiny silver color. Applied with radial gradients to darken the foil over the background.',
+  };
+
   // GUI Setup
   const gui = new GUI({ title: 'Card Library' });
   const guiState = {
     category: 'Secret Rare (Gold)',
-    activeId: activeCard.id
+    activeId: activeCard.id,
   };
+
+  // Create a plain text element for the description
+  const descEl = document.createElement('div');
+  descEl.className = 'gui-description';
+  descEl.textContent = descriptions[guiState.category];
 
   // Helper to get card map for a category
   const getCardMap = (cat: string) => {
@@ -207,7 +233,7 @@ async function init() {
   };
 
   // Dropdown for Type (Category)
-  gui.add(guiState, 'category', Object.keys(categories))
+  const typeController = gui.add(guiState, 'category', Object.keys(categories))
     .name('Type')
     .onChange(async (cat: string) => {
         const group = categories[cat];
@@ -215,13 +241,17 @@ async function init() {
             const firstCard = group[0];
             guiState.activeId = firstCard.id;
             
-            // Update Card dropdown options
+            // Update Description and Card dropdown options
+            descEl.textContent = descriptions[cat];
             cardDropdown.options(getCardMap(cat));
             cardDropdown.updateDisplay();
             
             await updateTexture(firstCard.images.large);
         }
     });
+
+  // Inject the description element after the Type dropdown
+  typeController.domElement.parentElement?.appendChild(descEl);
 
   // Dropdown for specific Card
   const cardDropdown = gui.add(guiState, 'activeId', getCardMap(guiState.category))

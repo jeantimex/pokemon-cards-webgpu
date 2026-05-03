@@ -12,3 +12,15 @@ canvas {
   width: 100vw;
   height: 100vh;
 }
+
+/* GUI Custom Styles */
+.gui-description {
+  padding: 8px 12px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #bbb;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid #333;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-style: italic;
+}
