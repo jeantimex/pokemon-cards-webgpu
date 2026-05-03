@@ -26,6 +26,8 @@ async function init() {
   const device = await adapter.requestDevice();
 
   const canvas = document.querySelector<HTMLCanvasElement>('#webgpu-canvas')!;
+  const cssCardImage = document.querySelector<HTMLImageElement>('#css-card-image')!;
+  const cssPane = document.querySelector<HTMLElement>('.pane-css')!;
   const context = canvas.getContext('webgpu')!;
 
   const devicePixelRatio = window.devicePixelRatio || 1;
@@ -40,9 +42,7 @@ async function init() {
   // Fetch card data
   const cardsResponse = await fetch('/cards.json');
   const cards: Card[] = await cardsResponse.json();
-
-  // Initial card (Showcase Pikachu)
-  let activeCard = cards[0];
+  const excludedCardIds = new Set(['swsh12pt5-160']);
 
   const sampler = device.createSampler({
     magFilter: 'linear',
@@ -128,6 +128,8 @@ async function init() {
   let bindGroup: GPUBindGroup | null = null;
 
   async function updateTexture(url: string) {
+    cssCardImage.src = url;
+
     const response = await fetch(url);
     const blob = await response.blob();
     const source = await createImageBitmap(blob);
@@ -169,12 +171,9 @@ async function init() {
     });
   }
 
-  // Initial texture load
-  await updateTexture(activeCard.images.large);
-
   // Group cards into Logical Sections matching the homepage
-  const categories: Record<string, Card[]> = {
-    'Secret Rare (Gold)': [cards[0], ...cards.slice(58, 64)],
+  const unsortedCategories: Record<string, Card[]> = {
+    'Secret Rare (Gold)': cards.slice(58, 64),
     'Common & Uncommon': cards.slice(1, 4),
     'Reverse Holo non-rares': [...cards.slice(4, 7), ...cards.slice(70, 76)],
     'Holofoil Rare': cards.slice(7, 13),
@@ -193,6 +192,20 @@ async function init() {
     'Trainer Gallery (V / VMax)': cards.slice(64, 70),
     'Shiny Vault': cards.slice(85, 91),
   };
+  const categories = Object.fromEntries(
+    Object.entries(unsortedCategories)
+      .map(([category, categoryCards]) => [
+        category,
+        categoryCards
+          .filter(card => !excludedCardIds.has(card.id))
+          .sort((a, b) => a.name.localeCompare(b.name)),
+      ] as const)
+      .filter(([, categoryCards]) => categoryCards.length > 0)
+      .sort(([a], [b]) => a.localeCompare(b))
+  );
+  const categoryNames = Object.keys(categories);
+  const initialCategory = categoryNames[0];
+  const initialCard = categories[initialCategory][0];
 
   const descriptions: Record<string, string> = {
     'Secret Rare (Gold)': 'GOLD! Here we apply two glitter layers on top of each other with a overlay effect and slide the two layers in opposite directions.',
@@ -218,8 +231,8 @@ async function init() {
   // GUI Setup
   const gui = new GUI({ title: 'Card Library' });
   const guiState = {
-    category: 'Secret Rare (Gold)',
-    activeId: activeCard.id,
+    category: initialCategory,
+    activeId: initialCard.id,
   };
 
   // Create a plain text element for the description
@@ -233,7 +246,7 @@ async function init() {
   };
 
   // Dropdown for Type (Category)
-  const typeController = gui.add(guiState, 'category', Object.keys(categories))
+  const typeController = gui.add(guiState, 'category', categoryNames)
     .name('Type')
     .onChange(async (cat: string) => {
         const group = categories[cat];
@@ -263,6 +276,9 @@ async function init() {
       }
     });
 
+  // Initial texture load
+  await updateTexture(initialCard.images.large);
+
   let mouseX = 0.5;
   let mouseY = 0.5;
   let targetRotationX = 0;
@@ -270,15 +286,45 @@ async function init() {
   let currentRotationX = 0;
   let currentRotationY = 0;
 
+  function updateCssCardRotation(rotationX: number, rotationY: number) {
+    cssCardImage.style.setProperty('--css-card-rotate-x', `${-rotationY}rad`);
+    cssCardImage.style.setProperty('--css-card-rotate-y', `${rotationX}rad`);
+  }
+
+  function resetCardRotation() {
+    mouseX = 0.5;
+    mouseY = 0.5;
+    targetRotationX = 0;
+    targetRotationY = 0;
+  }
+
   window.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX / window.innerWidth;
-    mouseY = e.clientY / window.innerHeight;
+    const cssRect = cssPane.getBoundingClientRect();
+    const isOverCssPane = e.clientX >= cssRect.left && e.clientX <= cssRect.right
+      && e.clientY >= cssRect.top && e.clientY <= cssRect.bottom;
+    const webgpuRect = canvas.getBoundingClientRect();
+    const isOverWebgpuPane = e.clientX >= webgpuRect.left && e.clientX <= webgpuRect.right
+      && e.clientY >= webgpuRect.top && e.clientY <= webgpuRect.bottom;
+    const activeRect = isOverCssPane ? cssRect : isOverWebgpuPane ? webgpuRect : null;
+
+    if (!activeRect) {
+      resetCardRotation();
+      return;
+    }
+
+    mouseX = (e.clientX - activeRect.left) / activeRect.width;
+    mouseY = (e.clientY - activeRect.top) / activeRect.height;
+    mouseX = Math.min(Math.max(mouseX, 0), 1);
+    mouseY = Math.min(Math.max(mouseY, 0), 1);
     
     const centerX = mouseX - 0.5;
     const centerY = mouseY - 0.5;
     targetRotationX = -centerX * (Math.PI / 6); 
     targetRotationY = -centerY * (Math.PI / 6);
   });
+
+  document.addEventListener('mouseleave', resetCardRotation);
+  window.addEventListener('blur', resetCardRotation);
 
   const startTime = performance.now();
 
@@ -292,6 +338,7 @@ async function init() {
 
     currentRotationX += (targetRotationX - currentRotationX) * 0.15;
     currentRotationY += (targetRotationY - currentRotationY) * 0.15;
+    updateCssCardRotation(currentRotationX, currentRotationY);
 
     const time = (performance.now() - startTime) / 1000;
 

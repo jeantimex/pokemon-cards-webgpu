@@ -7,7 +7,16 @@
     <title>pokemon-cards-webgpu</title>
   </head>
   <body>
-    <canvas id="webgpu-canvas"></canvas>
+    <main class="comparison">
+      <section class="pane pane-css" aria-label="CSS card comparison pane">
+        <div class="pane-label">CSS</div>
+        <img id="css-card-image" class="comparison-card" alt="" />
+      </section>
+      <section class="pane pane-webgpu" aria-label="WebGPU card comparison pane">
+        <div class="pane-label">WebGPU</div>
+        <canvas id="webgpu-canvas"></canvas>
+      </section>
+    </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

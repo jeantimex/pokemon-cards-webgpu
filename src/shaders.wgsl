@@ -69,20 +69,21 @@ fn sdRoundedRect(p: vec2f, b: vec2f, r: f32) -> f32 {
 fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
     let cardSize = vec2f(0.6, 0.6 / 0.718);
     let cornerRadius = 0.04;
+    let pxToLocal = 2.0 / uniforms.resolution.y;
     
     // Distance to card edge (for clipping and rounding)
     let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
-    
-    // --- Shadow Calculation ---
-    // Layered shadows to match CSS: 0px 10px 20px -5px black
-    
-    // Offset localPos for shadow (moved down)
-    let shadowPos = localPos - vec2f(0.0, -0.02);
-    let shadowDist = sdRoundedRect(shadowPos, cardSize, cornerRadius);
-    
-    // Tightened shadow alpha (less blur)
-    let shadowAlpha = 1.0 - smoothstep(-0.05, 0.1, shadowDist);
-    let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha * 0.5);
+
+    // Keep the shader shadow visually aligned with CSS box-shadow: 0 18px 34px -7px black.
+    let shadowOffset = 22.0 * pxToLocal;
+    let shadowBlur = 34.0 * pxToLocal;
+    let shadowSpread = -7.0 * pxToLocal;
+    let shadowPos = localPos - vec2f(0.0, -shadowOffset);
+    let shadowSize = cardSize + vec2f(shadowSpread);
+    let shadowRadius = max(cornerRadius + shadowSpread, 0.0);
+    let shadowDist = sdRoundedRect(shadowPos, shadowSize, shadowRadius);
+    let shadowAlpha = 1.0 - smoothstep(-shadowBlur, shadowBlur, shadowDist);
+    let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha);
     
     // Sample texture only if within card bounds
     // Map localPos.y to UV.y inverting it for top-left origin
@@ -95,20 +96,13 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     // Antialiased clipping for card edges
     let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
     let finalCard = vec4f(textureColor.rgb, textureColor.a * cardMask);
-    
-    // --- Compositing ---
-    
-    // Start with background (handled by clear color, so we output pre-multiplied alpha)
-    // Blend: Shadow then Card
-    
-    var finalColor = shadowColor;
-    // Simple manual blend: over operator
-    finalColor = vec4f(
-        mix(finalColor.rgb, finalCard.rgb, finalCard.a),
-        max(finalColor.a, finalCard.a)
+
+    let finalColor = vec4f(
+        mix(shadowColor.rgb, finalCard.rgb, finalCard.a),
+        max(shadowColor.a, finalCard.a)
     );
-    
+
     if (finalColor.a <= 0.0) { discard; }
-    
+
     return finalColor;
 }
