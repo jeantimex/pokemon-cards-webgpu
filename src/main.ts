@@ -4,6 +4,7 @@ import './effects/galaxy-cosmos-holofoil/index.css';
 import './effects/holofoil-amazing-rare/index.css';
 import './effects/holofoil-rare/index.css';
 import './effects/trainer-gallery-holo/index.css';
+import './effects/trainer-holo/index.css';
 import './effects/secret-rare/index.css';
 import './effects/reverse-holo/index.css';
 import './effects/pokemon-v/index.css';

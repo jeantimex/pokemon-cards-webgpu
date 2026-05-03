@@ -18,10 +18,5 @@ export function createOtherCategories(cards: Card[]) {
       'Diagonal gradients overlaying a texture. Brighter with a pastel hue, making the gradient and texture more subtle.',
       cards.slice(43, 46),
     ),
-    createCategory(
-      'Trainer Holo',
-      'Diagonal gradients overlaying a texture, quite similar to the Ultra Rare cards but generally brighter.',
-      cards.slice(46, 52),
-    ),
   ];
 }
