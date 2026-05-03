@@ -1,0 +1,14 @@
+dist
+node_modules
+pokemon-cards-css
+package-lock.json
+public/css
+public/cards.json
+public/cards
+public/foils
+public/img
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
