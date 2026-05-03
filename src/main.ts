@@ -9,22 +9,11 @@ import './effects/pokemon-v-full-art/index.css';
 import './effects/pokemon-v-alternate-art/index.css';
 import './effects/radiant-holofoil/index.css';
 import './effects/rainbow-rare/index.css';
+import { getLocalCardImageUrl, getLocalFoilImageUrl } from './effects/asset-paths';
+import { buildCardLibrary } from './effects/library';
+import type { Card } from './types';
 import shaderCode from './shaders.wgsl?raw';
 import { GUI } from 'lil-gui';
-
-interface Card {
-  id: string;
-  set: string;
-  name: string;
-  supertype: string;
-  subtypes: string[];
-  types: string[];
-  number: string;
-  rarity: string;
-  images: {
-    large: string;
-  };
-}
 
 async function init() {
   if (!navigator.gpu) {
@@ -159,54 +148,6 @@ async function init() {
   let texture: GPUTexture | null = null;
   let bindGroup: GPUBindGroup | null = null;
 
-  function getLocalCardImageUrl(imageUrl: string) {
-    const url = new URL(imageUrl);
-    return `/cards${url.pathname}`;
-  }
-
-  function getLocalFoilImageUrl(card: Card, type: 'foils' | 'masks', category: string) {
-    const rarity = card.rarity.toLowerCase();
-    const isReverse = category === 'Reverse Holo non-rares';
-    if (
-      rarity !== 'rare holo cosmos' &&
-      rarity !== 'amazing rare' &&
-      rarity !== 'rare holo' &&
-      rarity !== 'rare holo v' &&
-      rarity !== 'rare ultra' &&
-      !isReverse
-    ) {
-      return '';
-    }
-
-    const foilNumber = card.number.toString().toLowerCase().replace('swsh', '').padStart(3, '0');
-    const foilSet = card.set
-      .toString()
-      .toLowerCase()
-      .replace(/(tg|gg|sv)/, '');
-    const isGallery = !!card.number.match(/^[tg]g/i);
-    const isShiny = card.number.toLowerCase().startsWith('sv');
-    const etch =
-      rarity === 'amazing rare' ||
-      rarity === 'rare ultra' ||
-      ((isGallery || isShiny) && rarity === 'rare holo v')
-        ? 'etched'
-        : 'holo';
-    const style =
-      rarity === 'amazing rare'
-        ? 'swsecret'
-        : rarity === 'rare holo'
-          ? 'swholo'
-          : rarity === 'rare holo v'
-            ? 'sunpillar'
-            : rarity === 'rare ultra'
-              ? 'sunpillar'
-              : isReverse
-                ? 'reverse'
-                : 'cosmos';
-
-    return `/foils/${foilSet}/${type}/upscaled/${foilNumber}_foil_${etch}_${style}_2x.webp`;
-  }
-
   function clamp(value: number, min = 0, max = 100) {
     return Math.min(Math.max(value, min), max);
   }
@@ -239,7 +180,7 @@ async function init() {
     return seed;
   }
 
-  function updateCssCard(card: Card, imageUrl: string, category: string) {
+  function updateCssCard(card: Card, imageUrl: string, variant: 'standard' | 'reverse-holo') {
     const randomSeed = getCssCardSeed(card);
     const cosmosPosition = {
       x: Math.floor(randomSeed.x * 734),
@@ -247,15 +188,15 @@ async function init() {
     };
 
     cssCard.className = `${getCardClass(card)} loading`;
-    const maskUrl = getLocalFoilImageUrl(card, 'masks', category);
-    const foilUrl = getLocalFoilImageUrl(card, 'foils', category);
+    const maskUrl = getLocalFoilImageUrl(card, 'masks', variant);
+    const foilUrl = getLocalFoilImageUrl(card, 'foils', variant);
     cssCard.classList.toggle('masked', !!maskUrl);
     cssCard.dataset.number = card.number.toLowerCase();
     cssCard.dataset.set = card.set;
     cssCard.dataset.subtypes = (card.subtypes ?? []).join(' ').toLowerCase();
     cssCard.dataset.supertype = card.supertype.toLowerCase();
     cssCard.dataset.rarity =
-      category === 'Reverse Holo non-rares'
+      variant === 'reverse-holo'
         ? `${card.rarity.toLowerCase()} reverse holo`
         : card.rarity.toLowerCase();
     cssCard.dataset.trainerGallery = String(!!card.number.match(/^[tg]g/i));
@@ -318,118 +259,43 @@ async function init() {
     });
   }
 
-  async function updateCard(card: Card, category: string) {
+  const cardLibrary = buildCardLibrary(cards, excludedCardIds);
+
+  async function updateCard(card: Card, categoryName: string) {
     const imageUrl = getLocalCardImageUrl(card.images.large);
-    updateCssCard(card, imageUrl, category);
+    updateCssCard(card, imageUrl, cardLibrary.variants[categoryName]);
     await updateTexture(imageUrl);
   }
-
-  // Group cards into Logical Sections matching the homepage
-  const unsortedCategories: Record<string, Card[]> = {
-    'Secret Rare (Gold)': cards.slice(58, 64),
-    'Common & Uncommon': cards.slice(1, 4),
-    'Reverse Holo non-rares': [...cards.slice(4, 7), ...cards.slice(70, 76)],
-    'Holofoil Rare': cards.slice(7, 13),
-    'Galaxy/Cosmos Holofoil': cards.slice(13, 16),
-    'Holofoil Amazing Rare': cards.slice(76, 85),
-    'Radiant Holofoil': cards.slice(16, 19),
-    'Trainer Gallery Holofoil': cards.slice(19, 22),
-    'Pokemon V': cards.slice(22, 25),
-    'Pokemon V (Full Art)': cards.slice(25, 28),
-    'Pokemon V (Alternate Art)': cards.slice(28, 34),
-    VMax: cards.slice(37, 40),
-    'VMax (Alternate/Rainbow)': cards.slice(40, 43),
-    VStar: cards.slice(43, 46),
-    'Trainer Holo': cards.slice(46, 52),
-    'Rainbow Rare': cards.slice(52, 58),
-    'Trainer Gallery (V / VMax)': cards.slice(64, 70),
-    'Shiny Vault': cards.slice(85, 91),
-  };
-  const categories = Object.fromEntries(
-    Object.entries(unsortedCategories)
-      .map(
-        ([category, categoryCards]) =>
-          [
-            category,
-            categoryCards
-              .filter((card) => !excludedCardIds.has(card.id))
-              .sort((a, b) => a.name.localeCompare(b.name)),
-          ] as const,
-      )
-      .filter(([, categoryCards]) => categoryCards.length > 0)
-      .sort(([a], [b]) => a.localeCompare(b)),
-  );
-  const categoryNames = Object.keys(categories);
-  const initialCategory = categoryNames[0];
-  const initialCard = categories[initialCategory][0];
-
-  const descriptions: Record<string, string> = {
-    'Secret Rare (Gold)':
-      'GOLD! Here we apply two glitter layers on top of each other with a overlay effect and slide the two layers in opposite directions.',
-    'Common & Uncommon':
-      'All cards get a 3d rotation with CSS based on the cursor position. The default basic non-holo cards simply apply a flare/glare effect.',
-    'Reverse Holo non-rares':
-      'Reverse holo cards come in many shapes and sizes. The background uses a foil and a mask layer along with a glare.',
-    'Holofoil Rare':
-      'Holo cards have an additional vertical beam holo effect. This uses a combintation of repeating gradients and filters.',
-    'Galaxy/Cosmos Holofoil':
-      'Special image background of a galaxy effect with a gradient rainbow set to color-dodge & color-burn on top.',
-    'Holofoil Amazing Rare':
-      'Unique shiny foil that extends past the frame and is much shinier than a regular holo effect, and textured.',
-    'Radiant Holofoil':
-      'The newest holofoil added to the series! Uses a criss-cross linear gradient pattern that moves across the card.',
-    'Trainer Gallery Holofoil':
-      'Kind of metallic effect with iridescent shine. Achieved with a large color dodge linear gradient.',
-    'Pokemon V':
-      'Diagonal holographic effect which that appears to travel in opposite directions when you tilt the card.',
-    'Pokemon V (Full Art)':
-      'Similar to the Pokemon V effect, but they have additional texture when looked at from certain angles.',
-    'Pokemon V (Alternate Art)':
-      'Practically the same holo effect as the Ultra Rare (Full Art) cards. The only difference is the pattern texture.',
-    VMax: 'The gradient effect of Pokemon VMax is more subtle, using a larger background gradient which moves more slowly.',
-    'VMax (Alternate/Rainbow)':
-      'Vibrant and glittery overlay. Achieved with a background image of glitter/sparkles sandwiching linear gradients.',
-    VStar:
-      'Diagonal gradients overlaying a texture. Brighter with a pastel hue, making the gradient and texture more subtle.',
-    'Trainer Holo':
-      'Diagonal gradients overlaying a texture, quite similar to the Ultra Rare cards but generally brighter.',
-    'Rainbow Rare':
-      'Super glittery effect on top of pastel gradients. Achieved with background glitter and color-burn/hard-light blends.',
-    'Trainer Gallery (V / VMax)':
-      'Generally quite similar to the normal V and VMax cards, with a different background texture.',
-    'Shiny Vault':
-      'Foil background is a shiny silver color. Applied with radial gradients to darken the foil over the background.',
-  };
 
   // GUI Setup
   const gui = new GUI({ title: 'Card Library' });
   const guiState = {
-    category: initialCategory,
-    activeId: initialCard.id,
+    category: cardLibrary.initialCategory,
+    activeId: cardLibrary.initialCard.id,
   };
 
   // Create a plain text element for the description
   const descEl = document.createElement('div');
   descEl.className = 'gui-description';
-  descEl.textContent = descriptions[guiState.category];
+  descEl.textContent = cardLibrary.descriptions[guiState.category];
 
   // Helper to get card map for a category
   const getCardMap = (cat: string) => {
-    return Object.fromEntries(categories[cat].map((c) => [c.name, c.id]));
+    return Object.fromEntries(cardLibrary.categories[cat].map((c) => [c.name, c.id]));
   };
 
   // Dropdown for Type (Category)
   const typeController = gui
-    .add(guiState, 'category', categoryNames)
+    .add(guiState, 'category', cardLibrary.categoryNames)
     .name('Type')
     .onChange(async (cat: string) => {
-      const group = categories[cat];
+      const group = cardLibrary.categories[cat];
       if (group.length > 0) {
         const firstCard = group[0];
         guiState.activeId = firstCard.id;
 
         // Update Description and Card dropdown options
-        descEl.textContent = descriptions[cat];
+        descEl.textContent = cardLibrary.descriptions[cat];
         cardDropdown.options(getCardMap(cat));
         cardDropdown.updateDisplay();
 
@@ -452,7 +318,7 @@ async function init() {
     });
 
   // Initial texture load
-  await updateCard(initialCard, guiState.category);
+  await updateCard(cardLibrary.initialCard, guiState.category);
 
   let mouseX = 0.5;
   let mouseY = 0.5;
