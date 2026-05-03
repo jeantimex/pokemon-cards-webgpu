@@ -3,6 +3,7 @@ import './effects/common-and-uncommon/index.css';
 import './effects/galaxy-cosmos-holofoil/index.css';
 import './effects/holofoil-amazing-rare/index.css';
 import './effects/holofoil-rare/index.css';
+import './effects/pokemon-v/index.css';
 import shaderCode from './shaders.wgsl?raw';
 import { GUI } from 'lil-gui';
 
@@ -160,7 +161,12 @@ async function init() {
 
   function getLocalFoilImageUrl(card: Card, type: 'foils' | 'masks') {
     const rarity = card.rarity.toLowerCase();
-    if (rarity !== 'rare holo cosmos' && rarity !== 'amazing rare' && rarity !== 'rare holo') {
+    if (
+      rarity !== 'rare holo cosmos' &&
+      rarity !== 'amazing rare' &&
+      rarity !== 'rare holo' &&
+      rarity !== 'rare holo v'
+    ) {
       return '';
     }
 
@@ -169,9 +175,20 @@ async function init() {
       .toString()
       .toLowerCase()
       .replace(/(tg|gg|sv)/, '');
-    const etch = rarity === 'amazing rare' ? 'etched' : 'holo';
+    const isGallery = !!card.number.match(/^[tg]g/i);
+    const isShiny = card.number.toLowerCase().startsWith('sv');
+    const etch =
+      rarity === 'amazing rare' || ((isGallery || isShiny) && rarity === 'rare holo v')
+        ? 'etched'
+        : 'holo';
     const style =
-      rarity === 'amazing rare' ? 'swsecret' : rarity === 'rare holo' ? 'swholo' : 'cosmos';
+      rarity === 'amazing rare'
+        ? 'swsecret'
+        : rarity === 'rare holo'
+          ? 'swholo'
+          : rarity === 'rare holo v'
+            ? 'sunpillar'
+            : 'cosmos';
 
     return `/foils/${foilSet}/${type}/upscaled/${foilNumber}_foil_${etch}_${style}_2x.webp`;
   }
