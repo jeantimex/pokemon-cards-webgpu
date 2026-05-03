@@ -1,5 +1,14 @@
 import './style.css'
 import shaderCode from './shaders.wgsl?raw'
+import { GUI } from 'lil-gui'
+
+interface Card {
+  id: string;
+  name: string;
+  images: {
+    large: string;
+  };
+}
 
 async function init() {
   if (!navigator.gpu) {
@@ -27,22 +36,12 @@ async function init() {
     alphaMode: 'premultiplied',
   });
 
-  // Load image
-  const response = await fetch('https://images.pokemontcg.io/swsh12pt5/160_hires.png');
-  const blob = await response.blob();
-  const source = await createImageBitmap(blob);
+  // Fetch card data
+  const cardsResponse = await fetch('/cards.json');
+  const cards: Card[] = await cardsResponse.json();
 
-  const texture = device.createTexture({
-    size: [source.width, source.height, 1],
-    format: 'rgba8unorm',
-    usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
-  });
-
-  device.queue.copyExternalImageToTexture(
-    { source },
-    { texture },
-    [source.width, source.height]
-  );
+  // Initial card
+  let activeCard = cards[0];
 
   const sampler = device.createSampler({
     magFilter: 'linear',
@@ -55,9 +54,8 @@ async function init() {
 
   // Quad geometry (Larger than the card to accommodate the shadow)
   const cardAspect = 0.718;
-  const quadScale = 1.2; // 1.2x bigger than card size to give room for shadow
+  const quadScale = 1.2; 
   const vertices = new Float32Array([
-    // localPos (x, y), dummy UV (not used for texture directly)
     -1.0 * quadScale, -1.0 / cardAspect * quadScale, 0, 1,
      1.0 * quadScale, -1.0 / cardAspect * quadScale, 1, 1,
      1.0 * quadScale,  1.0 / cardAspect * quadScale, 1, 0,
@@ -125,24 +123,68 @@ async function init() {
     },
   });
 
-  const bindGroup = device.createBindGroup({
-    layout: pipeline.getBindGroupLayout(0),
-    entries: [
-      {
-        binding: 0,
-        resource: {
-          buffer: uniformBuffer,
+  let texture: GPUTexture | null = null;
+  let bindGroup: GPUBindGroup | null = null;
+
+  async function updateTexture(url: string) {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    const source = await createImageBitmap(blob);
+
+    if (texture) {
+        texture.destroy();
+    }
+
+    texture = device.createTexture({
+      size: [source.width, source.height, 1],
+      format: 'rgba8unorm',
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
+    });
+
+    device.queue.copyExternalImageToTexture(
+      { source },
+      { texture },
+      [source.width, source.height]
+    );
+
+    bindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        {
+          binding: 0,
+          resource: {
+            buffer: uniformBuffer,
+          },
         },
-      },
-      {
-        binding: 1,
-        resource: sampler,
-      },
-      {
-        binding: 2,
-        resource: texture.createView(),
-      },
-    ],
+        {
+          binding: 1,
+          resource: sampler,
+        },
+        {
+          binding: 2,
+          resource: texture.createView(),
+        },
+      ],
+    });
+  }
+
+  // Initial texture load
+  await updateTexture(activeCard.images.large);
+
+  // GUI Setup
+  const gui = new GUI();
+  const options = {
+    card: activeCard.id
+  };
+
+  const cardMap = Object.fromEntries(cards.map(c => [`${c.name} (${c.id})`, c.id]));
+
+  gui.add(options, 'card', cardMap).name('Select Card').onChange(async (id: string) => {
+    const card = cards.find(c => c.id === id);
+    if (card) {
+      activeCard = card;
+      await updateTexture(card.images.large);
+    }
   });
 
   let mouseX = 0.5;
@@ -185,29 +227,31 @@ async function init() {
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
-    const commandEncoder = device.createCommandEncoder();
-    const textureView = context.getCurrentTexture().createView();
+    if (bindGroup) {
+        const commandEncoder = device.createCommandEncoder();
+        const textureView = context.getCurrentTexture().createView();
 
-    const renderPassDescriptor: GPURenderPassDescriptor = {
-      colorAttachments: [
-        {
-          view: textureView,
-          clearValue: { r: 0.2235, g: 0.2314, b: 0.2706, a: 1.0 }, 
-          loadOp: 'clear',
-          storeOp: 'store',
-        },
-      ],
-    };
+        const renderPassDescriptor: GPURenderPassDescriptor = {
+          colorAttachments: [
+            {
+              view: textureView,
+              clearValue: { r: 0.2235, g: 0.2314, b: 0.2706, a: 1.0 }, 
+              loadOp: 'clear',
+              storeOp: 'store',
+            },
+          ],
+        };
 
-    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-    passEncoder.setPipeline(pipeline);
-    passEncoder.setBindGroup(0, bindGroup);
-    passEncoder.setVertexBuffer(0, vertexBuffer);
-    passEncoder.setIndexBuffer(indexBuffer, 'uint16');
-    passEncoder.drawIndexed(indices.length);
-    passEncoder.end();
+        const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+        passEncoder.setPipeline(pipeline);
+        passEncoder.setBindGroup(0, bindGroup);
+        passEncoder.setVertexBuffer(0, vertexBuffer);
+        passEncoder.setIndexBuffer(indexBuffer, 'uint16');
+        passEncoder.drawIndexed(indices.length);
+        passEncoder.end();
 
-    device.queue.submit([commandEncoder.finish()]);
+        device.queue.submit([commandEncoder.finish()]);
+    }
     requestAnimationFrame(frame);
   }
 
