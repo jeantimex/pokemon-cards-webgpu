@@ -37,13 +37,17 @@ export function getLocalFoilImageUrl(
 ) {
   const rarity = getDisplayRarity(card, categoryName, variant);
   const isReverse = variant === 'reverse-holo';
+
   if (
     rarity !== 'rare holo cosmos' &&
     rarity !== 'amazing rare' &&
     rarity !== 'rare holo' &&
     rarity !== 'rare holo v' &&
+    rarity !== 'rare holo vmax' &&
+    rarity !== 'rare holo vstar' &&
     rarity !== 'rare ultra' &&
     rarity !== 'rare secret' &&
+    rarity !== 'rare rainbow alt' &&
     rarity !== 'rare shiny' &&
     rarity !== 'rare shiny v' &&
     rarity !== 'rare shiny vmax' &&
@@ -59,10 +63,14 @@ export function getLocalFoilImageUrl(
     .replace(/(tg|gg|sv)/, '');
   const isGallery = !!card.number.match(/^[tg]g/i);
   const isShiny = card.number.toLowerCase().startsWith('sv');
+  const isVMaxAlt = rarity === 'rare rainbow alt' && card.subtypes?.includes('VMAX');
   const etch =
     rarity === 'amazing rare' ||
     rarity === 'rare ultra' ||
     rarity === 'rare secret' ||
+    rarity === 'rare holo vmax' ||
+    rarity === 'rare holo vstar' ||
+    rarity === 'rare rainbow alt' ||
     rarity === 'rare shiny' ||
     rarity === 'rare shiny v' ||
     rarity === 'rare shiny vmax' ||
@@ -76,19 +84,27 @@ export function getLocalFoilImageUrl(
         ? 'swholo'
         : rarity === 'rare holo v'
           ? 'sunpillar'
-          : rarity === 'rare ultra'
+          : rarity === 'rare holo vmax'
             ? 'sunpillar'
-            : rarity === 'rare secret'
-              ? 'swsecret'
-              : rarity === 'rare shiny'
+            : rarity === 'rare holo vstar'
+              ? 'sunpillar'
+              : rarity === 'rare ultra'
                 ? 'sunpillar'
-                : rarity === 'rare shiny v'
-                  ? 'sunpillar'
-                  : rarity === 'rare shiny vmax'
-                    ? 'swsecret'
-                    : isReverse
-                      ? 'reverse'
-                      : 'cosmos';
+                : rarity === 'rare secret'
+                  ? 'swsecret'
+                  : rarity === 'rare rainbow alt'
+                    ? isVMaxAlt
+                      ? 'swsecret'
+                      : 'sunpillar'
+                    : rarity === 'rare shiny'
+                      ? 'sunpillar'
+                      : rarity === 'rare shiny v'
+                        ? 'sunpillar'
+                        : rarity === 'rare shiny vmax'
+                          ? 'swsecret'
+                          : isReverse
+                            ? 'reverse'
+                            : 'cosmos';
 
   return `/foils/${foilSet}/${type}/upscaled/${foilNumber}_foil_${etch}_${style}_2x.webp`;
 }

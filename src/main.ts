@@ -8,6 +8,8 @@ import './effects/reverse-holo/index.css';
 import './effects/pokemon-v/index.css';
 import './effects/pokemon-v-full-art/index.css';
 import './effects/pokemon-v-alternate-art/index.css';
+import './effects/trainer-gallery-v/index.css';
+import './effects/trainer-gallery-v-max/index.css';
 import './effects/radiant-holofoil/index.css';
 import './effects/rainbow-rare/index.css';
 import './effects/shiny-vault/index.css';

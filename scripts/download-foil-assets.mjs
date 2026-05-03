@@ -9,8 +9,11 @@ const wanted = new Set([
   'rare holo',
   'rare holo cosmos',
   'rare holo v',
+  'rare holo vmax',
+  'rare holo vstar',
   'rare ultra',
   'rare secret',
+  'rare rainbow alt',
   'rare shiny',
 ]);
 
@@ -29,11 +32,7 @@ const reverseIds = new Set([
 function getFoilParts(card) {
   const rarity = card.rarity.toLowerCase();
   const isShiny = card.number.toLowerCase().startsWith('sv');
-  if (
-    !wanted.has(rarity) &&
-    !(isShiny && rarity === 'rare holo vmax') &&
-    !reverseIds.has(card.id)
-  ) {
+  if (!wanted.has(rarity) && !reverseIds.has(card.id)) {
     return null;
   }
 
@@ -45,9 +44,9 @@ function getFoilParts(card) {
   const isGallery = !!card.number.match(/^[tg]g/i);
   const isReverse = reverseIds.has(card.id);
   const displayRarity = isShiny
-    ? rarity === 'rare holo vmax' || card.subtypes.includes('VMAX')
+    ? rarity === 'rare holo vmax' || card.subtypes?.includes('VMAX')
       ? 'rare shiny vmax'
-      : rarity === 'rare holo v' || card.subtypes.includes('V')
+      : rarity === 'rare holo v' || card.subtypes?.includes('V')
         ? 'rare shiny v'
         : 'rare shiny'
     : rarity;
@@ -55,32 +54,41 @@ function getFoilParts(card) {
     displayRarity === 'amazing rare' ||
     displayRarity === 'rare ultra' ||
     displayRarity === 'rare secret' ||
+    displayRarity === 'rare holo vmax' ||
+    displayRarity === 'rare holo vstar' ||
+    displayRarity === 'rare rainbow alt' ||
     displayRarity === 'rare shiny' ||
     displayRarity === 'rare shiny v' ||
     displayRarity === 'rare shiny vmax' ||
     ((isGallery || isShiny) && displayRarity === 'rare holo v')
       ? 'etched'
       : 'holo';
-  const style =
-    displayRarity === 'amazing rare'
-      ? 'swsecret'
-      : displayRarity === 'rare holo'
-        ? 'swholo'
-        : displayRarity === 'rare holo v'
-          ? 'sunpillar'
-          : displayRarity === 'rare ultra'
-            ? 'sunpillar'
-            : displayRarity === 'rare secret'
-              ? 'swsecret'
-              : displayRarity === 'rare shiny'
-                ? 'sunpillar'
-                : displayRarity === 'rare shiny v'
-                  ? 'sunpillar'
-                  : displayRarity === 'rare shiny vmax'
-                    ? 'swsecret'
-                    : isReverse
-                      ? 'reverse'
-                      : 'cosmos';
+  let style = 'cosmos';
+  if (displayRarity === 'amazing rare') {
+    style = 'swsecret';
+  } else if (displayRarity === 'rare holo') {
+    style = 'swholo';
+  } else if (displayRarity === 'rare holo v') {
+    style = 'sunpillar';
+  } else if (displayRarity === 'rare holo vmax') {
+    style = 'sunpillar';
+  } else if (displayRarity === 'rare holo vstar') {
+    style = 'sunpillar';
+  } else if (displayRarity === 'rare ultra') {
+    style = 'sunpillar';
+  } else if (displayRarity === 'rare secret') {
+    style = 'swsecret';
+  } else if (displayRarity === 'rare rainbow alt') {
+    style = card.subtypes?.includes('VMAX') ? 'swsecret' : 'sunpillar';
+  } else if (displayRarity === 'rare shiny') {
+    style = 'sunpillar';
+  } else if (displayRarity === 'rare shiny v') {
+    style = 'sunpillar';
+  } else if (displayRarity === 'rare shiny vmax') {
+    style = 'swsecret';
+  } else if (isReverse) {
+    style = 'reverse';
+  }
 
   return { number, set, etch, style };
 }

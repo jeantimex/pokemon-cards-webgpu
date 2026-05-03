@@ -28,10 +28,5 @@ export function createOtherCategories(cards: Card[]) {
       'Diagonal gradients overlaying a texture, quite similar to the Ultra Rare cards but generally brighter.',
       cards.slice(46, 52),
     ),
-    createCategory(
-      'Trainer Gallery (V / VMax)',
-      'Generally quite similar to the normal V and VMax cards, with a different background texture.',
-      cards.slice(64, 70),
-    ),
   ];
 }

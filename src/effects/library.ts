@@ -12,6 +12,8 @@ import { createPokemonVFullArtCategory } from './pokemon-v-full-art/category';
 import { createRadiantHolofoilCategory } from './radiant-holofoil/category';
 import { createRainbowRareCategory } from './rainbow-rare/category';
 import { createReverseHoloCategory } from './reverse-holo/category';
+import { createTrainerGalleryVMaxCategory } from './trainer-gallery-v-max/category';
+import { createTrainerGalleryVCategory } from './trainer-gallery-v/category';
 import { createOtherCategories } from './other-categories';
 
 export interface CardLibrary {
@@ -37,6 +39,8 @@ export function buildCardLibrary(cards: Card[], excludedCardIds: Set<string>): C
     createPokemonVAlternateArtCategory(cards),
     createRainbowRareCategory(cards),
     createShinyVaultCategory(cards),
+    createTrainerGalleryVCategory(cards),
+    createTrainerGalleryVMaxCategory(cards),
     ...createOtherCategories(cards),
   ]
     .map((definition) => ({
