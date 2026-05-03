@@ -12,6 +12,7 @@ struct Uniforms {
 struct VertexOutput {
     @builtin(position) position: vec4f,
     @location(0) uv: vec2f,
+    @location(1) localPos: vec2f,
 };
 
 fn rotateX(p: vec3f, angle: f32) -> vec3f {
@@ -40,27 +41,74 @@ fn vertexMain(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
     
     let canvasAspect = uniforms.resolution.x / uniforms.resolution.y;
     
-    // Apply rotation
+    // pos comes in as [-1.5, 1.5] scale relative to card size
     var p = vec3f(pos, 0.0);
     p = rotateX(p, uniforms.rotation.y);
     p = rotateY(p, uniforms.rotation.x);
     
-    // Perspective projection using the W component
-    // This ensures perspective-correct interpolation of attributes (UVs)
     let perspective = 2.0;
     let w = perspective - p.z;
     
-    // Correct for canvas aspect ratio and apply projection
-    // We multiply by perspective here so that at z=0, the scale is 1.0
     let x = (p.x / canvasAspect) * perspective;
     let y = p.y * perspective;
     
     output.position = vec4f(x, y, 0.0, w);
     output.uv = uv;
+    output.localPos = pos;
     return output;
 }
 
+// --- SDF Utilities ---
+
+fn sdRoundedRect(p: vec2f, b: vec2f, r: f32) -> f32 {
+    let q = abs(p) - b + r;
+    return min(max(q.x, q.y), 0.0) + length(max(q, vec2f(0.0))) - r;
+}
+
 @fragment
-fn fragmentMain(@location(0) uv: vec2f) -> @location(0) vec4f {
-    return textureSample(textureData, textureSampler, uv);
+fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
+    let cardSize = vec2f(0.6, 0.6 / 0.718);
+    let cornerRadius = 0.04;
+    
+    // Distance to card edge (for clipping and rounding)
+    let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
+    
+    // --- Shadow Calculation ---
+    // Layered shadows to match CSS: 0px 10px 20px -5px black
+    
+    // Offset localPos for shadow (moved down)
+    let shadowPos = localPos - vec2f(0.0, -0.02);
+    let shadowDist = sdRoundedRect(shadowPos, cardSize, cornerRadius);
+    
+    // Tightened shadow alpha (less blur)
+    let shadowAlpha = 1.0 - smoothstep(-0.05, 0.1, shadowDist);
+    let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha * 0.5);
+    
+    // Sample texture only if within card bounds
+    // Map localPos.y to UV.y inverting it for top-left origin
+    let cardUV = vec2f(
+        (localPos.x / (cardSize.x * 2.0)) + 0.5,
+        0.5 - (localPos.y / (cardSize.y * 2.0))
+    );
+    let textureColor = textureSample(textureData, textureSampler, cardUV);
+    
+    // Antialiased clipping for card edges
+    let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
+    let finalCard = vec4f(textureColor.rgb, textureColor.a * cardMask);
+    
+    // --- Compositing ---
+    
+    // Start with background (handled by clear color, so we output pre-multiplied alpha)
+    // Blend: Shadow then Card
+    
+    var finalColor = shadowColor;
+    // Simple manual blend: over operator
+    finalColor = vec4f(
+        mix(finalColor.rgb, finalCard.rgb, finalCard.a),
+        max(finalColor.a, finalCard.a)
+    );
+    
+    if (finalColor.a <= 0.0) { discard; }
+    
+    return finalColor;
 }

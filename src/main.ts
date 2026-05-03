@@ -53,20 +53,16 @@ async function init() {
     code: shaderCode,
   });
 
-  // Card aspect ratio: 0.718
+  // Quad geometry (Larger than the card to accommodate the shadow)
   const cardAspect = 0.718;
+  const quadScale = 1.2; // 1.2x bigger than card size to give room for shadow
   const vertices = new Float32Array([
-    // Position (x, y), UV (u, v)
-    -1, -1 / cardAspect, 0, 1,
-     1, -1 / cardAspect, 1, 1,
-     1,  1 / cardAspect, 1, 0,
-    -1,  1 / cardAspect, 0, 0,
+    // localPos (x, y), dummy UV (not used for texture directly)
+    -1.0 * quadScale, -1.0 / cardAspect * quadScale, 0, 1,
+     1.0 * quadScale, -1.0 / cardAspect * quadScale, 1, 1,
+     1.0 * quadScale,  1.0 / cardAspect * quadScale, 1, 0,
+    -1.0 * quadScale,  1.0 / cardAspect * quadScale, 0, 0,
   ]);
-  // Scale down to fit
-  for (let i = 0; i < vertices.length; i += 4) {
-    vertices[i] *= 0.6;
-    vertices[i+1] *= 0.6;
-  }
 
   const indices = new Uint16Array([
     0, 1, 2,
@@ -85,7 +81,6 @@ async function init() {
   });
   device.queue.writeBuffer(indexBuffer, 0, indices);
 
-  // Uniforms: resolution (vec2f), pointer (vec2f), rotation (vec2f), time (f32)
   const uniformBuffer = device.createBuffer({
     size: 32, 
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -113,7 +108,7 @@ async function init() {
         format: presentationFormat,
         blend: {
             color: {
-                srcFactor: 'src-alpha',
+                srcFactor: 'one',
                 dstFactor: 'one-minus-src-alpha',
                 operation: 'add',
             },
@@ -186,7 +181,7 @@ async function init() {
         width, height, 
         mouseX, mouseY, 
         currentRotationX, currentRotationY,
-        time, 0 // Padding
+        time, 0 
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
@@ -197,7 +192,7 @@ async function init() {
       colorAttachments: [
         {
           view: textureView,
-          clearValue: { r: 0.2235, g: 0.2314, b: 0.2706, a: 1.0 }, // hsl(220, 7%, 24%)
+          clearValue: { r: 0.2235, g: 0.2314, b: 0.2706, a: 1.0 }, 
           loadOp: 'clear',
           storeOp: 'store',
         },
