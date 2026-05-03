@@ -1,10 +1,16 @@
 import './style.css'
+import './effects/common-and-uncommon/index.css'
 import shaderCode from './shaders.wgsl?raw'
 import { GUI } from 'lil-gui'
 
 interface Card {
   id: string;
+  set: string;
   name: string;
+  supertype: string;
+  subtypes: string[];
+  types: string[];
+  number: string;
   rarity: string;
   images: {
     large: string;
@@ -26,8 +32,11 @@ async function init() {
   const device = await adapter.requestDevice();
 
   const canvas = document.querySelector<HTMLCanvasElement>('#webgpu-canvas')!;
+  const cssCard = document.querySelector<HTMLElement>('#css-card')!;
   const cssCardImage = document.querySelector<HTMLImageElement>('#css-card-image')!;
   const cssPane = document.querySelector<HTMLElement>('.pane-css')!;
+  const cssCardFront = document.querySelector<HTMLElement>('.pane-css .card__front')!;
+  const cssCardRotator = document.querySelector<HTMLButtonElement>('.pane-css .card__rotator')!;
   const webgpuPane = document.querySelector<HTMLElement>('.pane-webgpu')!;
   const context = canvas.getContext('webgpu')!;
 
@@ -135,9 +144,51 @@ async function init() {
     return `/cards${url.pathname}`;
   }
 
-  async function updateTexture(url: string) {
-    cssCardImage.src = url;
+  function clamp(value: number, min = 0, max = 100) {
+    return Math.min(Math.max(value, min), max);
+  }
 
+  function round(value: number, precision = 3) {
+    return parseFloat(value.toFixed(precision));
+  }
+
+  function adjust(value: number, fromMin: number, fromMax: number, toMin: number, toMax: number) {
+    return round(toMin + (toMax - toMin) * (value - fromMin) / (fromMax - fromMin));
+  }
+
+  function getCardClass(card: Card) {
+    return ['card', 'interactive', ...card.types.map(type => type.toLowerCase())].join(' ');
+  }
+
+  function updateCssCard(card: Card, imageUrl: string) {
+    const randomSeed = {
+      x: Math.random(),
+      y: Math.random(),
+    };
+    const cosmosPosition = {
+      x: Math.floor(randomSeed.x * 734),
+      y: Math.floor(randomSeed.y * 1280),
+    };
+
+    cssCard.className = `${getCardClass(card)} loading`;
+    cssCard.dataset.number = card.number.toLowerCase();
+    cssCard.dataset.set = card.set;
+    cssCard.dataset.subtypes = card.subtypes.join(' ').toLowerCase();
+    cssCard.dataset.supertype = card.supertype.toLowerCase();
+    cssCard.dataset.rarity = card.rarity.toLowerCase();
+    cssCard.dataset.trainerGallery = String(!!card.number.match(/^[tg]g/i));
+    cssCardRotator.setAttribute('aria-label', `Expand the Pokemon Card; ${card.name}.`);
+    cssCardImage.alt = `Front design of the ${card.name} Pokemon Card, with the stats and info around the edge`;
+    cssCardFront.style.setProperty('--seedx', String(randomSeed.x));
+    cssCardFront.style.setProperty('--seedy', String(randomSeed.y));
+    cssCardFront.style.setProperty('--cosmosbg', `${cosmosPosition.x}px ${cosmosPosition.y}px`);
+    cssCardImage.onload = () => {
+      cssCard.classList.remove('loading');
+    };
+    cssCardImage.src = imageUrl;
+  }
+
+  async function updateTexture(url: string) {
     const response = await fetch(url);
     const blob = await response.blob();
     const source = await createImageBitmap(blob);
@@ -177,6 +228,12 @@ async function init() {
         },
       ],
     });
+  }
+
+  async function updateCard(card: Card) {
+    const imageUrl = getLocalCardImageUrl(card.images.large);
+    updateCssCard(card, imageUrl);
+    await updateTexture(imageUrl);
   }
 
   // Group cards into Logical Sections matching the homepage
@@ -267,7 +324,7 @@ async function init() {
             cardDropdown.options(getCardMap(cat));
             cardDropdown.updateDisplay();
             
-            await updateTexture(getLocalCardImageUrl(firstCard.images.large));
+            await updateCard(firstCard);
         }
     });
 
@@ -280,12 +337,12 @@ async function init() {
     .onChange(async (id: string) => {
       const card = cards.find(c => c.id === id);
       if (card) {
-        await updateTexture(getLocalCardImageUrl(card.images.large));
+        await updateCard(card);
       }
     });
 
   // Initial texture load
-  await updateTexture(getLocalCardImageUrl(initialCard.images.large));
+  await updateCard(initialCard);
 
   let mouseX = 0.5;
   let mouseY = 0.5;
@@ -294,17 +351,96 @@ async function init() {
   let currentRotationX = 0;
   let currentRotationY = 0;
 
-  function updateCssCardRotation(rotationX: number, rotationY: number) {
-    cssCardImage.style.setProperty('--css-card-rotate-x', `${-rotationY}rad`);
-    cssCardImage.style.setProperty('--css-card-rotate-y', `${rotationX}rad`);
-  }
-
   function resetCardRotation() {
     mouseX = 0.5;
     mouseY = 0.5;
     targetRotationX = 0;
     targetRotationY = 0;
   }
+
+  let cssTarget = {
+    pointerX: 50,
+    pointerY: 50,
+    rotateX: 0,
+    rotateY: 0,
+    backgroundX: 50,
+    backgroundY: 50,
+    opacity: 0,
+  };
+  let cssCurrent = { ...cssTarget };
+  let cssResetTimer: number | undefined;
+
+  function setCssCardVars(values: typeof cssTarget) {
+    const pointerFromCenter = clamp(
+      Math.sqrt(
+        (values.pointerY - 50) * (values.pointerY - 50)
+        + (values.pointerX - 50) * (values.pointerX - 50)
+      ) / 50,
+      0,
+      1
+    );
+
+    cssCard.style.setProperty('--pointer-x', `${values.pointerX}%`);
+    cssCard.style.setProperty('--pointer-y', `${values.pointerY}%`);
+    cssCard.style.setProperty('--pointer-from-center', String(pointerFromCenter));
+    cssCard.style.setProperty('--pointer-from-top', String(values.pointerY / 100));
+    cssCard.style.setProperty('--pointer-from-left', String(values.pointerX / 100));
+    cssCard.style.setProperty('--card-opacity', String(values.opacity));
+    cssCard.style.setProperty('--rotate-x', `${values.rotateX}deg`);
+    cssCard.style.setProperty('--rotate-y', `${values.rotateY}deg`);
+    cssCard.style.setProperty('--background-x', `${values.backgroundX}%`);
+    cssCard.style.setProperty('--background-y', `${values.backgroundY}%`);
+    cssCard.style.setProperty('--card-scale', '1');
+    cssCard.style.setProperty('--translate-x', '0px');
+    cssCard.style.setProperty('--translate-y', '0px');
+  }
+
+  function resetCssCard(delay = 500) {
+    window.clearTimeout(cssResetTimer);
+    cssResetTimer = window.setTimeout(() => {
+      cssCard.classList.remove('interacting');
+      cssTarget = {
+        pointerX: 50,
+        pointerY: 50,
+        rotateX: 0,
+        rotateY: 0,
+        backgroundX: 50,
+        backgroundY: 50,
+        opacity: 0,
+      };
+    }, delay);
+  }
+
+  cssCardRotator.addEventListener('pointermove', (e) => {
+    window.clearTimeout(cssResetTimer);
+    cssCard.classList.add('interacting');
+
+    const rect = cssCardRotator.getBoundingClientRect();
+    const absolute = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+    const percent = {
+      x: clamp(round((100 / rect.width) * absolute.x)),
+      y: clamp(round((100 / rect.height) * absolute.y)),
+    };
+    const center = {
+      x: percent.x - 50,
+      y: percent.y - 50,
+    };
+
+    cssTarget = {
+      backgroundX: adjust(percent.x, 0, 100, 37, 63),
+      backgroundY: adjust(percent.y, 0, 100, 33, 67),
+      rotateX: round(-(center.x / 3.5)),
+      rotateY: round(center.y / 3.5),
+      pointerX: round(percent.x),
+      pointerY: round(percent.y),
+      opacity: 1,
+    };
+  });
+  cssCardRotator.addEventListener('pointerleave', () => resetCssCard());
+  cssCardRotator.addEventListener('blur', () => resetCssCard(0));
 
   window.addEventListener('mousemove', (e) => {
     const cssRect = cssPane.getBoundingClientRect();
@@ -362,7 +498,16 @@ async function init() {
 
     currentRotationX += (targetRotationX - currentRotationX) * 0.15;
     currentRotationY += (targetRotationY - currentRotationY) * 0.15;
-    updateCssCardRotation(currentRotationX, currentRotationY);
+    cssCurrent = {
+      pointerX: cssCurrent.pointerX + (cssTarget.pointerX - cssCurrent.pointerX) * 0.15,
+      pointerY: cssCurrent.pointerY + (cssTarget.pointerY - cssCurrent.pointerY) * 0.15,
+      rotateX: cssCurrent.rotateX + (cssTarget.rotateX - cssCurrent.rotateX) * 0.15,
+      rotateY: cssCurrent.rotateY + (cssTarget.rotateY - cssCurrent.rotateY) * 0.15,
+      backgroundX: cssCurrent.backgroundX + (cssTarget.backgroundX - cssCurrent.backgroundX) * 0.15,
+      backgroundY: cssCurrent.backgroundY + (cssTarget.backgroundY - cssCurrent.backgroundY) * 0.15,
+      opacity: cssCurrent.opacity + (cssTarget.opacity - cssCurrent.opacity) * 0.15,
+    };
+    setCssCardVars(cssCurrent);
 
     const time = (performance.now() - startTime) / 1000;
 

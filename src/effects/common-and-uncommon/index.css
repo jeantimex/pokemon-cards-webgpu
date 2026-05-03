@@ -1,0 +1,10 @@
+@import "./base.css";
+@import "./basic.css";
+
+.pane-css .card {
+  width: min(60cqh, calc(100cqw - 48px));
+}
+
+.pane-css .card__rotator {
+  width: 100%;
+}
