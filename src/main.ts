@@ -1,6 +1,7 @@
 import './style.css';
 import './effects/common-and-uncommon/index.css';
 import './effects/galaxy-cosmos-holofoil/index.css';
+import './effects/holofoil-amazing-rare/index.css';
 import shaderCode from './shaders.wgsl?raw';
 import { GUI } from 'lil-gui';
 
@@ -158,7 +159,7 @@ async function init() {
 
   function getLocalFoilImageUrl(card: Card, type: 'foils' | 'masks') {
     const rarity = card.rarity.toLowerCase();
-    if (rarity !== 'rare holo cosmos') {
+    if (rarity !== 'rare holo cosmos' && rarity !== 'amazing rare') {
       return '';
     }
 
@@ -167,8 +168,10 @@ async function init() {
       .toString()
       .toLowerCase()
       .replace(/(tg|gg|sv)/, '');
+    const etch = rarity === 'amazing rare' ? 'etched' : 'holo';
+    const style = rarity === 'amazing rare' ? 'swsecret' : 'cosmos';
 
-    return `/foils/${foilSet}/${type}/upscaled/${foilNumber}_foil_holo_cosmos_2x.webp`;
+    return `/foils/${foilSet}/${type}/upscaled/${foilNumber}_foil_${etch}_${style}_2x.webp`;
   }
 
   function clamp(value: number, min = 0, max = 100) {
