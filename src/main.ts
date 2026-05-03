@@ -1,60 +1,222 @@
 import './style.css'
-import typescriptLogo from './assets/typescript.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import { setupCounter } from './counter.ts'
+import shaderCode from './shaders.wgsl?raw'
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.ts</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+async function init() {
+  if (!navigator.gpu) {
+    alert("WebGPU not supported on this browser.");
+    return;
+  }
 
-<div class="ticks"></div>
+  const adapter = await navigator.gpu.requestAdapter();
+  if (!adapter) {
+    alert("No appropriate GPUAdapter found.");
+    return;
+  }
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://www.typescriptlang.org" target="_blank">
-          <img class="button-icon" src="${typescriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+  const device = await adapter.requestDevice();
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+  const canvas = document.querySelector<HTMLCanvasElement>('#webgpu-canvas')!;
+  const context = canvas.getContext('webgpu')!;
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+  const devicePixelRatio = window.devicePixelRatio || 1;
+  const presentationFormat = navigator.gpu.getPreferredCanvasFormat();
+
+  context.configure({
+    device,
+    format: presentationFormat,
+    alphaMode: 'premultiplied',
+  });
+
+  // Load image
+  const response = await fetch('https://images.pokemontcg.io/swsh12pt5/160_hires.png');
+  const blob = await response.blob();
+  const source = await createImageBitmap(blob);
+
+  const texture = device.createTexture({
+    size: [source.width, source.height, 1],
+    format: 'rgba8unorm',
+    usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
+  });
+
+  device.queue.copyExternalImageToTexture(
+    { source },
+    { texture },
+    [source.width, source.height]
+  );
+
+  const sampler = device.createSampler({
+    magFilter: 'linear',
+    minFilter: 'linear',
+  });
+
+  const shaderModule = device.createShaderModule({
+    code: shaderCode,
+  });
+
+  // Card aspect ratio: 0.718
+  const cardAspect = 0.718;
+  const vertices = new Float32Array([
+    // Position (x, y), UV (u, v)
+    -1, -1 / cardAspect, 0, 1,
+     1, -1 / cardAspect, 1, 1,
+     1,  1 / cardAspect, 1, 0,
+    -1,  1 / cardAspect, 0, 0,
+  ]);
+  // Scale down to fit
+  for (let i = 0; i < vertices.length; i += 4) {
+    vertices[i] *= 0.6;
+    vertices[i+1] *= 0.6;
+  }
+
+  const indices = new Uint16Array([
+    0, 1, 2,
+    0, 2, 3,
+  ]);
+
+  const vertexBuffer = device.createBuffer({
+    size: vertices.byteLength,
+    usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(vertexBuffer, 0, vertices);
+
+  const indexBuffer = device.createBuffer({
+    size: indices.byteLength,
+    usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
+  });
+  device.queue.writeBuffer(indexBuffer, 0, indices);
+
+  // Uniforms: resolution (vec2f), pointer (vec2f), rotation (vec2f), time (f32)
+  const uniformBuffer = device.createBuffer({
+    size: 32, 
+    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+  });
+
+  const pipeline = device.createRenderPipeline({
+    layout: 'auto',
+    vertex: {
+      module: shaderModule,
+      entryPoint: 'vertexMain',
+      buffers: [
+        {
+          arrayStride: 16,
+          attributes: [
+            { shaderLocation: 0, offset: 0, format: 'float32x2' }, // pos
+            { shaderLocation: 1, offset: 8, format: 'float32x2' }, // uv
+          ],
+        },
+      ],
+    },
+    fragment: {
+      module: shaderModule,
+      entryPoint: 'fragmentMain',
+      targets: [{ 
+        format: presentationFormat,
+        blend: {
+            color: {
+                srcFactor: 'src-alpha',
+                dstFactor: 'one-minus-src-alpha',
+                operation: 'add',
+            },
+            alpha: {
+                srcFactor: 'one',
+                dstFactor: 'one-minus-src-alpha',
+                operation: 'add',
+            },
+        }
+      }],
+    },
+    primitive: {
+      topology: 'triangle-list',
+    },
+  });
+
+  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      {
+        binding: 0,
+        resource: {
+          buffer: uniformBuffer,
+        },
+      },
+      {
+        binding: 1,
+        resource: sampler,
+      },
+      {
+        binding: 2,
+        resource: texture.createView(),
+      },
+    ],
+  });
+
+  let mouseX = 0.5;
+  let mouseY = 0.5;
+  let targetRotationX = 0;
+  let targetRotationY = 0;
+  let currentRotationX = 0;
+  let currentRotationY = 0;
+
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX / window.innerWidth;
+    mouseY = e.clientY / window.innerHeight;
+    
+    const centerX = mouseX - 0.5;
+    const centerY = mouseY - 0.5;
+    targetRotationX = -centerX * (Math.PI / 6); 
+    targetRotationY = -centerY * (Math.PI / 6);
+  });
+
+  const startTime = performance.now();
+
+  function frame() {
+    const width = canvas.clientWidth * devicePixelRatio;
+    const height = canvas.clientHeight * devicePixelRatio;
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+    }
+
+    currentRotationX += (targetRotationX - currentRotationX) * 0.15;
+    currentRotationY += (targetRotationY - currentRotationY) * 0.15;
+
+    const time = (performance.now() - startTime) / 1000;
+
+    const uniformData = new Float32Array([
+        width, height, 
+        mouseX, mouseY, 
+        currentRotationX, currentRotationY,
+        time, 0 // Padding
+    ]);
+    device.queue.writeBuffer(uniformBuffer, 0, uniformData);
+
+    const commandEncoder = device.createCommandEncoder();
+    const textureView = context.getCurrentTexture().createView();
+
+    const renderPassDescriptor: GPURenderPassDescriptor = {
+      colorAttachments: [
+        {
+          view: textureView,
+          clearValue: { r: 0.2235, g: 0.2314, b: 0.2706, a: 1.0 }, // hsl(220, 7%, 24%)
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
+    };
+
+    const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+    passEncoder.setPipeline(pipeline);
+    passEncoder.setBindGroup(0, bindGroup);
+    passEncoder.setVertexBuffer(0, vertexBuffer);
+    passEncoder.setIndexBuffer(indexBuffer, 'uint16');
+    passEncoder.drawIndexed(indices.length);
+    passEncoder.end();
+
+    device.queue.submit([commandEncoder.finish()]);
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+}
+
+init();
