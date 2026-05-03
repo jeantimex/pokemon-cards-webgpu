@@ -4,7 +4,7 @@ import path from 'node:path';
 
 const cdn = 'https://poke-holo.b-cdn.net';
 const cards = JSON.parse(await readFile(path.resolve('public/cards.json'), 'utf8'));
-const wanted = new Set(['amazing rare', 'rare holo cosmos']);
+const wanted = new Set(['amazing rare', 'rare holo', 'rare holo cosmos']);
 
 function getFoilParts(card) {
   const rarity = card.rarity.toLowerCase();
@@ -18,7 +18,8 @@ function getFoilParts(card) {
     .toLowerCase()
     .replace(/(tg|gg|sv)/, '');
   const etch = rarity === 'amazing rare' ? 'etched' : 'holo';
-  const style = rarity === 'amazing rare' ? 'swsecret' : 'cosmos';
+  const style =
+    rarity === 'amazing rare' ? 'swsecret' : rarity === 'rare holo' ? 'swholo' : 'cosmos';
 
   return { number, set, etch, style };
 }

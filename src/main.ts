@@ -2,6 +2,7 @@ import './style.css';
 import './effects/common-and-uncommon/index.css';
 import './effects/galaxy-cosmos-holofoil/index.css';
 import './effects/holofoil-amazing-rare/index.css';
+import './effects/holofoil-rare/index.css';
 import shaderCode from './shaders.wgsl?raw';
 import { GUI } from 'lil-gui';
 
@@ -159,7 +160,7 @@ async function init() {
 
   function getLocalFoilImageUrl(card: Card, type: 'foils' | 'masks') {
     const rarity = card.rarity.toLowerCase();
-    if (rarity !== 'rare holo cosmos' && rarity !== 'amazing rare') {
+    if (rarity !== 'rare holo cosmos' && rarity !== 'amazing rare' && rarity !== 'rare holo') {
       return '';
     }
 
@@ -169,7 +170,8 @@ async function init() {
       .toLowerCase()
       .replace(/(tg|gg|sv)/, '');
     const etch = rarity === 'amazing rare' ? 'etched' : 'holo';
-    const style = rarity === 'amazing rare' ? 'swsecret' : 'cosmos';
+    const style =
+      rarity === 'amazing rare' ? 'swsecret' : rarity === 'rare holo' ? 'swholo' : 'cosmos';
 
     return `/foils/${foilSet}/${type}/upscaled/${foilNumber}_foil_${etch}_${style}_2x.webp`;
   }
@@ -187,7 +189,9 @@ async function init() {
   }
 
   function getCardClass(card: Card) {
-    return ['card', 'interactive', ...card.types.map((type) => type.toLowerCase())].join(' ');
+    return ['card', 'interactive', ...(card.types ?? []).map((type) => type.toLowerCase())].join(
+      ' ',
+    );
   }
 
   const cssCardSeeds = new Map<string, { x: number; y: number }>();
@@ -217,7 +221,7 @@ async function init() {
     cssCard.classList.toggle('masked', !!maskUrl);
     cssCard.dataset.number = card.number.toLowerCase();
     cssCard.dataset.set = card.set;
-    cssCard.dataset.subtypes = card.subtypes.join(' ').toLowerCase();
+    cssCard.dataset.subtypes = (card.subtypes ?? []).join(' ').toLowerCase();
     cssCard.dataset.supertype = card.supertype.toLowerCase();
     cssCard.dataset.rarity = card.rarity.toLowerCase();
     cssCard.dataset.trainerGallery = String(!!card.number.match(/^[tg]g/i));
