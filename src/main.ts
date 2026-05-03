@@ -41,7 +41,7 @@ async function init() {
   const cardsResponse = await fetch('/cards.json');
   const cards: Card[] = await cardsResponse.json();
 
-  // Initial card
+  // Initial card (Showcase Pikachu)
   let activeCard = cards[0];
 
   const sampler = device.createSampler({
@@ -172,33 +172,59 @@ async function init() {
   // Initial texture load
   await updateTexture(activeCard.images.large);
 
-  // Group cards into logical categories
+  // Group cards into Logical Sections matching the homepage
   const categories: Record<string, Card[]> = {
-    'Basics': cards.filter(c => ['Common', 'Uncommon'].includes(c.rarity)),
-    'Holo Rares': cards.filter(c => ['Rare Holo', 'trainer gallery rare holo', 'Trainer Gallery Rare Holo'].includes(c.rarity)),
-    'Galaxy Holo': cards.filter(c => c.rarity === 'Rare Holo Cosmos'),
-    'Radiant': cards.filter(c => c.rarity === 'Radiant Rare'),
-    'V / VMAX / VSTAR': cards.filter(c => ['Rare Holo V', 'Rare Holo VMAX', 'Rare Holo VSTAR', 'Rare Ultra', 'Rare Rainbow', 'Rare Rainbow Alt'].includes(c.rarity)),
-    'Amazing Rare': cards.filter(c => c.rarity === 'Amazing Rare'),
-    'Secret Rare': cards.filter(c => c.rarity === 'Rare Secret'),
-    'Shiny Vault': cards.filter(c => c.rarity === 'Rare Shiny'),
+    'Secret Rare (Gold)': [cards[0], ...cards.slice(58, 64)],
+    'Common & Uncommon': cards.slice(1, 4),
+    'Reverse Holo non-rares': [...cards.slice(4, 7), ...cards.slice(70, 76)],
+    'Holofoil Rare': cards.slice(7, 13),
+    'Galaxy/Cosmos Holofoil': cards.slice(13, 16),
+    'Holofoil Amazing Rare': cards.slice(76, 85),
+    'Radiant Holofoil': cards.slice(16, 19),
+    'Trainer Gallery Holofoil': cards.slice(19, 22),
+    'Pokemon V': cards.slice(22, 25),
+    'Pokemon V (Full Art)': cards.slice(25, 28),
+    'Pokemon V (Alternate Art)': cards.slice(28, 34),
+    'VMax': cards.slice(37, 40),
+    'VMax (Alternate/Rainbow)': cards.slice(40, 43),
+    'VStar': cards.slice(43, 46),
+    'Trainer Holo': cards.slice(46, 52),
+    'Rainbow Rare': cards.slice(52, 58),
+    'Trainer Gallery (V / VMax)': cards.slice(64, 70),
+    'Shiny Vault': cards.slice(85, 91),
   };
-
-  // Flatten cards into a single map with category prefixes
-  const cardMap: Record<string, string> = {};
-  for (const [category, groupCards] of Object.entries(categories)) {
-    groupCards.forEach(c => {
-      cardMap[`[${category}] ${c.name}`] = c.id;
-    });
-  }
 
   // GUI Setup
   const gui = new GUI({ title: 'Card Library' });
   const guiState = {
+    category: 'Secret Rare (Gold)',
     activeId: activeCard.id
   };
 
-  gui.add(guiState, 'activeId', cardMap)
+  // Helper to get card map for a category
+  const getCardMap = (cat: string) => {
+    return Object.fromEntries(categories[cat].map(c => [c.name, c.id]));
+  };
+
+  // Dropdown for Type (Category)
+  gui.add(guiState, 'category', Object.keys(categories))
+    .name('Type')
+    .onChange(async (cat: string) => {
+        const group = categories[cat];
+        if (group.length > 0) {
+            const firstCard = group[0];
+            guiState.activeId = firstCard.id;
+            
+            // Update Card dropdown options
+            cardDropdown.options(getCardMap(cat));
+            cardDropdown.updateDisplay();
+            
+            await updateTexture(firstCard.images.large);
+        }
+    });
+
+  // Dropdown for specific Card
+  const cardDropdown = gui.add(guiState, 'activeId', getCardMap(guiState.category))
     .name('Select Card')
     .onChange(async (id: string) => {
       const card = cards.find(c => c.id === id);
