@@ -4,11 +4,6 @@ import { createCategory } from './category-utils';
 export function createOtherCategories(cards: Card[]) {
   return [
     createCategory(
-      'Secret Rare (Gold)',
-      'GOLD! Here we apply two glitter layers on top of each other with a overlay effect and slide the two layers in opposite directions.',
-      cards.slice(58, 64),
-    ),
-    createCategory(
       'Trainer Gallery Holofoil',
       'Kind of metallic effect with iridescent shine. Achieved with a large color dodge linear gradient.',
       cards.slice(19, 22),

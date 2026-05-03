@@ -10,6 +10,7 @@ const wanted = new Set([
   'rare holo cosmos',
   'rare holo v',
   'rare ultra',
+  'rare secret',
 ]);
 
 const reverseIds = new Set([
@@ -41,6 +42,7 @@ function getFoilParts(card) {
   const etch =
     rarity === 'amazing rare' ||
     rarity === 'rare ultra' ||
+    rarity === 'rare secret' ||
     ((isGallery || isShiny) && rarity === 'rare holo v')
       ? 'etched'
       : 'holo';
@@ -53,9 +55,11 @@ function getFoilParts(card) {
           ? 'sunpillar'
           : rarity === 'rare ultra'
             ? 'sunpillar'
-            : isReverse
-              ? 'reverse'
-              : 'cosmos';
+            : rarity === 'rare secret'
+              ? 'swsecret'
+              : isReverse
+                ? 'reverse'
+                : 'cosmos';
 
   return { number, set, etch, style };
 }

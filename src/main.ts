@@ -3,6 +3,7 @@ import './effects/common-and-uncommon/index.css';
 import './effects/galaxy-cosmos-holofoil/index.css';
 import './effects/holofoil-amazing-rare/index.css';
 import './effects/holofoil-rare/index.css';
+import './effects/secret-rare/index.css';
 import './effects/reverse-holo/index.css';
 import './effects/pokemon-v/index.css';
 import './effects/pokemon-v-full-art/index.css';

@@ -15,6 +15,7 @@ export function getLocalFoilImageUrl(card: Card, type: 'foils' | 'masks', varian
     rarity !== 'rare holo' &&
     rarity !== 'rare holo v' &&
     rarity !== 'rare ultra' &&
+    rarity !== 'rare secret' &&
     !isReverse
   ) {
     return '';
@@ -30,6 +31,7 @@ export function getLocalFoilImageUrl(card: Card, type: 'foils' | 'masks', varian
   const etch =
     rarity === 'amazing rare' ||
     rarity === 'rare ultra' ||
+    rarity === 'rare secret' ||
     ((isGallery || isShiny) && rarity === 'rare holo v')
       ? 'etched'
       : 'holo';
@@ -42,9 +44,11 @@ export function getLocalFoilImageUrl(card: Card, type: 'foils' | 'masks', varian
           ? 'sunpillar'
           : rarity === 'rare ultra'
             ? 'sunpillar'
-            : isReverse
-              ? 'reverse'
-              : 'cosmos';
+            : rarity === 'rare secret'
+              ? 'swsecret'
+              : isReverse
+                ? 'reverse'
+                : 'cosmos';
 
   return `/foils/${foilSet}/${type}/upscaled/${foilNumber}_foil_${etch}_${style}_2x.webp`;
 }
