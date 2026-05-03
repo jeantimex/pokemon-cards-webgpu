@@ -5,6 +5,7 @@ import { GUI } from 'lil-gui'
 interface Card {
   id: string;
   name: string;
+  rarity: string;
   images: {
     large: string;
   };
@@ -171,21 +172,40 @@ async function init() {
   // Initial texture load
   await updateTexture(activeCard.images.large);
 
-  // GUI Setup
-  const gui = new GUI();
-  const options = {
-    card: activeCard.id
+  // Group cards into logical categories
+  const categories: Record<string, Card[]> = {
+    'Basics': cards.filter(c => ['Common', 'Uncommon'].includes(c.rarity)),
+    'Holo Rares': cards.filter(c => ['Rare Holo', 'trainer gallery rare holo', 'Trainer Gallery Rare Holo'].includes(c.rarity)),
+    'Galaxy Holo': cards.filter(c => c.rarity === 'Rare Holo Cosmos'),
+    'Radiant': cards.filter(c => c.rarity === 'Radiant Rare'),
+    'V / VMAX / VSTAR': cards.filter(c => ['Rare Holo V', 'Rare Holo VMAX', 'Rare Holo VSTAR', 'Rare Ultra', 'Rare Rainbow', 'Rare Rainbow Alt'].includes(c.rarity)),
+    'Amazing Rare': cards.filter(c => c.rarity === 'Amazing Rare'),
+    'Secret Rare': cards.filter(c => c.rarity === 'Rare Secret'),
+    'Shiny Vault': cards.filter(c => c.rarity === 'Rare Shiny'),
   };
 
-  const cardMap = Object.fromEntries(cards.map(c => [`${c.name} (${c.id})`, c.id]));
+  // Flatten cards into a single map with category prefixes
+  const cardMap: Record<string, string> = {};
+  for (const [category, groupCards] of Object.entries(categories)) {
+    groupCards.forEach(c => {
+      cardMap[`[${category}] ${c.name}`] = c.id;
+    });
+  }
 
-  gui.add(options, 'card', cardMap).name('Select Card').onChange(async (id: string) => {
-    const card = cards.find(c => c.id === id);
-    if (card) {
-      activeCard = card;
-      await updateTexture(card.images.large);
-    }
-  });
+  // GUI Setup
+  const gui = new GUI({ title: 'Card Library' });
+  const guiState = {
+    activeId: activeCard.id
+  };
+
+  gui.add(guiState, 'activeId', cardMap)
+    .name('Select Card')
+    .onChange(async (id: string) => {
+      const card = cards.find(c => c.id === id);
+      if (card) {
+        await updateTexture(card.images.large);
+      }
+    });
 
   let mouseX = 0.5;
   let mouseY = 0.5;
