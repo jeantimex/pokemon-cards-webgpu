@@ -1,5 +1,5 @@
-@import "./base.css";
-@import "./basic.css";
+@import './base.css';
+@import './basic.css';
 
 .pane-css .card {
   width: min(60cqh, calc(100cqw - 48px));

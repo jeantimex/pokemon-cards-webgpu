@@ -1,7 +1,8 @@
-import './style.css'
-import './effects/common-and-uncommon/index.css'
-import shaderCode from './shaders.wgsl?raw'
-import { GUI } from 'lil-gui'
+import './style.css';
+import './effects/common-and-uncommon/index.css';
+import './effects/galaxy-cosmos-holofoil/index.css';
+import shaderCode from './shaders.wgsl?raw';
+import { GUI } from 'lil-gui';
 
 interface Card {
   id: string;
@@ -19,13 +20,13 @@ interface Card {
 
 async function init() {
   if (!navigator.gpu) {
-    alert("WebGPU not supported on this browser.");
+    alert('WebGPU not supported on this browser.');
     return;
   }
 
   const adapter = await navigator.gpu.requestAdapter();
   if (!adapter) {
-    alert("No appropriate GPUAdapter found.");
+    alert('No appropriate GPUAdapter found.');
     return;
   }
 
@@ -67,18 +68,27 @@ async function init() {
 
   // Quad geometry (Larger than the card to accommodate the shadow)
   const cardAspect = 0.718;
-  const quadScale = 1.2; 
+  const quadScale = 1.2;
   const vertices = new Float32Array([
-    -1.0 * quadScale, -1.0 / cardAspect * quadScale, 0, 1,
-     1.0 * quadScale, -1.0 / cardAspect * quadScale, 1, 1,
-     1.0 * quadScale,  1.0 / cardAspect * quadScale, 1, 0,
-    -1.0 * quadScale,  1.0 / cardAspect * quadScale, 0, 0,
+    -1.0 * quadScale,
+    (-1.0 / cardAspect) * quadScale,
+    0,
+    1,
+    1.0 * quadScale,
+    (-1.0 / cardAspect) * quadScale,
+    1,
+    1,
+    1.0 * quadScale,
+    (1.0 / cardAspect) * quadScale,
+    1,
+    0,
+    -1.0 * quadScale,
+    (1.0 / cardAspect) * quadScale,
+    0,
+    0,
   ]);
 
-  const indices = new Uint16Array([
-    0, 1, 2,
-    0, 2, 3,
-  ]);
+  const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
 
   const vertexBuffer = device.createBuffer({
     size: vertices.byteLength,
@@ -93,7 +103,7 @@ async function init() {
   device.queue.writeBuffer(indexBuffer, 0, indices);
 
   const uniformBuffer = device.createBuffer({
-    size: 32, 
+    size: 32,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -115,21 +125,23 @@ async function init() {
     fragment: {
       module: shaderModule,
       entryPoint: 'fragmentMain',
-      targets: [{ 
-        format: presentationFormat,
-        blend: {
+      targets: [
+        {
+          format: presentationFormat,
+          blend: {
             color: {
-                srcFactor: 'one',
-                dstFactor: 'one-minus-src-alpha',
-                operation: 'add',
+              srcFactor: 'one',
+              dstFactor: 'one-minus-src-alpha',
+              operation: 'add',
             },
             alpha: {
-                srcFactor: 'one',
-                dstFactor: 'one-minus-src-alpha',
-                operation: 'add',
+              srcFactor: 'one',
+              dstFactor: 'one-minus-src-alpha',
+              operation: 'add',
             },
-        }
-      }],
+          },
+        },
+      ],
     },
     primitive: {
       topology: 'triangle-list',
@@ -144,6 +156,21 @@ async function init() {
     return `/cards${url.pathname}`;
   }
 
+  function getLocalFoilImageUrl(card: Card, type: 'foils' | 'masks') {
+    const rarity = card.rarity.toLowerCase();
+    if (rarity !== 'rare holo cosmos') {
+      return '';
+    }
+
+    const foilNumber = card.number.toString().toLowerCase().replace('swsh', '').padStart(3, '0');
+    const foilSet = card.set
+      .toString()
+      .toLowerCase()
+      .replace(/(tg|gg|sv)/, '');
+
+    return `/foils/${foilSet}/${type}/upscaled/${foilNumber}_foil_holo_cosmos_2x.webp`;
+  }
+
   function clamp(value: number, min = 0, max = 100) {
     return Math.min(Math.max(value, min), max);
   }
@@ -153,24 +180,38 @@ async function init() {
   }
 
   function adjust(value: number, fromMin: number, fromMax: number, toMin: number, toMax: number) {
-    return round(toMin + (toMax - toMin) * (value - fromMin) / (fromMax - fromMin));
+    return round(toMin + ((toMax - toMin) * (value - fromMin)) / (fromMax - fromMin));
   }
 
   function getCardClass(card: Card) {
-    return ['card', 'interactive', ...card.types.map(type => type.toLowerCase())].join(' ');
+    return ['card', 'interactive', ...card.types.map((type) => type.toLowerCase())].join(' ');
+  }
+
+  const cssCardSeeds = new Map<string, { x: number; y: number }>();
+
+  function getCssCardSeed(card: Card) {
+    let seed = cssCardSeeds.get(card.id);
+    if (!seed) {
+      seed = {
+        x: Math.random(),
+        y: Math.random(),
+      };
+      cssCardSeeds.set(card.id, seed);
+    }
+    return seed;
   }
 
   function updateCssCard(card: Card, imageUrl: string) {
-    const randomSeed = {
-      x: Math.random(),
-      y: Math.random(),
-    };
+    const randomSeed = getCssCardSeed(card);
     const cosmosPosition = {
       x: Math.floor(randomSeed.x * 734),
       y: Math.floor(randomSeed.y * 1280),
     };
 
     cssCard.className = `${getCardClass(card)} loading`;
+    const maskUrl = getLocalFoilImageUrl(card, 'masks');
+    const foilUrl = getLocalFoilImageUrl(card, 'foils');
+    cssCard.classList.toggle('masked', !!maskUrl);
     cssCard.dataset.number = card.number.toLowerCase();
     cssCard.dataset.set = card.set;
     cssCard.dataset.subtypes = card.subtypes.join(' ').toLowerCase();
@@ -182,6 +223,13 @@ async function init() {
     cssCardFront.style.setProperty('--seedx', String(randomSeed.x));
     cssCardFront.style.setProperty('--seedy', String(randomSeed.y));
     cssCardFront.style.setProperty('--cosmosbg', `${cosmosPosition.x}px ${cosmosPosition.y}px`);
+    if (maskUrl) {
+      cssCardFront.style.setProperty('--mask', `url(${maskUrl})`);
+      cssCardFront.style.setProperty('--foil', `url(${foilUrl})`);
+    } else {
+      cssCardFront.style.removeProperty('--mask');
+      cssCardFront.style.removeProperty('--foil');
+    }
     cssCardImage.onload = () => {
       cssCard.classList.remove('loading');
     };
@@ -194,20 +242,19 @@ async function init() {
     const source = await createImageBitmap(blob);
 
     if (texture) {
-        texture.destroy();
+      texture.destroy();
     }
 
     texture = device.createTexture({
       size: [source.width, source.height, 1],
       format: 'rgba8unorm',
-      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
-    device.queue.copyExternalImageToTexture(
-      { source },
-      { texture },
-      [source.width, source.height]
-    );
+    device.queue.copyExternalImageToTexture({ source }, { texture }, [source.width, source.height]);
 
     bindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
@@ -249,9 +296,9 @@ async function init() {
     'Pokemon V': cards.slice(22, 25),
     'Pokemon V (Full Art)': cards.slice(25, 28),
     'Pokemon V (Alternate Art)': cards.slice(28, 34),
-    'VMax': cards.slice(37, 40),
+    VMax: cards.slice(37, 40),
     'VMax (Alternate/Rainbow)': cards.slice(40, 43),
-    'VStar': cards.slice(43, 46),
+    VStar: cards.slice(43, 46),
     'Trainer Holo': cards.slice(46, 52),
     'Rainbow Rare': cards.slice(52, 58),
     'Trainer Gallery (V / VMax)': cards.slice(64, 70),
@@ -259,38 +306,58 @@ async function init() {
   };
   const categories = Object.fromEntries(
     Object.entries(unsortedCategories)
-      .map(([category, categoryCards]) => [
-        category,
-        categoryCards
-          .filter(card => !excludedCardIds.has(card.id))
-          .sort((a, b) => a.name.localeCompare(b.name)),
-      ] as const)
+      .map(
+        ([category, categoryCards]) =>
+          [
+            category,
+            categoryCards
+              .filter((card) => !excludedCardIds.has(card.id))
+              .sort((a, b) => a.name.localeCompare(b.name)),
+          ] as const,
+      )
       .filter(([, categoryCards]) => categoryCards.length > 0)
-      .sort(([a], [b]) => a.localeCompare(b))
+      .sort(([a], [b]) => a.localeCompare(b)),
   );
   const categoryNames = Object.keys(categories);
   const initialCategory = categoryNames[0];
   const initialCard = categories[initialCategory][0];
 
   const descriptions: Record<string, string> = {
-    'Secret Rare (Gold)': 'GOLD! Here we apply two glitter layers on top of each other with a overlay effect and slide the two layers in opposite directions.',
-    'Common & Uncommon': 'All cards get a 3d rotation with CSS based on the cursor position. The default basic non-holo cards simply apply a flare/glare effect.',
-    'Reverse Holo non-rares': 'Reverse holo cards come in many shapes and sizes. The background uses a foil and a mask layer along with a glare.',
-    'Holofoil Rare': 'Holo cards have an additional vertical beam holo effect. This uses a combintation of repeating gradients and filters.',
-    'Galaxy/Cosmos Holofoil': 'Special image background of a galaxy effect with a gradient rainbow set to color-dodge & color-burn on top.',
-    'Holofoil Amazing Rare': 'Unique shiny foil that extends past the frame and is much shinier than a regular holo effect, and textured.',
-    'Radiant Holofoil': 'The newest holofoil added to the series! Uses a criss-cross linear gradient pattern that moves across the card.',
-    'Trainer Gallery Holofoil': 'Kind of metallic effect with iridescent shine. Achieved with a large color dodge linear gradient.',
-    'Pokemon V': 'Diagonal holographic effect which that appears to travel in opposite directions when you tilt the card.',
-    'Pokemon V (Full Art)': 'Similar to the Pokemon V effect, but they have additional texture when looked at from certain angles.',
-    'Pokemon V (Alternate Art)': 'Practically the same holo effect as the Ultra Rare (Full Art) cards. The only difference is the pattern texture.',
-    'VMax': 'The gradient effect of Pokemon VMax is more subtle, using a larger background gradient which moves more slowly.',
-    'VMax (Alternate/Rainbow)': 'Vibrant and glittery overlay. Achieved with a background image of glitter/sparkles sandwiching linear gradients.',
-    'VStar': 'Diagonal gradients overlaying a texture. Brighter with a pastel hue, making the gradient and texture more subtle.',
-    'Trainer Holo': 'Diagonal gradients overlaying a texture, quite similar to the Ultra Rare cards but generally brighter.',
-    'Rainbow Rare': 'Super glittery effect on top of pastel gradients. Achieved with background glitter and color-burn/hard-light blends.',
-    'Trainer Gallery (V / VMax)': 'Generally quite similar to the normal V and VMax cards, with a different background texture.',
-    'Shiny Vault': 'Foil background is a shiny silver color. Applied with radial gradients to darken the foil over the background.',
+    'Secret Rare (Gold)':
+      'GOLD! Here we apply two glitter layers on top of each other with a overlay effect and slide the two layers in opposite directions.',
+    'Common & Uncommon':
+      'All cards get a 3d rotation with CSS based on the cursor position. The default basic non-holo cards simply apply a flare/glare effect.',
+    'Reverse Holo non-rares':
+      'Reverse holo cards come in many shapes and sizes. The background uses a foil and a mask layer along with a glare.',
+    'Holofoil Rare':
+      'Holo cards have an additional vertical beam holo effect. This uses a combintation of repeating gradients and filters.',
+    'Galaxy/Cosmos Holofoil':
+      'Special image background of a galaxy effect with a gradient rainbow set to color-dodge & color-burn on top.',
+    'Holofoil Amazing Rare':
+      'Unique shiny foil that extends past the frame and is much shinier than a regular holo effect, and textured.',
+    'Radiant Holofoil':
+      'The newest holofoil added to the series! Uses a criss-cross linear gradient pattern that moves across the card.',
+    'Trainer Gallery Holofoil':
+      'Kind of metallic effect with iridescent shine. Achieved with a large color dodge linear gradient.',
+    'Pokemon V':
+      'Diagonal holographic effect which that appears to travel in opposite directions when you tilt the card.',
+    'Pokemon V (Full Art)':
+      'Similar to the Pokemon V effect, but they have additional texture when looked at from certain angles.',
+    'Pokemon V (Alternate Art)':
+      'Practically the same holo effect as the Ultra Rare (Full Art) cards. The only difference is the pattern texture.',
+    VMax: 'The gradient effect of Pokemon VMax is more subtle, using a larger background gradient which moves more slowly.',
+    'VMax (Alternate/Rainbow)':
+      'Vibrant and glittery overlay. Achieved with a background image of glitter/sparkles sandwiching linear gradients.',
+    VStar:
+      'Diagonal gradients overlaying a texture. Brighter with a pastel hue, making the gradient and texture more subtle.',
+    'Trainer Holo':
+      'Diagonal gradients overlaying a texture, quite similar to the Ultra Rare cards but generally brighter.',
+    'Rainbow Rare':
+      'Super glittery effect on top of pastel gradients. Achieved with background glitter and color-burn/hard-light blends.',
+    'Trainer Gallery (V / VMax)':
+      'Generally quite similar to the normal V and VMax cards, with a different background texture.',
+    'Shiny Vault':
+      'Foil background is a shiny silver color. Applied with radial gradients to darken the foil over the background.',
   };
 
   // GUI Setup
@@ -307,35 +374,37 @@ async function init() {
 
   // Helper to get card map for a category
   const getCardMap = (cat: string) => {
-    return Object.fromEntries(categories[cat].map(c => [c.name, c.id]));
+    return Object.fromEntries(categories[cat].map((c) => [c.name, c.id]));
   };
 
   // Dropdown for Type (Category)
-  const typeController = gui.add(guiState, 'category', categoryNames)
+  const typeController = gui
+    .add(guiState, 'category', categoryNames)
     .name('Type')
     .onChange(async (cat: string) => {
-        const group = categories[cat];
-        if (group.length > 0) {
-            const firstCard = group[0];
-            guiState.activeId = firstCard.id;
-            
-            // Update Description and Card dropdown options
-            descEl.textContent = descriptions[cat];
-            cardDropdown.options(getCardMap(cat));
-            cardDropdown.updateDisplay();
-            
-            await updateCard(firstCard);
-        }
+      const group = categories[cat];
+      if (group.length > 0) {
+        const firstCard = group[0];
+        guiState.activeId = firstCard.id;
+
+        // Update Description and Card dropdown options
+        descEl.textContent = descriptions[cat];
+        cardDropdown.options(getCardMap(cat));
+        cardDropdown.updateDisplay();
+
+        await updateCard(firstCard);
+      }
     });
 
   // Inject the description element after the Type dropdown
   typeController.domElement.parentElement?.appendChild(descEl);
 
   // Dropdown for specific Card
-  const cardDropdown = gui.add(guiState, 'activeId', getCardMap(guiState.category))
+  const cardDropdown = gui
+    .add(guiState, 'activeId', getCardMap(guiState.category))
     .name('Select Card')
     .onChange(async (id: string) => {
-      const card = cards.find(c => c.id === id);
+      const card = cards.find((c) => c.id === id);
       if (card) {
         await updateCard(card);
       }
@@ -373,11 +442,11 @@ async function init() {
   function setCssCardVars(values: typeof cssTarget) {
     const pointerFromCenter = clamp(
       Math.sqrt(
-        (values.pointerY - 50) * (values.pointerY - 50)
-        + (values.pointerX - 50) * (values.pointerX - 50)
+        (values.pointerY - 50) * (values.pointerY - 50) +
+          (values.pointerX - 50) * (values.pointerX - 50),
       ) / 50,
       0,
-      1
+      1,
     );
 
     cssCard.style.setProperty('--pointer-x', `${values.pointerX}%`);
@@ -444,11 +513,17 @@ async function init() {
 
   window.addEventListener('mousemove', (e) => {
     const cssRect = cssPane.getBoundingClientRect();
-    const isOverCssPane = e.clientX >= cssRect.left && e.clientX <= cssRect.right
-      && e.clientY >= cssRect.top && e.clientY <= cssRect.bottom;
+    const isOverCssPane =
+      e.clientX >= cssRect.left &&
+      e.clientX <= cssRect.right &&
+      e.clientY >= cssRect.top &&
+      e.clientY <= cssRect.bottom;
     const webgpuRect = canvas.getBoundingClientRect();
-    const isOverWebgpuPane = e.clientX >= webgpuRect.left && e.clientX <= webgpuRect.right
-      && e.clientY >= webgpuRect.top && e.clientY <= webgpuRect.bottom;
+    const isOverWebgpuPane =
+      e.clientX >= webgpuRect.left &&
+      e.clientX <= webgpuRect.right &&
+      e.clientY >= webgpuRect.top &&
+      e.clientY <= webgpuRect.bottom;
     const activeRect = isOverCssPane ? cssRect : isOverWebgpuPane ? webgpuRect : null;
 
     if (!activeRect) {
@@ -460,10 +535,10 @@ async function init() {
     mouseY = (e.clientY - activeRect.top) / activeRect.height;
     mouseX = Math.min(Math.max(mouseX, 0), 1);
     mouseY = Math.min(Math.max(mouseY, 0), 1);
-    
+
     const centerX = mouseX - 0.5;
     const centerY = mouseY - 0.5;
-    targetRotationX = -centerX * (Math.PI / 6); 
+    targetRotationX = -centerX * (Math.PI / 6);
     targetRotationY = -centerY * (Math.PI / 6);
   });
 
@@ -512,37 +587,41 @@ async function init() {
     const time = (performance.now() - startTime) / 1000;
 
     const uniformData = new Float32Array([
-        renderWidth, renderHeight,
-        mouseX, mouseY, 
-        currentRotationX, currentRotationY,
-        time, devicePixelRatio 
+      renderWidth,
+      renderHeight,
+      mouseX,
+      mouseY,
+      currentRotationX,
+      currentRotationY,
+      time,
+      devicePixelRatio,
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
     if (bindGroup) {
-        const commandEncoder = device.createCommandEncoder();
-        const textureView = context.getCurrentTexture().createView();
+      const commandEncoder = device.createCommandEncoder();
+      const textureView = context.getCurrentTexture().createView();
 
-        const renderPassDescriptor: GPURenderPassDescriptor = {
-          colorAttachments: [
-            {
-              view: textureView,
-              clearValue: { r: 0.2235, g: 0.2314, b: 0.2706, a: 1.0 }, 
-              loadOp: 'clear',
-              storeOp: 'store',
-            },
-          ],
-        };
+      const renderPassDescriptor: GPURenderPassDescriptor = {
+        colorAttachments: [
+          {
+            view: textureView,
+            clearValue: { r: 0.2235, g: 0.2314, b: 0.2706, a: 1.0 },
+            loadOp: 'clear',
+            storeOp: 'store',
+          },
+        ],
+      };
 
-        const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
-        passEncoder.setPipeline(pipeline);
-        passEncoder.setBindGroup(0, bindGroup);
-        passEncoder.setVertexBuffer(0, vertexBuffer);
-        passEncoder.setIndexBuffer(indexBuffer, 'uint16');
-        passEncoder.drawIndexed(indices.length);
-        passEncoder.end();
+      const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor);
+      passEncoder.setPipeline(pipeline);
+      passEncoder.setBindGroup(0, bindGroup);
+      passEncoder.setVertexBuffer(0, vertexBuffer);
+      passEncoder.setIndexBuffer(indexBuffer, 'uint16');
+      passEncoder.drawIndexed(indices.length);
+      passEncoder.end();
 
-        device.queue.submit([commandEncoder.finish()]);
+      device.queue.submit([commandEncoder.finish()]);
     }
     requestAnimationFrame(frame);
   }

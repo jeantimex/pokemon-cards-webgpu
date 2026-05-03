@@ -42,8 +42,8 @@ For this card type, the reference `basic.css` is mostly a placeholder. The basic
 This project's local entry point for the effect. It imports the copied reference files and adds only comparison-pane sizing glue:
 
 ```css
-@import "./base.css";
-@import "./basic.css";
+@import './base.css';
+@import './basic.css';
 
 .pane-css .card {
   width: min(60cqh, calc(100cqw - 48px));
