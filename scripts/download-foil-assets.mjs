@@ -4,7 +4,13 @@ import path from 'node:path';
 
 const cdn = 'https://poke-holo.b-cdn.net';
 const cards = JSON.parse(await readFile(path.resolve('public/cards.json'), 'utf8'));
-const wanted = new Set(['amazing rare', 'rare holo', 'rare holo cosmos', 'rare holo v']);
+const wanted = new Set([
+  'amazing rare',
+  'rare holo',
+  'rare holo cosmos',
+  'rare holo v',
+  'rare ultra',
+]);
 
 function getFoilParts(card) {
   const rarity = card.rarity.toLowerCase();
@@ -20,7 +26,9 @@ function getFoilParts(card) {
   const isGallery = !!card.number.match(/^[tg]g/i);
   const isShiny = card.number.toLowerCase().startsWith('sv');
   const etch =
-    rarity === 'amazing rare' || ((isGallery || isShiny) && rarity === 'rare holo v')
+    rarity === 'amazing rare' ||
+    rarity === 'rare ultra' ||
+    ((isGallery || isShiny) && rarity === 'rare holo v')
       ? 'etched'
       : 'holo';
   const style =
@@ -30,7 +38,9 @@ function getFoilParts(card) {
         ? 'swholo'
         : rarity === 'rare holo v'
           ? 'sunpillar'
-          : 'cosmos';
+          : rarity === 'rare ultra'
+            ? 'sunpillar'
+            : 'cosmos';
 
   return { number, set, etch, style };
 }

@@ -4,6 +4,8 @@ import './effects/galaxy-cosmos-holofoil/index.css';
 import './effects/holofoil-amazing-rare/index.css';
 import './effects/holofoil-rare/index.css';
 import './effects/pokemon-v/index.css';
+import './effects/pokemon-v-full-art/index.css';
+import './effects/pokemon-v-alternate-art/index.css';
 import shaderCode from './shaders.wgsl?raw';
 import { GUI } from 'lil-gui';
 
@@ -165,7 +167,8 @@ async function init() {
       rarity !== 'rare holo cosmos' &&
       rarity !== 'amazing rare' &&
       rarity !== 'rare holo' &&
-      rarity !== 'rare holo v'
+      rarity !== 'rare holo v' &&
+      rarity !== 'rare ultra'
     ) {
       return '';
     }
@@ -178,7 +181,9 @@ async function init() {
     const isGallery = !!card.number.match(/^[tg]g/i);
     const isShiny = card.number.toLowerCase().startsWith('sv');
     const etch =
-      rarity === 'amazing rare' || ((isGallery || isShiny) && rarity === 'rare holo v')
+      rarity === 'amazing rare' ||
+      rarity === 'rare ultra' ||
+      ((isGallery || isShiny) && rarity === 'rare holo v')
         ? 'etched'
         : 'holo';
     const style =
@@ -188,7 +193,9 @@ async function init() {
           ? 'swholo'
           : rarity === 'rare holo v'
             ? 'sunpillar'
-            : 'cosmos';
+            : rarity === 'rare ultra'
+              ? 'sunpillar'
+              : 'cosmos';
 
     return `/foils/${foilSet}/${type}/upscaled/${foilNumber}_foil_${etch}_${style}_2x.webp`;
   }
