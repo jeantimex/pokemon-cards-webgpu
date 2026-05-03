@@ -7,6 +7,7 @@ import './effects/pokemon-v/index.css';
 import './effects/pokemon-v-full-art/index.css';
 import './effects/pokemon-v-alternate-art/index.css';
 import './effects/radiant-holofoil/index.css';
+import './effects/rainbow-rare/index.css';
 import shaderCode from './shaders.wgsl?raw';
 import { GUI } from 'lil-gui';
 
