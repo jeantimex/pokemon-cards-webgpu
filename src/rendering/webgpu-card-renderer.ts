@@ -1,4 +1,8 @@
-import shaderCode from '../effects/common-and-uncommon/shader.wgsl?raw';
+import shaderCode from '../effects/galaxy-cosmos-holofoil/shader.wgsl?raw';
+import { appUrl } from '../app/asset-url';
+import { getLocalFoilImageUrl } from '../effects/asset-paths';
+import type { EffectVariant } from '../effects/category-types';
+import type { Card } from '../types';
 
 interface WebGpuCardRendererOptions {
   canvas: HTMLCanvasElement;
@@ -6,7 +10,7 @@ interface WebGpuCardRendererOptions {
 }
 
 export interface WebGpuCardRenderer {
-  updateTexture(url: string): Promise<void>;
+  updateTexture(url: string, card: Card, categoryName: string, variant: EffectVariant): Promise<void>;
   handlePointerMove(event: PointerEvent): void;
   handlePointerLeave(): void;
   resetPointer(): void;
@@ -91,7 +95,7 @@ export async function createWebGpuCardRenderer({
   device.queue.writeBuffer(indexBuffer, 0, indices);
 
   const uniformBuffer = device.createBuffer({
-    size: 40,
+    size: 64,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -136,8 +140,12 @@ export async function createWebGpuCardRenderer({
     },
   });
 
-  let texture: GPUTexture | null = null;
-  let bindGroup: GPUBindGroup | null = null;
+  let cardTexture = createSolidTexture([255, 255, 255, 255]);
+  let maskTexture = createSolidTexture([0, 0, 0, 0]);
+  let cosmosBottomTexture = createSolidTexture([0, 0, 0, 0]);
+  let cosmosMiddleTexture = createSolidTexture([0, 0, 0, 0]);
+  let cosmosTopTexture = createSolidTexture([0, 0, 0, 0]);
+  let bindGroup = createBindGroup();
   let mouseX = 0.5;
   let mouseY = 0.5;
   let targetRotationX = 0;
@@ -146,6 +154,10 @@ export async function createWebGpuCardRenderer({
   let currentRotationY = 0;
   let targetOpacity = 0;
   let currentOpacity = 0;
+  let effectMode = 0;
+  let clipMode = 0;
+  let cosmosOffsetX = 0;
+  let cosmosOffsetY = 0;
   const startTime = performance.now();
   let renderWidth = 1;
   let renderHeight = 1;
@@ -245,16 +257,30 @@ export async function createWebGpuCardRenderer({
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  async function updateTexture(url: string) {
+  function createSolidTexture(rgba: [number, number, number, number]) {
+    const solidTexture = device.createTexture({
+      size: [1, 1, 1],
+      format: 'rgba8unorm',
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+    });
+    device.queue.writeTexture(
+      { texture: solidTexture },
+      new Uint8Array(rgba),
+      { bytesPerRow: 4 },
+      { width: 1, height: 1 },
+    );
+    return solidTexture;
+  }
+
+  async function createTextureFromUrl(url: string) {
     const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Unable to load texture: ${url}`);
+    }
     const blob = await response.blob();
     const source = await createImageBitmap(blob);
 
-    if (texture) {
-      texture.destroy();
-    }
-
-    texture = device.createTexture({
+    const nextTexture = device.createTexture({
       size: [source.width, source.height, 1],
       format: 'rgba8unorm',
       usage:
@@ -263,9 +289,17 @@ export async function createWebGpuCardRenderer({
         GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
-    device.queue.copyExternalImageToTexture({ source }, { texture }, [source.width, source.height]);
+    device.queue.copyExternalImageToTexture(
+      { source },
+      { texture: nextTexture },
+      [source.width, source.height],
+    );
+    source.close();
+    return nextTexture;
+  }
 
-    bindGroup = device.createBindGroup({
+  function createBindGroup() {
+    return device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         {
@@ -280,10 +314,106 @@ export async function createWebGpuCardRenderer({
         },
         {
           binding: 2,
-          resource: texture.createView(),
+          resource: cardTexture.createView(),
+        },
+        {
+          binding: 3,
+          resource: maskTexture.createView(),
+        },
+        {
+          binding: 4,
+          resource: cosmosBottomTexture.createView(),
+        },
+        {
+          binding: 5,
+          resource: cosmosMiddleTexture.createView(),
+        },
+        {
+          binding: 6,
+          resource: cosmosTopTexture.createView(),
         },
       ],
     });
+  }
+
+  function hashCardId(cardId: string) {
+    let hash = 2166136261;
+    for (let i = 0; i < cardId.length; i += 1) {
+      hash ^= cardId.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return hash >>> 0;
+  }
+
+  function getClipMode(card: Card) {
+    const subtypeText = (card.subtypes ?? []).join(' ').toLowerCase();
+    if (card.supertype.toLowerCase() === 'trainer' || subtypeText.startsWith('supporter')) {
+      return 2;
+    }
+    if (subtypeText.startsWith('stage')) {
+      return 1;
+    }
+    return 0;
+  }
+
+  async function updateTexture(
+    url: string,
+    card: Card,
+    categoryName: string,
+    variant: EffectVariant,
+  ) {
+    const isGalaxyCosmos = categoryName === 'Galaxy/Cosmos Holofoil';
+    const nextCardTexture = await createTextureFromUrl(url);
+    let nextMaskTexture = maskTexture;
+    let nextCosmosBottomTexture = cosmosBottomTexture;
+    let nextCosmosMiddleTexture = cosmosMiddleTexture;
+    let nextCosmosTopTexture = cosmosTopTexture;
+
+    if (isGalaxyCosmos) {
+      const maskUrl = getLocalFoilImageUrl(card, 'masks', categoryName, variant);
+      const [
+        loadedMaskTexture,
+        loadedCosmosBottomTexture,
+        loadedCosmosMiddleTexture,
+        loadedCosmosTopTexture,
+      ] = await Promise.all([
+        createTextureFromUrl(maskUrl),
+        createTextureFromUrl(appUrl('img/cosmos-bottom.png')),
+        createTextureFromUrl(appUrl('img/cosmos-middle-trans.png')),
+        createTextureFromUrl(appUrl('img/cosmos-top-trans.png')),
+      ]);
+
+      nextMaskTexture = loadedMaskTexture;
+      nextCosmosBottomTexture = loadedCosmosBottomTexture;
+      nextCosmosMiddleTexture = loadedCosmosMiddleTexture;
+      nextCosmosTopTexture = loadedCosmosTopTexture;
+    }
+
+    const previousCardTexture = cardTexture;
+    const previousMaskTexture = maskTexture;
+    const previousCosmosBottomTexture = cosmosBottomTexture;
+    const previousCosmosMiddleTexture = cosmosMiddleTexture;
+    const previousCosmosTopTexture = cosmosTopTexture;
+
+    cardTexture = nextCardTexture;
+    maskTexture = isGalaxyCosmos ? nextMaskTexture : createSolidTexture([0, 0, 0, 0]);
+    cosmosBottomTexture = isGalaxyCosmos ? nextCosmosBottomTexture : createSolidTexture([0, 0, 0, 0]);
+    cosmosMiddleTexture = isGalaxyCosmos ? nextCosmosMiddleTexture : createSolidTexture([0, 0, 0, 0]);
+    cosmosTopTexture = isGalaxyCosmos ? nextCosmosTopTexture : createSolidTexture([0, 0, 0, 0]);
+    bindGroup = createBindGroup();
+
+    previousCardTexture.destroy();
+    previousMaskTexture.destroy();
+    previousCosmosBottomTexture.destroy();
+    previousCosmosMiddleTexture.destroy();
+    previousCosmosTopTexture.destroy();
+
+    effectMode = isGalaxyCosmos ? 1 : 0;
+    clipMode = getClipMode(card);
+
+    const seed = hashCardId(card.id);
+    cosmosOffsetX = seed % 734;
+    cosmosOffsetY = ((seed >>> 10) % 1280) - 128;
   }
 
   function render() {
@@ -292,6 +422,9 @@ export async function createWebGpuCardRenderer({
     currentOpacity += (targetOpacity - currentOpacity) * 0.15;
 
     const time = (performance.now() - startTime) / 1000;
+    const centerX = mouseX - 0.5;
+    const centerY = mouseY - 0.5;
+    const pointerFromCenter = Math.min(Math.sqrt(centerX * centerX + centerY * centerY) / 0.5, 1);
     const uniformData = new Float32Array([
       renderWidth,
       renderHeight,
@@ -302,13 +435,15 @@ export async function createWebGpuCardRenderer({
       time,
       devicePixelRatio,
       currentOpacity,
-      0, // padding
+      effectMode,
+      clipMode,
+      pointerFromCenter,
+      cosmosOffsetX,
+      cosmosOffsetY,
+      0,
+      0,
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
-
-    if (!bindGroup) {
-      return;
-    }
 
     const commandEncoder = device.createCommandEncoder();
     const textureView = context.getCurrentTexture().createView();
