@@ -25,7 +25,7 @@
   clip-path: var(--clip);
 
   background-image:
-    url('/img/cosmos-bottom.png'),
+    var(--asset-cosmos-bottom),
     repeating-linear-gradient(
       82deg,
       hsl(53, 65%, 60%) calc(var(--space) * 1),
@@ -69,7 +69,7 @@
   z-index: 2;
 
   background-image:
-    url('/img/cosmos-middle-trans.png'),
+    var(--asset-cosmos-middle-trans),
     repeating-linear-gradient(
       82deg,
       hsl(53, 65%, 60%) calc(var(--space) * 1),
@@ -107,7 +107,7 @@
   z-index: 3;
 
   background-image:
-    url('/img/cosmos-top-trans.png'),
+    var(--asset-cosmos-top-trans),
     repeating-linear-gradient(
       82deg,
       hsl(53, 65%, 60%) calc(var(--space) * 1),

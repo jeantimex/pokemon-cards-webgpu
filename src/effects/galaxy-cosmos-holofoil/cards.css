@@ -1,6 +1,6 @@
 .card {
-  --grain: url('/img/grain.webp');
-  --glitter: url('/img/glitter.png');
+  --grain: var(--asset-grain);
+  --glitter: var(--asset-glitter);
   --glittersize: 25%;
 
   --space: 5%;

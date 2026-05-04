@@ -1,9 +1,10 @@
 import type { Card } from '../types';
 import type { EffectVariant } from './category-types';
+import { appUrl } from '../app/asset-url';
 
 export function getLocalCardImageUrl(imageUrl: string) {
   const url = new URL(imageUrl);
-  return `/cards${url.pathname}`;
+  return appUrl(`cards${url.pathname}`);
 }
 
 export function getDisplayRarity(card: Card, categoryName: string, variant: EffectVariant) {
@@ -105,5 +106,5 @@ export function getLocalFoilImageUrl(
   const etch = resolution?.etch ?? 'holo';
   const style = resolution?.style ?? 'cosmos';
 
-  return `/foils/${foilSet}/${type}/upscaled/${foilNumber}_foil_${etch}_${style}_2x.webp`;
+  return appUrl(`foils/${foilSet}/${type}/upscaled/${foilNumber}_foil_${etch}_${style}_2x.webp`);
 }

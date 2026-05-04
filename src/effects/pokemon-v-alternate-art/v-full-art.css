@@ -139,7 +139,7 @@
 .card:not(.masked)[data-trainer-gallery='true'][data-rarity='rare holo v'] .card__shine,
 .card:not(.masked)[data-trainer-gallery='true'][data-rarity='rare holo v'] .card__shine:after {
   --mask: none;
-  --foil: url('/img/illusion.png');
+  --foil: var(--asset-illusion);
   --imgsize: 33%;
 
   -webkit-mask-image: var(--mask);

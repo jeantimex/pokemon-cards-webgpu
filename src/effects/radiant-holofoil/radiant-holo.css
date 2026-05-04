@@ -176,7 +176,7 @@
 .card:not(.masked)[data-rarity='radiant rare'] .card__shine,
 .card:not(.masked)[data-rarity='radiant rare'] .card__shine:after {
   --mask: none;
-  --foil: url('/img/trainerbg.png');
+  --foil: var(--asset-trainerbg);
   --imgsize: 25% auto;
 }
 

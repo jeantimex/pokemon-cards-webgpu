@@ -20,6 +20,7 @@ import './effects/rainbow-rare/index.css';
 import './effects/shiny-vault/index.css';
 import { getLocalCardImageUrl } from './effects/asset-paths';
 import { buildCardLibrary } from './effects/library';
+import { appUrl, applyAssetUrlVariables } from './app/asset-url';
 import { createCssCardController } from './ui/css-card-controller';
 import { setupCardLibraryGui } from './ui/card-library-gui';
 import { readCardSelectionFromUrl, writeCardSelectionToUrl } from './ui/url-state';
@@ -27,6 +28,8 @@ import { createWebGpuCardRenderer } from './rendering/webgpu-card-renderer';
 import type { Card } from './types';
 
 async function init() {
+  applyAssetUrlVariables();
+
   const canvas = document.querySelector<HTMLCanvasElement>('#webgpu-canvas')!;
   const cssCard = document.querySelector<HTMLElement>('#css-card')!;
   const cssCardImage = document.querySelector<HTMLImageElement>('#css-card-image')!;
@@ -34,7 +37,7 @@ async function init() {
   const cssCardRotator = document.querySelector<HTMLButtonElement>('.pane-css .card__rotator')!;
   const webgpuPane = document.querySelector<HTMLElement>('.pane-webgpu')!;
 
-  const cardsResponse = await fetch('/cards.json');
+  const cardsResponse = await fetch(appUrl('cards.json'));
   const cards: Card[] = await cardsResponse.json();
   const excludedCardIds = new Set<string>();
   const cardLibrary = buildCardLibrary(cards, excludedCardIds);
