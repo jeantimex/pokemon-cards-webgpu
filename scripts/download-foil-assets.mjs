@@ -31,6 +31,47 @@ const reverseIds = new Set([
   'swsh9-150',
 ]);
 
+const BASE_FOIL_RESOLUTIONS = {
+  'amazing rare': { etch: 'etched', style: 'swsecret' },
+  'rare holo cosmos': { etch: 'holo', style: 'cosmos' },
+  'rare holo': { etch: 'holo', style: 'swholo' },
+  'rare holo v': { etch: 'holo', style: 'sunpillar' },
+  'rare holo vmax': { etch: 'etched', style: 'sunpillar' },
+  'rare holo vstar': { etch: 'etched', style: 'sunpillar' },
+  'rare ultra': { etch: 'etched', style: 'sunpillar' },
+  'rare secret': { etch: 'etched', style: 'swsecret' },
+  'rare rainbow': { etch: 'etched', style: 'swsecret' },
+  'rare shiny': { etch: 'etched', style: 'sunpillar' },
+  'rare shiny v': { etch: 'etched', style: 'sunpillar' },
+  'rare shiny vmax': { etch: 'etched', style: 'swsecret' },
+};
+
+function resolveFoil(card, rarity) {
+  if (rarity.endsWith('reverse holo')) {
+    return { etch: 'holo', style: 'reverse' };
+  }
+
+  if (rarity === 'trainer gallery rare holo') {
+    return { etch: 'holo', style: 'rainbow' };
+  }
+
+  if (rarity === 'rare holo v') {
+    return {
+      etch: card.number.match(/^[tg]g/i) ? 'etched' : 'holo',
+      style: 'sunpillar',
+    };
+  }
+
+  if (rarity === 'rare rainbow alt') {
+    return {
+      etch: 'etched',
+      style: card.subtypes?.includes('VMAX') ? 'swsecret' : 'sunpillar',
+    };
+  }
+
+  return BASE_FOIL_RESOLUTIONS[rarity] ?? null;
+}
+
 function getFoilParts(card) {
   const rarity = card.rarity.toLowerCase();
   const isShiny = card.number.toLowerCase().startsWith('sv');
@@ -57,49 +98,15 @@ function getFoilParts(card) {
         ? 'rare rainbow alt'
         : 'rare rainbow'
       : assetRarity;
-  const etch =
-    displayRarity === 'amazing rare' ||
-    displayRarity === 'rare ultra' ||
-    displayRarity === 'rare secret' ||
-    displayRarity === 'rare holo vmax' ||
-    displayRarity === 'rare holo vstar' ||
-    displayRarity === 'rare rainbow alt' ||
-    displayRarity === 'rare rainbow' ||
-    displayRarity === 'rare shiny' ||
-    displayRarity === 'rare shiny v' ||
-    displayRarity === 'rare shiny vmax' ||
-    ((isGallery || isShiny || rarity === 'trainer gallery rare holo') &&
-      displayRarity === 'rare holo v')
-      ? 'etched'
-      : 'holo';
-  let style = 'cosmos';
-  if (displayRarity === 'amazing rare') {
-    style = 'swsecret';
-  } else if (displayRarity === 'rare holo') {
-    style = isGallery || rarity === 'trainer gallery rare holo' ? 'rainbow' : 'swholo';
-  } else if (displayRarity === 'rare holo v') {
-    style = 'sunpillar';
-  } else if (displayRarity === 'rare holo vmax') {
-    style = 'sunpillar';
-  } else if (displayRarity === 'rare holo vstar') {
-    style = 'sunpillar';
-  } else if (displayRarity === 'rare ultra') {
-    style = 'sunpillar';
-  } else if (displayRarity === 'rare secret') {
-    style = 'swsecret';
-  } else if (displayRarity === 'rare rainbow') {
-    style = 'swsecret';
-  } else if (displayRarity === 'rare rainbow alt') {
-    style = card.subtypes?.includes('VMAX') ? 'swsecret' : 'sunpillar';
-  } else if (displayRarity === 'rare shiny') {
-    style = 'sunpillar';
-  } else if (displayRarity === 'rare shiny v') {
-    style = 'sunpillar';
-  } else if (displayRarity === 'rare shiny vmax') {
-    style = 'swsecret';
-  } else if (isReverse) {
-    style = 'reverse';
+  const resolution =
+    rarity === 'trainer gallery rare holo'
+      ? { etch: 'holo', style: 'rainbow' }
+      : resolveFoil(card, displayRarity);
+  if (!resolution) {
+    return null;
   }
+  const etch = resolution?.etch ?? 'holo';
+  const style = resolution?.style ?? 'reverse';
 
   return { number, set, etch, style };
 }
