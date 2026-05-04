@@ -7,7 +7,8 @@ interface WebGpuCardRendererOptions {
 
 export interface WebGpuCardRenderer {
   updateTexture(url: string): Promise<void>;
-  setPointer(mouseX: number, mouseY: number): void;
+  handlePointerMove(event: PointerEvent): void;
+  handlePointerLeave(): void;
   resetPointer(): void;
   render(): void;
 }
@@ -146,12 +147,41 @@ export async function createWebGpuCardRenderer({
   const startTime = performance.now();
   let renderWidth = 1;
   let renderHeight = 1;
+  let resetTimer: number | undefined;
+  let pointerInsideCard = false;
 
   function resetPointer() {
+    window.clearTimeout(resetTimer);
     mouseX = 0.5;
     mouseY = 0.5;
     targetRotationX = 0;
     targetRotationY = 0;
+  }
+
+  function scheduleReset(delay = 500) {
+    window.clearTimeout(resetTimer);
+    resetTimer = window.setTimeout(() => {
+      resetPointer();
+    }, delay);
+  }
+
+  function getCardBounds() {
+    const rect = canvas.getBoundingClientRect();
+    const cardWidth = Math.min(rect.height * 0.6, rect.width - 48);
+    const cardHeight = cardWidth / cardAspect;
+    const left = rect.left + (rect.width - cardWidth) / 2;
+    const top = rect.top + (rect.height - cardHeight) / 2;
+
+    return {
+      left,
+      top,
+      right: left + cardWidth,
+      bottom: top + cardHeight,
+      width: cardWidth,
+      height: cardHeight,
+      cardLeft: left,
+      cardTop: top,
+    };
   }
 
   function setPointer(nextMouseX: number, nextMouseY: number) {
@@ -162,6 +192,34 @@ export async function createWebGpuCardRenderer({
     const centerY = mouseY - 0.5;
     targetRotationX = -centerX * (Math.PI / 6);
     targetRotationY = -centerY * (Math.PI / 6);
+  }
+
+  function handlePointerMove(event: PointerEvent) {
+    const bounds = getCardBounds();
+    const isInsideCard =
+      event.clientX >= bounds.left &&
+      event.clientX <= bounds.right &&
+      event.clientY >= bounds.top &&
+      event.clientY <= bounds.bottom;
+
+    if (!isInsideCard) {
+      if (pointerInsideCard) {
+        pointerInsideCard = false;
+        scheduleReset();
+      }
+      return;
+    }
+
+    pointerInsideCard = true;
+    window.clearTimeout(resetTimer);
+    const mouseX = (event.clientX - bounds.cardLeft) / bounds.width;
+    const mouseY = (event.clientY - bounds.cardTop) / bounds.height;
+    setPointer(mouseX, mouseY);
+  }
+
+  function handlePointerLeave() {
+    pointerInsideCard = false;
+    scheduleReset();
   }
 
   function resizeCanvas() {
@@ -272,7 +330,8 @@ export async function createWebGpuCardRenderer({
 
   return {
     updateTexture,
-    setPointer,
+    handlePointerMove,
+    handlePointerLeave,
     resetPointer,
     render,
   };

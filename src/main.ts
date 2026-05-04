@@ -29,7 +29,6 @@ async function init() {
   const canvas = document.querySelector<HTMLCanvasElement>('#webgpu-canvas')!;
   const cssCard = document.querySelector<HTMLElement>('#css-card')!;
   const cssCardImage = document.querySelector<HTMLImageElement>('#css-card-image')!;
-  const cssPane = document.querySelector<HTMLElement>('.pane-css')!;
   const cssCardFront = document.querySelector<HTMLElement>('.pane-css .card__front')!;
   const cssCardRotator = document.querySelector<HTMLButtonElement>('.pane-css .card__rotator')!;
   const webgpuPane = document.querySelector<HTMLElement>('.pane-webgpu')!;
@@ -73,38 +72,11 @@ async function init() {
     cssCardController.handleBlur();
   });
 
-  window.addEventListener('pointermove', (event) => {
-    const cssRect = cssPane.getBoundingClientRect();
-    const isOverCssPane =
-      event.clientX >= cssRect.left &&
-      event.clientX <= cssRect.right &&
-      event.clientY >= cssRect.top &&
-      event.clientY <= cssRect.bottom;
-    const webgpuRect = canvas.getBoundingClientRect();
-    const isOverWebgpuPane =
-      event.clientX >= webgpuRect.left &&
-      event.clientX <= webgpuRect.right &&
-      event.clientY >= webgpuRect.top &&
-      event.clientY <= webgpuRect.bottom;
-    const activeRect = isOverCssPane ? cssRect : isOverWebgpuPane ? webgpuRect : null;
-
-    if (!activeRect) {
-      webgpuRenderer.resetPointer();
-      return;
-    }
-
-    const mouseX = (event.clientX - activeRect.left) / activeRect.width;
-    const mouseY = (event.clientY - activeRect.top) / activeRect.height;
-    webgpuRenderer.setPointer(mouseX, mouseY);
+  canvas.addEventListener('pointermove', (event) => {
+    webgpuRenderer.handlePointerMove(event);
   });
-
-  window.addEventListener('pointerout', (event) => {
-    const relatedTarget = event.relatedTarget;
-    if (relatedTarget instanceof Node && document.contains(relatedTarget)) {
-      return;
-    }
-
-    webgpuRenderer.resetPointer();
+  canvas.addEventListener('pointerleave', () => {
+    webgpuRenderer.handlePointerLeave();
   });
   window.addEventListener('blur', () => {
     webgpuRenderer.resetPointer();
