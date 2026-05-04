@@ -20,6 +20,8 @@ export function setupCardLibraryGui({
   onSelectionChange,
 }: CardLibraryGuiOptions) {
   const gui = new GUI({ title: 'Card Library' });
+  gui.close();
+
   const guiState = {
     category: cardLibrary.categoryNames.includes(initialCategory)
       ? initialCategory

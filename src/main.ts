@@ -58,7 +58,7 @@ async function init() {
   const updateCard = async (card: Card, categoryName: string) => {
     const imageUrl = getLocalCardImageUrl(card.images.large);
     cssCardController.updateCard(card, imageUrl, categoryName, cardLibrary.variants[categoryName]);
-    await webgpuRenderer.updateTexture(imageUrl);
+    await webgpuRenderer.updateTexture(imageUrl, card, categoryName, cardLibrary.variants[categoryName]);
   };
 
   setupCardLibraryGui({
@@ -73,23 +73,29 @@ async function init() {
   });
 
   cssCardRotator.addEventListener('pointermove', (event) => {
-    cssCardController.handlePointerMove(event);
+    const pointer = cssCardController.handlePointerMove(event);
+    webgpuRenderer.setPointer(pointer);
   });
   cssCardRotator.addEventListener('pointerleave', () => {
     cssCardController.handlePointerLeave();
+    webgpuRenderer.handlePointerLeave();
   });
   cssCardRotator.addEventListener('blur', () => {
     cssCardController.handleBlur();
+    webgpuRenderer.resetPointer();
   });
 
-  canvas.addEventListener('pointermove', (event) => {
-    webgpuRenderer.handlePointerMove(event);
+  webgpuPane.addEventListener('pointermove', (event) => {
+    const pointer = webgpuRenderer.handlePointerMove(event);
+    cssCardController.setPointer(pointer);
   });
-  canvas.addEventListener('pointerleave', () => {
+  webgpuPane.addEventListener('pointerleave', () => {
     webgpuRenderer.handlePointerLeave();
+    cssCardController.handlePointerLeave();
   });
   window.addEventListener('blur', () => {
     webgpuRenderer.resetPointer();
+    cssCardController.handleBlur();
   });
 
   function frame() {

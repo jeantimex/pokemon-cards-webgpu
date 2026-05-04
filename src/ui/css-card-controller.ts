@@ -12,6 +12,11 @@ type CssCardTarget = {
   opacity: number;
 };
 
+export type CardPointer = {
+  x: number;
+  y: number;
+};
+
 interface CssCardControllerOptions {
   cssCard: HTMLElement;
   cssCardImage: HTMLImageElement;
@@ -21,7 +26,8 @@ interface CssCardControllerOptions {
 
 export interface CssCardController {
   updateCard(card: Card, imageUrl: string, categoryName: string, variant: EffectVariant): void;
-  handlePointerMove(event: PointerEvent): void;
+  setPointer(pointer: CardPointer): void;
+  handlePointerMove(event: PointerEvent): CardPointer;
   handlePointerLeave(): void;
   handleBlur(): void;
   tick(): void;
@@ -153,18 +159,13 @@ export function createCssCardController({
     cssCardImage.src = imageUrl;
   }
 
-  function handlePointerMove(e: PointerEvent) {
+  function setPointer(pointer: CardPointer) {
     window.clearTimeout(cssResetTimer);
     cssCard.classList.add('interacting');
 
-    const rect = cssCardRotator.getBoundingClientRect();
-    const absolute = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    };
     const percent = {
-      x: clamp(round((100 / rect.width) * absolute.x)),
-      y: clamp(round((100 / rect.height) * absolute.y)),
+      x: clamp(round(pointer.x * 100)),
+      y: clamp(round(pointer.y * 100)),
     };
     const center = {
       x: percent.x - 50,
@@ -180,6 +181,20 @@ export function createCssCardController({
       pointerY: round(percent.y),
       opacity: 1,
     };
+  }
+
+  function handlePointerMove(e: PointerEvent) {
+    const rect = cssCardRotator.getBoundingClientRect();
+    const absolute = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+    const pointer = {
+      x: clamp(absolute.x / rect.width, 0, 1),
+      y: clamp(absolute.y / rect.height, 0, 1),
+    };
+    setPointer(pointer);
+    return pointer;
   }
 
   function handlePointerLeave() {
@@ -205,6 +220,7 @@ export function createCssCardController({
 
   return {
     updateCard,
+    setPointer,
     handlePointerMove,
     handlePointerLeave,
     handleBlur,
