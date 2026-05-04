@@ -1,9 +1,6 @@
-const BASE_URL = import.meta.env.BASE_URL;
-
 export function appUrl(path: string) {
-  const normalizedBase = BASE_URL.endsWith('/') ? BASE_URL : `${BASE_URL}/`;
   const normalizedPath = path.startsWith('/') ? path.slice(1) : path;
-  return `${normalizedBase}${normalizedPath}`;
+  return new URL(normalizedPath, document.baseURI).href;
 }
 
 export function applyAssetUrlVariables() {
