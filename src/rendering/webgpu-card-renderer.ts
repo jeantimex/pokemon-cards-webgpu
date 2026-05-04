@@ -91,7 +91,7 @@ export async function createWebGpuCardRenderer({
   device.queue.writeBuffer(indexBuffer, 0, indices);
 
   const uniformBuffer = device.createBuffer({
-    size: 32,
+    size: 40,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -144,6 +144,8 @@ export async function createWebGpuCardRenderer({
   let targetRotationY = 0;
   let currentRotationX = 0;
   let currentRotationY = 0;
+  let targetOpacity = 0;
+  let currentOpacity = 0;
   const startTime = performance.now();
   let renderWidth = 1;
   let renderHeight = 1;
@@ -156,6 +158,7 @@ export async function createWebGpuCardRenderer({
     mouseY = 0.5;
     targetRotationX = 0;
     targetRotationY = 0;
+    targetOpacity = 0;
   }
 
   function scheduleReset(delay = 500) {
@@ -192,6 +195,7 @@ export async function createWebGpuCardRenderer({
     const centerY = mouseY - 0.5;
     targetRotationX = -centerX * (Math.PI / 6);
     targetRotationY = -centerY * (Math.PI / 6);
+    targetOpacity = 1;
   }
 
   function handlePointerMove(event: PointerEvent) {
@@ -285,6 +289,7 @@ export async function createWebGpuCardRenderer({
   function render() {
     currentRotationX += (targetRotationX - currentRotationX) * 0.15;
     currentRotationY += (targetRotationY - currentRotationY) * 0.15;
+    currentOpacity += (targetOpacity - currentOpacity) * 0.15;
 
     const time = (performance.now() - startTime) / 1000;
     const uniformData = new Float32Array([
@@ -296,6 +301,8 @@ export async function createWebGpuCardRenderer({
       currentRotationY,
       time,
       devicePixelRatio,
+      currentOpacity,
+      0, // padding
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 

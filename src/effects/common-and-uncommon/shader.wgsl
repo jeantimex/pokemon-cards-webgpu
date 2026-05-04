@@ -4,6 +4,8 @@ struct Uniforms {
     rotation: vec2f,
     time: f32,
     dpr: f32,
+    cardOpacity: f32,
+    _pad: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -70,22 +72,27 @@ fn overlayBlend(base: vec3f, blend: vec3f) -> vec3f {
 
 // --- Glare Effect ---
 
+fn farthestCornerDistance(pointer: vec2f) -> f32 {
+    // Calculate distance to farthest corner from pointer position
+    // Corners are at (0,0), (1,0), (0,1), (1,1) in UV space
+    let d0 = distance(pointer, vec2f(0.0, 0.0));
+    let d1 = distance(pointer, vec2f(1.0, 0.0));
+    let d2 = distance(pointer, vec2f(0.0, 1.0));
+    let d3 = distance(pointer, vec2f(1.0, 1.0));
+    return max(max(d0, d1), max(d2, d3));
+}
+
 fn glareEffect(uv: vec2f, pointer: vec2f, opacity: f32) -> vec4f {
     // Radial gradient from pointer position
     // CSS: farthest-corner circle at pointer
-    // We compute distance from pointer (in 0-1 UV space)
     let dist = distance(uv, pointer);
+    let maxDist = farthestCornerDistance(pointer);
+    let normalizedDist = dist / maxDist;
 
     // CSS gradient stops:
-    // hsla(0, 0%, 100%, 0.8) 10%  -> white at 0.8 alpha, 0-10%
-    // hsla(0, 0%, 100%, 0.65) 20% -> white at 0.65 alpha, 10-20%
-    // hsla(0, 0%, 0%, 0.5) 90%    -> black at 0.5 alpha, 20-90%
-
-    // Scale distance for "farthest-corner" behavior
-    // The farthest corner from center is at distance ~1.0 (diagonal)
-    // We'll use a scale factor to approximate this
-    let maxDist = 1.0;
-    let normalizedDist = dist / maxDist;
+    // hsla(0, 0%, 100%, 0.8) 10%  -> white at 0.8 alpha at 10%
+    // hsla(0, 0%, 100%, 0.65) 20% -> white at 0.65 alpha at 20%
+    // hsla(0, 0%, 0%, 0.5) 90%    -> black at 0.5 alpha at 90%
 
     var color: vec3f;
     var alpha: f32;
@@ -105,9 +112,9 @@ fn glareEffect(uv: vec2f, pointer: vec2f, opacity: f32) -> vec4f {
         color = mix(vec3f(1.0), vec3f(0.0), t);
         alpha = mix(0.65, 0.5, t);
     } else {
-        // Beyond 90%: black at 0.5 alpha fading out
+        // 90-100%: black at 0.5 alpha
         color = vec3f(0.0);
-        alpha = 0.5 * (1.0 - smoothstep(0.9, 1.2, normalizedDist));
+        alpha = 0.5;
     }
 
     return vec4f(color, alpha * opacity);
@@ -156,14 +163,8 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     );
     let textureColor = textureSample(textureData, textureSampler, cardUV);
 
-    // Calculate card opacity based on pointer interaction
-    // When pointer is at center (0.5, 0.5), opacity should be lower
-    // When pointer moves, opacity increases
-    let pointerFromCenter = length(uniforms.pointer - vec2f(0.5));
-    let cardOpacity = smoothstep(0.0, 0.3, pointerFromCenter);
-
-    // Apply glare effect
-    let glare = glareEffect(cardUV, uniforms.pointer, cardOpacity);
+    // Apply glare effect with cardOpacity from uniforms
+    let glare = glareEffect(cardUV, uniforms.pointer, uniforms.cardOpacity);
 
     // Blend glare with texture using overlay blend mode
     var cardWithGlare = textureColor.rgb;
