@@ -73,23 +73,29 @@ async function init() {
   });
 
   cssCardRotator.addEventListener('pointermove', (event) => {
-    cssCardController.handlePointerMove(event);
+    const pointer = cssCardController.handlePointerMove(event);
+    webgpuRenderer.setPointer(pointer);
   });
   cssCardRotator.addEventListener('pointerleave', () => {
     cssCardController.handlePointerLeave();
+    webgpuRenderer.handlePointerLeave();
   });
   cssCardRotator.addEventListener('blur', () => {
     cssCardController.handleBlur();
+    webgpuRenderer.resetPointer();
   });
 
-  canvas.addEventListener('pointermove', (event) => {
-    webgpuRenderer.handlePointerMove(event);
+  webgpuPane.addEventListener('pointermove', (event) => {
+    const pointer = webgpuRenderer.handlePointerMove(event);
+    cssCardController.setPointer(pointer);
   });
-  canvas.addEventListener('pointerleave', () => {
+  webgpuPane.addEventListener('pointerleave', () => {
     webgpuRenderer.handlePointerLeave();
+    cssCardController.handlePointerLeave();
   });
   window.addEventListener('blur', () => {
     webgpuRenderer.resetPointer();
+    cssCardController.handleBlur();
   });
 
   function frame() {

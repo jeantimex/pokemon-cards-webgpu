@@ -9,6 +9,7 @@ struct Uniforms {
     clipMode: f32,
     pointerFromCenter: f32,
     cosmosOffset: vec2f,
+    perspective: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -54,7 +55,7 @@ fn vertexMain(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
     p = rotateX(p, uniforms.rotation.y);
     p = rotateY(p, uniforms.rotation.x);
 
-    let perspective = 2.0;
+    let perspective = uniforms.perspective;
     let w = perspective - p.z;
     let x = (p.x / canvasAspect) * perspective;
     let y = p.y * perspective;

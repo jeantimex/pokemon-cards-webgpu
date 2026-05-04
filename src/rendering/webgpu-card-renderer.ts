@@ -3,6 +3,7 @@ import { appUrl } from '../app/asset-url';
 import { getLocalFoilImageUrl } from '../effects/asset-paths';
 import type { EffectVariant } from '../effects/category-types';
 import type { Card } from '../types';
+import type { CardPointer } from '../ui/css-card-controller';
 
 interface WebGpuCardRendererOptions {
   canvas: HTMLCanvasElement;
@@ -11,7 +12,8 @@ interface WebGpuCardRendererOptions {
 
 export interface WebGpuCardRenderer {
   updateTexture(url: string, card: Card, categoryName: string, variant: EffectVariant): Promise<void>;
-  handlePointerMove(event: PointerEvent): void;
+  setPointer(pointer: CardPointer): void;
+  handlePointerMove(event: PointerEvent): CardPointer;
   handlePointerLeave(): void;
   resetPointer(): void;
   render(): void;
@@ -162,7 +164,6 @@ export async function createWebGpuCardRenderer({
   let renderWidth = 1;
   let renderHeight = 1;
   let resetTimer: number | undefined;
-  let pointerInsideCard = false;
 
   function resetPointer() {
     window.clearTimeout(resetTimer);
@@ -199,42 +200,29 @@ export async function createWebGpuCardRenderer({
     };
   }
 
-  function setPointer(nextMouseX: number, nextMouseY: number) {
-    mouseX = Math.min(Math.max(nextMouseX, 0), 1);
-    mouseY = Math.min(Math.max(nextMouseY, 0), 1);
+  function setPointer(pointer: CardPointer) {
+    window.clearTimeout(resetTimer);
+    mouseX = Math.min(Math.max(pointer.x, 0), 1);
+    mouseY = Math.min(Math.max(pointer.y, 0), 1);
 
     const centerX = mouseX - 0.5;
     const centerY = mouseY - 0.5;
-    targetRotationX = -centerX * (Math.PI / 6);
-    targetRotationY = -centerY * (Math.PI / 6);
+    targetRotationX = (-(centerX * 100) / 3.5) * (Math.PI / 180);
+    targetRotationY = (-(centerY * 100) / 3.5) * (Math.PI / 180);
     targetOpacity = 1;
   }
 
   function handlePointerMove(event: PointerEvent) {
     const bounds = getCardBounds();
-    const isInsideCard =
-      event.clientX >= bounds.left &&
-      event.clientX <= bounds.right &&
-      event.clientY >= bounds.top &&
-      event.clientY <= bounds.bottom;
-
-    if (!isInsideCard) {
-      if (pointerInsideCard) {
-        pointerInsideCard = false;
-        scheduleReset();
-      }
-      return;
-    }
-
-    pointerInsideCard = true;
-    window.clearTimeout(resetTimer);
-    const mouseX = (event.clientX - bounds.cardLeft) / bounds.width;
-    const mouseY = (event.clientY - bounds.cardTop) / bounds.height;
-    setPointer(mouseX, mouseY);
+    const pointer = {
+      x: (event.clientX - bounds.cardLeft) / bounds.width,
+      y: (event.clientY - bounds.cardTop) / bounds.height,
+    };
+    setPointer(pointer);
+    return pointer;
   }
 
   function handlePointerLeave() {
-    pointerInsideCard = false;
     scheduleReset();
   }
 
@@ -425,6 +413,7 @@ export async function createWebGpuCardRenderer({
     const centerX = mouseX - 0.5;
     const centerY = mouseY - 0.5;
     const pointerFromCenter = Math.min(Math.sqrt(centerX * centerX + centerY * centerY) / 0.5, 1);
+    const cssPerspective = 600 * ((2 * devicePixelRatio) / renderHeight);
     const uniformData = new Float32Array([
       renderWidth,
       renderHeight,
@@ -440,7 +429,7 @@ export async function createWebGpuCardRenderer({
       pointerFromCenter,
       cosmosOffsetX,
       cosmosOffsetY,
-      0,
+      cssPerspective,
       0,
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
@@ -472,6 +461,7 @@ export async function createWebGpuCardRenderer({
 
   return {
     updateTexture,
+    setPointer,
     handlePointerMove,
     handlePointerLeave,
     resetPointer,
