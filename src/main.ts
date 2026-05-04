@@ -35,7 +35,7 @@ async function init() {
 
   const cardsResponse = await fetch('/cards.json');
   const cards: Card[] = await cardsResponse.json();
-  const excludedCardIds = new Set(['swsh12pt5-160']);
+  const excludedCardIds = new Set<string>();
   const cardLibrary = buildCardLibrary(cards, excludedCardIds);
 
   const cssCardController = createCssCardController({
