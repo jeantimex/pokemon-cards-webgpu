@@ -22,6 +22,7 @@ import { getLocalCardImageUrl } from './effects/asset-paths';
 import { buildCardLibrary } from './effects/library';
 import { createCssCardController } from './ui/css-card-controller';
 import { setupCardLibraryGui } from './ui/card-library-gui';
+import { readCardSelectionFromUrl, writeCardSelectionToUrl } from './ui/url-state';
 import { createWebGpuCardRenderer } from './rendering/webgpu-card-renderer';
 import type { Card } from './types';
 
@@ -37,6 +38,7 @@ async function init() {
   const cards: Card[] = await cardsResponse.json();
   const excludedCardIds = new Set<string>();
   const cardLibrary = buildCardLibrary(cards, excludedCardIds);
+  const initialSelection = readCardSelectionFromUrl(cardLibrary, cards);
 
   const cssCardController = createCssCardController({
     cssCard,
@@ -59,7 +61,12 @@ async function init() {
   setupCardLibraryGui({
     cardLibrary,
     cards,
+    initialCategory: initialSelection.category,
+    initialCardId: initialSelection.card.id,
     onCardChange: updateCard,
+    onSelectionChange: (card, categoryName) => {
+      writeCardSelectionToUrl(categoryName, card);
+    },
   });
 
   cssCardRotator.addEventListener('pointermove', (event) => {
