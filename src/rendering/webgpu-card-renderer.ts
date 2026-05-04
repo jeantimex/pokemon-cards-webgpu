@@ -1,4 +1,4 @@
-import shaderCode from '../shaders.wgsl?raw';
+import shaderCode from '../effects/common-and-uncommon/shader.wgsl?raw';
 
 interface WebGpuCardRendererOptions {
   canvas: HTMLCanvasElement;
