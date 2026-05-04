@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pokemon-cards-webgpu</title>
+    <script type="module" crossorigin src="./assets/index-DLUVnovE.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BOSvXbsC.css">
+  </head>
+  <body>
+    <main class="comparison">
+      <section class="pane pane-css" aria-label="CSS card comparison pane">
+        <div class="pane-label">CSS</div>
+        <div
+          id="css-card"
+          class="card interactive loading"
+          style="
+            --pointer-x: 50%;
+            --pointer-y: 50%;
+            --pointer-from-center: 0;
+            --pointer-from-top: 0.5;
+            --pointer-from-left: 0.5;
+            --card-opacity: 0;
+            --rotate-x: 0deg;
+            --rotate-y: 0deg;
+            --background-x: 50%;
+            --background-y: 50%;
+            --card-scale: 1;
+            --translate-x: 0px;
+            --translate-y: 0px;
+          "
+        >
+          <div class="card__translater">
+            <button class="card__rotator" type="button" aria-label="Pokemon card">
+              <img
+                class="card__back"
+                src="https://tcg.pokemon.com/assets/img/global/tcg-card-back-2x.jpg"
+                alt="The back of a Pokemon Card, a Pokeball in the center with Pokemon logo above and below"
+                width="660"
+                height="921"
+              />
+              <div class="card__front">
+                <img id="css-card-image" alt="" width="660" height="921" />
+                <div class="card__shine"></div>
+                <div class="card__glare"></div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </section>
+      <section class="pane pane-webgpu" aria-label="WebGPU card comparison pane">
+        <div class="pane-label">WebGPU</div>
+        <canvas id="webgpu-canvas"></canvas>
+      </section>
+    </main>
+  </body>
+</html>
