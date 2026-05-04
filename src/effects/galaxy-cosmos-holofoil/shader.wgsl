@@ -220,7 +220,7 @@ fn cosmosStripe(position: vec2f, basePercent: vec2f) -> vec3f {
     let index = u32(clamp(floor(scaled), 0.0, 11.0));
     let nextIndex = min(index + 1u, 11u);
     let stripe = mix(stops[index], stops[nextIndex], smoothstep(0.0, 1.0, fract(scaled)));
-    return mix(vec3f(0.7, 0.75, 0.8), stripe, 0.6);
+    return mix(vec3f(0.74, 0.82, 0.90), stripe, 0.32);
 }
 
 fn radialColor(uv: vec2f, pointer: vec2f, inner: vec3f, mid: vec3f, outer: vec3f, midStop: f32, outerStop: f32) -> vec3f {
@@ -298,23 +298,29 @@ fn shineLayer0(uv: vec2f, foilAlpha: f32) -> vec4f {
     var color = blendColorBurn(tex.rgb, stripe);
     color = color * radialMask;
     color = adjustColor(color, 1.0, 1.0, 0.80);
-    return vec4f(color, uniforms.opacity * foilAlpha * tex.a * radialMask * 0.50);
+    return vec4f(color, uniforms.opacity * foilAlpha * tex.a * radialMask * 0.38);
 }
 
 fn shineLayer1(uv: vec2f, foilAlpha: f32) -> vec4f {
     let tex = textureSampleLevel(cosmosMiddleTexture, linearSampler, cosmosUv(uv), 0.0);
     let stripe = cosmosStripe(uv, vec2f(0.15 + uniforms.pointer.x * 0.70, 0.15 + uniforms.pointer.y * 0.70));
-    var color = blendLighten(tex.rgb, stripe);
+    let cardRatio = 1024.0 / 734.0;
+    let d = length((uv - uniforms.pointer) * vec2f(1.0, cardRatio));
+    let pointerFlash = 0.18 + (1.0 - smoothstep(0.08, 0.58, d)) * 0.82;
+    var color = blendLighten(tex.rgb, mix(vec3f(0.88, 0.96, 1.0), stripe, 0.35));
     color = adjustColor(color, 1.25, 1.75, 0.80);
-    return vec4f(color, uniforms.opacity * foilAlpha * tex.a * 0.25);
+    return vec4f(color, uniforms.opacity * foilAlpha * tex.a * pointerFlash * 0.24);
 }
 
 fn shineLayer2(uv: vec2f, foilAlpha: f32) -> vec4f {
     let tex = textureSampleLevel(cosmosTopTexture, linearSampler, cosmosUv(uv), 0.0);
     let stripe = cosmosStripe(uv, vec2f(0.20 + uniforms.pointer.x * 0.60, 0.20 + uniforms.pointer.y * 0.60));
-    var color = blendMultiply(tex.rgb, stripe);
+    let cardRatio = 1024.0 / 734.0;
+    let d = length((uv - uniforms.pointer) * vec2f(1.0, cardRatio));
+    let pointerFlash = 0.12 + (1.0 - smoothstep(0.06, 0.50, d)) * 0.88;
+    var color = blendMultiply(tex.rgb, mix(vec3f(0.86, 0.94, 1.0), stripe, 0.30));
     color = adjustColor(color, 1.25, 1.75, 0.80);
-    return vec4f(color, uniforms.opacity * foilAlpha * tex.a * 0.20);
+    return vec4f(color, uniforms.opacity * foilAlpha * tex.a * pointerFlash * 0.18);
 }
 
 fn glareLayer(uv: vec2f) -> vec4f {
@@ -322,7 +328,7 @@ fn glareLayer(uv: vec2f) -> vec4f {
     let d = length((uv - uniforms.pointer) * vec2f(1.0, cardRatio));
     let glow = 1.0 - smoothstep(0.0, 0.80, d);
     let color = vec3f(0.80, 0.95, 1.0) * glow;
-    let alpha = glow * uniforms.opacity * (0.15 + uniforms.pointerFromCenter * 0.15);
+    let alpha = glow * uniforms.opacity * (0.20 + uniforms.pointerFromCenter * 0.65);
     return vec4f(color, alpha);
 }
 
