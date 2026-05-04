@@ -13,6 +13,7 @@ const wanted = new Set([
   'rare holo vstar',
   'rare ultra',
   'rare secret',
+  'rare rainbow',
   'rare rainbow alt',
   'rare shiny',
   'trainer gallery rare holo',
@@ -51,7 +52,11 @@ function getFoilParts(card) {
       : assetRarity === 'rare holo v' || card.subtypes?.includes('V')
         ? 'rare shiny v'
         : 'rare shiny'
-    : assetRarity;
+    : assetRarity === 'rare rainbow'
+      ? card.subtypes?.includes('VMAX')
+        ? 'rare rainbow alt'
+        : 'rare rainbow'
+      : assetRarity;
   const etch =
     displayRarity === 'amazing rare' ||
     displayRarity === 'rare ultra' ||
@@ -59,6 +64,7 @@ function getFoilParts(card) {
     displayRarity === 'rare holo vmax' ||
     displayRarity === 'rare holo vstar' ||
     displayRarity === 'rare rainbow alt' ||
+    displayRarity === 'rare rainbow' ||
     displayRarity === 'rare shiny' ||
     displayRarity === 'rare shiny v' ||
     displayRarity === 'rare shiny vmax' ||
@@ -80,6 +86,8 @@ function getFoilParts(card) {
   } else if (displayRarity === 'rare ultra') {
     style = 'sunpillar';
   } else if (displayRarity === 'rare secret') {
+    style = 'swsecret';
+  } else if (displayRarity === 'rare rainbow') {
     style = 'swsecret';
   } else if (displayRarity === 'rare rainbow alt') {
     style = card.subtypes?.includes('VMAX') ? 'swsecret' : 'sunpillar';

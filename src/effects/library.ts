@@ -13,6 +13,8 @@ import { createPokemonVFullArtCategory } from './pokemon-v-full-art/category';
 import { createRadiantHolofoilCategory } from './radiant-holofoil/category';
 import { createRainbowRareCategory } from './rainbow-rare/category';
 import { createReverseHoloCategory } from './reverse-holo/category';
+import { createVMaxAlternateRainbowCategory } from './v-max-alt/category';
+import { createVMaxCategory } from './v-max/category';
 import { createTrainerGalleryVMaxCategory } from './trainer-gallery-v-max/category';
 import { createTrainerGalleryVCategory } from './trainer-gallery-v/category';
 import { createTrainerHoloCategory } from './trainer-holo/category';
@@ -42,6 +44,8 @@ export function buildCardLibrary(cards: Card[], excludedCardIds: Set<string>): C
     createPokemonVAlternateArtCategory(cards),
     createRainbowRareCategory(cards),
     createShinyVaultCategory(cards),
+    createVMaxCategory(cards),
+    createVMaxAlternateRainbowCategory(cards),
     createTrainerGalleryVCategory(cards),
     createTrainerGalleryVMaxCategory(cards),
     createTrainerHoloCategory(cards),

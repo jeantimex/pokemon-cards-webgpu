@@ -4,16 +4,6 @@ import { createCategory } from './category-utils';
 export function createOtherCategories(cards: Card[]) {
   return [
     createCategory(
-      'VMax',
-      'The gradient effect of Pokemon VMax is more subtle, using a larger background gradient which moves more slowly.',
-      cards.slice(37, 40),
-    ),
-    createCategory(
-      'VMax (Alternate/Rainbow)',
-      'Vibrant and glittery overlay. Achieved with a background image of glitter/sparkles sandwiching linear gradients.',
-      cards.slice(40, 43),
-    ),
-    createCategory(
       'VStar',
       'Diagonal gradients overlaying a texture. Brighter with a pastel hue, making the gradient and texture more subtle.',
       cards.slice(43, 46),
