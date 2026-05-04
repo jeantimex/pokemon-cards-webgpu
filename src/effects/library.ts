@@ -15,6 +15,7 @@ import { createRainbowRareCategory } from './rainbow-rare/category';
 import { createReverseHoloCategory } from './reverse-holo/category';
 import { createVMaxAlternateRainbowCategory } from './v-max-alt/category';
 import { createVMaxCategory } from './v-max/category';
+import { createVStarCategory } from './v-star/category';
 import { createTrainerGalleryVMaxCategory } from './trainer-gallery-v-max/category';
 import { createTrainerGalleryVCategory } from './trainer-gallery-v/category';
 import { createTrainerHoloCategory } from './trainer-holo/category';
@@ -46,6 +47,7 @@ export function buildCardLibrary(cards: Card[], excludedCardIds: Set<string>): C
     createShinyVaultCategory(cards),
     createVMaxCategory(cards),
     createVMaxAlternateRainbowCategory(cards),
+    createVStarCategory(cards),
     createTrainerGalleryVCategory(cards),
     createTrainerGalleryVMaxCategory(cards),
     createTrainerHoloCategory(cards),
