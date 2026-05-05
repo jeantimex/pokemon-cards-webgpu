@@ -10,6 +10,14 @@ interface WebGpuCardRendererOptions {
   webgpuPane: HTMLElement;
 }
 
+function getReverseHoloFoilBrightness(card: Card) {
+  const types = new Set((card.types ?? []).map((type) => type.toLowerCase()));
+  if (types.has('lightning')) return 0.7;
+  if (types.has('darkness')) return 0.8;
+  if (types.has('metal')) return 0.6;
+  return 0.55;
+}
+
 export interface WebGpuCardRenderer {
   updateTexture(
     url: string,
@@ -182,6 +190,7 @@ export async function createWebGpuCardRenderer({
   let currentRotationY = 0;
   let targetOpacity = 0;
   let currentOpacity = 0;
+  let foilBrightness = 0.55;
   const startTime = performance.now();
   let renderWidth = 1;
   let renderHeight = 1;
@@ -302,6 +311,7 @@ export async function createWebGpuCardRenderer({
     foilTexture = nextFoilTexture;
     maskTexture = nextMaskTexture;
     activePipeline = nextPipeline;
+    foilBrightness = getReverseHoloFoilBrightness(card);
     bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture);
     previousCardTexture.destroy();
     previousFoilTexture.destroy();
@@ -321,7 +331,7 @@ export async function createWebGpuCardRenderer({
       currentRotationX, currentRotationY,
       time, devicePixelRatio,
       cssPerspective, currentOpacity,
-      0, 0,
+      foilBrightness, 0,
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 

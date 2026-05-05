@@ -6,7 +6,7 @@ struct Uniforms {
     dpr: f32,
     perspective: f32,
     opacity: f32,
-    _pad0: f32,
+    foilBrightness: f32,
     _pad1: f32,
 };
 
@@ -113,7 +113,8 @@ fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
 }
 
 fn radialReversePattern(uv: vec2f) -> vec3f {
-    let dist = distance(uv, uniforms.pointer);
+    let backgroundUv = ((uv - vec2f(0.5)) / 1.2) + vec2f(0.5);
+    let dist = distance(backgroundUv, uniforms.pointer);
     let t = dist / max(farthestCornerDist(uniforms.pointer), 0.001);
     let blackToWhite = smoothstep(0.5, 0.8, t);
     let whiteToBlack = 1.0 - smoothstep(0.05, 0.5, t);
@@ -189,7 +190,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     var shine = foilColor;
     shine = differenceBlend(shine, diagonalPattern(cardUV));
     shine = softLightBlend(shine, radialReversePattern(cardUV));
-    shine = adjustBrightnessContrast(shine, 0.55, 1.5);
+    shine = adjustBrightnessContrast(shine, uniforms.foilBrightness, 1.5);
 
     var cardRgb = textureColor.rgb;
     let dodged = colorDodgeBlend(cardRgb, shine);
