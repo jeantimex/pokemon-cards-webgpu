@@ -58,7 +58,7 @@ async function init() {
   const updateCard = async (card: Card, categoryName: string) => {
     const imageUrl = getLocalCardImageUrl(card.images.large);
     cssCardController.updateCard(card, imageUrl, categoryName, cardLibrary.variants[categoryName]);
-    await webgpuRenderer.updateTexture(imageUrl);
+    await webgpuRenderer.updateTexture(imageUrl, categoryName);
   };
 
   setupCardLibraryGui({
