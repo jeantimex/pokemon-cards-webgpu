@@ -123,7 +123,7 @@ fn radialReversePattern(uv: vec2f) -> vec3f {
 
 fn diagonalPattern(uv: vec2f) -> vec3f {
     let backgroundUv = (uv + uniforms.pointer) * 0.5;
-    let axis = dot(backgroundUv - vec2f(0.5), normalize(vec2f(1.0, -1.0))) + 0.5;
+    let axis = dot(backgroundUv - vec2f(0.5), normalize(vec2f(-1.0, -1.0))) + 0.5;
     let blackToWhite = smoothstep(0.15, 0.5, axis);
     let whiteToBlack = 1.0 - smoothstep(0.5, 0.85, axis);
     let band = blackToWhite * whiteToBlack;
@@ -132,7 +132,11 @@ fn diagonalPattern(uv: vec2f) -> vec3f {
 
 fn glareLayer(uv: vec2f) -> vec4f {
     let dist = distance(uv, uniforms.pointer);
-    let maxDist = farthestCornerDist(uniforms.pointer);
+    let d0 = distance(uv, vec2f(0.0, 0.0));
+    let d1 = distance(uv, vec2f(1.0, 0.0));
+    let d2 = distance(uv, vec2f(0.0, 1.0));
+    let d3 = distance(uv, vec2f(1.0, 1.0));
+    let maxDist = max(max(d0, d1), max(d2, d3));
     let t = clamp(dist / maxDist, 0.0, 1.0);
 
     var color: vec3f;
@@ -142,17 +146,17 @@ fn glareLayer(uv: vec2f) -> vec4f {
         alpha = 0.8;
     } else if (t < 0.2) {
         color = vec3f(1.0);
-        alpha = mix(0.8, 0.5, (t - 0.1) / 0.1);
+        alpha = mix(0.8, 0.65, (t - 0.1) / 0.1);
     } else if (t < 0.9) {
         let s = (t - 0.2) / 0.7;
         color = mix(vec3f(1.0), vec3f(0.0), s);
-        alpha = mix(0.5, 0.75, s);
+        alpha = mix(0.65, 0.5, s);
     } else {
         color = vec3f(0.0);
-        alpha = 0.75;
+        alpha = 0.5;
     }
 
-    return vec4f(adjustBrightnessContrast(color, 0.7, 1.5), alpha * uniforms.opacity);
+    return vec4f(color, alpha * uniforms.opacity * 0.72);
 }
 
 @fragment
@@ -197,8 +201,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     cardRgb = mix(cardRgb, dodged, reverseOpacity * foilMask * cardMask);
 
     let glare = glareLayer(cardUV);
-    let glareAfter = adjustBrightnessContrast(glare.rgb, 1.0, 1.5);
-    let glareCombined = overlayBlend(cardRgb, glareAfter);
+    let glareCombined = overlayBlend(cardRgb, glare.rgb);
     cardRgb = mix(cardRgb, glareCombined, glare.a * cardMask);
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
