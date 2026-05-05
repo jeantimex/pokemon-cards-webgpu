@@ -170,7 +170,7 @@ export async function createWebGpuCardRenderer({
 
   let cardTexture = createSolidTexture([255, 255, 255, 255]);
   let foilTexture = createSolidTexture([0, 0, 0, 255]);
-  let maskTexture = createSolidTexture([0, 0, 0, 255]);
+  let maskTexture = createSolidTexture([0, 0, 0, 0]);
   let activePipeline = getPipeline(getEffect(''));
   let bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture);
 
@@ -292,7 +292,7 @@ export async function createWebGpuCardRenderer({
       foilUrl ? createTextureFromUrl(foilUrl) : Promise.resolve(createSolidTexture([0, 0, 0, 255])),
       maskUrl
         ? createTextureFromUrl(maskUrl)
-        : Promise.resolve(createSolidTexture([0, 0, 0, 255])),
+        : Promise.resolve(createSolidTexture([0, 0, 0, 0])),
     ]);
 
     const previousCardTexture = cardTexture;

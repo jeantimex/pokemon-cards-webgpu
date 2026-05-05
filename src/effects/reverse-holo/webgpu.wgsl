@@ -62,16 +62,20 @@ fn getCardSize() -> vec2f {
     return vec2f(cardWidth, cardWidth / cardAspect);
 }
 
-fn farthestCornerDist(uv: vec2f, p: vec2f) -> f32 {
-    let d0 = distance(uv, vec2f(0.0, 0.0));
-    let d1 = distance(uv, vec2f(1.0, 0.0));
-    let d2 = distance(uv, vec2f(0.0, 1.0));
-    let d3 = distance(uv, vec2f(1.0, 1.0));
+fn farthestCornerDist(p: vec2f) -> f32 {
+    let d0 = distance(p, vec2f(0.0, 0.0));
+    let d1 = distance(p, vec2f(1.0, 0.0));
+    let d2 = distance(p, vec2f(0.0, 1.0));
+    let d3 = distance(p, vec2f(1.0, 1.0));
     return max(max(d0, d1), max(d2, d3));
 }
 
 fn luminance(c: vec3f) -> f32 {
     return dot(c, vec3f(0.299, 0.587, 0.114));
+}
+
+fn cssMaskOpacity(alpha: f32) -> f32 {
+    return smoothstep(0.02, 1.0, alpha) * 0.72;
 }
 
 fn adjustBrightnessContrast(color: vec3f, brightness: f32, contrast: f32) -> vec3f {
@@ -110,7 +114,7 @@ fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
 
 fn radialReversePattern(uv: vec2f) -> vec3f {
     let dist = distance(uv, uniforms.pointer);
-    let t = dist / max(farthestCornerDist(uv, uniforms.pointer), 0.001);
+    let t = dist / max(farthestCornerDist(uniforms.pointer), 0.001);
     let blackToWhite = smoothstep(0.5, 0.8, t);
     let whiteToBlack = 1.0 - smoothstep(0.05, 0.5, t);
     return vec3f(max(whiteToBlack, blackToWhite));
@@ -125,7 +129,7 @@ fn diagonalPattern(uv: vec2f) -> vec3f {
 
 fn glareLayer(uv: vec2f) -> vec4f {
     let dist = distance(uv, uniforms.pointer);
-    let maxDist = farthestCornerDist(uv, uniforms.pointer);
+    let maxDist = farthestCornerDist(uniforms.pointer);
     let t = clamp(dist / maxDist, 0.0, 1.0);
 
     var color: vec3f;
@@ -173,8 +177,8 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
 
     let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
     let foilColor = textureSampleLevel(foilTexture, linearSampler, cardUV, 0.0).rgb;
-    let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0).rgb;
-    let foilMask = smoothstep(0.05, 0.45, luminance(maskColor));
+    let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
+    let foilMask = cssMaskOpacity(maskColor.a);
     let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
 
     let pointerCenter = length(uniforms.pointer - vec2f(0.5)) / 0.70710678;
