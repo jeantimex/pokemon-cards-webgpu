@@ -121,9 +121,11 @@ fn radialReversePattern(uv: vec2f) -> vec3f {
 }
 
 fn diagonalPattern(uv: vec2f) -> vec3f {
-    let shifted = uv + vec2f(uniforms.pointer.x - 0.5, uniforms.pointer.y - 0.5);
-    let axis = dot(shifted - vec2f(0.5), normalize(vec2f(1.0, -1.0))) + 0.5;
-    let band = 1.0 - smoothstep(0.15, 0.5, abs(axis - 0.5));
+    let backgroundUv = (uv + uniforms.pointer) * 0.5;
+    let axis = dot(backgroundUv - vec2f(0.5), normalize(vec2f(1.0, -1.0))) + 0.5;
+    let blackToWhite = smoothstep(0.15, 0.5, axis);
+    let whiteToBlack = 1.0 - smoothstep(0.5, 0.85, axis);
+    let band = blackToWhite * whiteToBlack;
     return vec3f(band);
 }
 
