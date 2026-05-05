@@ -1,4 +1,7 @@
 import type { CardPointer } from '../ui/css-card-controller';
+import { getLocalFoilImageUrl } from '../effects/asset-paths';
+import type { EffectVariant } from '../effects/category-types';
+import type { Card } from '../types';
 import type { CardEffect } from './card-effect';
 import { getEffect } from './effect-registry';
 
@@ -7,8 +10,21 @@ interface WebGpuCardRendererOptions {
   webgpuPane: HTMLElement;
 }
 
+function getReverseHoloFoilBrightness(card: Card) {
+  const types = new Set((card.types ?? []).map((type) => type.toLowerCase()));
+  if (types.has('lightning')) return 0.7;
+  if (types.has('darkness')) return 0.8;
+  if (types.has('metal')) return 0.6;
+  return 0.55;
+}
+
 export interface WebGpuCardRenderer {
-  updateTexture(url: string, categoryName: string): Promise<void>;
+  updateTexture(
+    url: string,
+    categoryName: string,
+    card: Card,
+    variant: EffectVariant,
+  ): Promise<void>;
   setPointer(pointer: CardPointer): void;
   handlePointerMove(event: PointerEvent): CardPointer;
   handlePointerLeave(): void;
@@ -83,13 +99,27 @@ export async function createWebGpuCardRenderer({
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
+  const bindGroupLayout = device.createBindGroupLayout({
+    entries: [
+      { binding: 0, visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT, buffer: {} },
+      { binding: 1, visibility: GPUShaderStage.FRAGMENT, sampler: {} },
+      { binding: 2, visibility: GPUShaderStage.FRAGMENT, texture: {} },
+      { binding: 3, visibility: GPUShaderStage.FRAGMENT, texture: {} },
+      { binding: 4, visibility: GPUShaderStage.FRAGMENT, texture: {} },
+    ],
+  });
+
+  const pipelineLayout = device.createPipelineLayout({
+    bindGroupLayouts: [bindGroupLayout],
+  });
+
   // Pipeline cache — keyed by effect id, built on first use
   const pipelineCache = new Map<string, GPURenderPipeline>();
 
   function buildPipeline(effect: CardEffect): GPURenderPipeline {
     const shaderModule = device.createShaderModule({ code: effect.shaderCode });
     return device.createRenderPipeline({
-      layout: 'auto',
+      layout: pipelineLayout,
       vertex: {
         module: shaderModule,
         entryPoint: 'vertexMain',
@@ -129,20 +159,28 @@ export async function createWebGpuCardRenderer({
     return pipeline;
   }
 
-  function createBindGroup(pipeline: GPURenderPipeline, cardTex: GPUTexture): GPUBindGroup {
+  function createBindGroup(
+    cardTex: GPUTexture,
+    foilTex: GPUTexture,
+    maskTex: GPUTexture,
+  ): GPUBindGroup {
     return device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
+      layout: bindGroupLayout,
       entries: [
         { binding: 0, resource: { buffer: uniformBuffer } },
         { binding: 1, resource: sampler },
         { binding: 2, resource: cardTex.createView() },
+        { binding: 3, resource: foilTex.createView() },
+        { binding: 4, resource: maskTex.createView() },
       ],
     });
   }
 
   let cardTexture = createSolidTexture([255, 255, 255, 255]);
+  let foilTexture = createSolidTexture([0, 0, 0, 255]);
+  let maskTexture = createSolidTexture([0, 0, 0, 0]);
   let activePipeline = getPipeline(getEffect(''));
-  let bindGroup = createBindGroup(activePipeline, cardTexture);
+  let bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture);
 
   let mouseX = 0.5;
   let mouseY = 0.5;
@@ -152,6 +190,7 @@ export async function createWebGpuCardRenderer({
   let currentRotationY = 0;
   let targetOpacity = 0;
   let currentOpacity = 0;
+  let foilBrightness = 0.55;
   const startTime = performance.now();
   let renderWidth = 1;
   let renderHeight = 1;
@@ -247,16 +286,36 @@ export async function createWebGpuCardRenderer({
     return tex;
   }
 
-  async function updateTexture(url: string, categoryName: string) {
+  async function updateTexture(
+    url: string,
+    categoryName: string,
+    card: Card,
+    variant: EffectVariant,
+  ) {
     const effect = getEffect(categoryName);
     const nextPipeline = getPipeline(effect);
-    const nextCardTexture = await createTextureFromUrl(url);
+    const foilUrl = getLocalFoilImageUrl(card, 'foils', categoryName, variant);
+    const maskUrl = getLocalFoilImageUrl(card, 'masks', categoryName, variant);
+    const [nextCardTexture, nextFoilTexture, nextMaskTexture] = await Promise.all([
+      createTextureFromUrl(url),
+      foilUrl ? createTextureFromUrl(foilUrl) : Promise.resolve(createSolidTexture([0, 0, 0, 255])),
+      maskUrl
+        ? createTextureFromUrl(maskUrl)
+        : Promise.resolve(createSolidTexture([0, 0, 0, 0])),
+    ]);
 
     const previousCardTexture = cardTexture;
+    const previousFoilTexture = foilTexture;
+    const previousMaskTexture = maskTexture;
     cardTexture = nextCardTexture;
+    foilTexture = nextFoilTexture;
+    maskTexture = nextMaskTexture;
     activePipeline = nextPipeline;
-    bindGroup = createBindGroup(activePipeline, cardTexture);
+    foilBrightness = getReverseHoloFoilBrightness(card);
+    bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture);
     previousCardTexture.destroy();
+    previousFoilTexture.destroy();
+    previousMaskTexture.destroy();
   }
 
   function render() {
@@ -272,7 +331,7 @@ export async function createWebGpuCardRenderer({
       currentRotationX, currentRotationY,
       time, devicePixelRatio,
       cssPerspective, currentOpacity,
-      0, 0,
+      foilBrightness, 0,
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
