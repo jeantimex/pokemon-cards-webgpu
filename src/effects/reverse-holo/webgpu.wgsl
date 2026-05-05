@@ -74,10 +74,6 @@ fn luminance(c: vec3f) -> f32 {
     return dot(c, vec3f(0.299, 0.587, 0.114));
 }
 
-fn cssMaskOpacity(alpha: f32) -> f32 {
-    return smoothstep(0.02, 1.0, alpha) * 0.72;
-}
-
 fn adjustBrightnessContrast(color: vec3f, brightness: f32, contrast: f32) -> vec3f {
     return clamp((color * brightness - vec3f(0.5)) * contrast + vec3f(0.5), vec3f(0.0), vec3f(1.0));
 }
@@ -96,7 +92,8 @@ fn overlayBlend(base: vec3f, blend: vec3f) -> vec3f {
 
 fn softLightChannel(base: f32, blend: f32) -> f32 {
     let low = base - (1.0 - 2.0 * blend) * base * (1.0 - base);
-    let high = base + (2.0 * blend - 1.0) * (sqrt(max(base, 0.0)) - base);
+    let d = select(((16.0 * base - 12.0) * base + 4.0) * base, sqrt(max(base, 0.0)), base > 0.25);
+    let high = base + (2.0 * blend - 1.0) * (d - base);
     return mix(low, high, step(0.5, blend));
 }
 
@@ -109,23 +106,24 @@ fn softLightBlend(base: vec3f, blend: vec3f) -> vec3f {
 }
 
 fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return clamp(base / max(vec3f(1.0) - blend, vec3f(0.001)), vec3f(0.0), vec3f(1.0));
+    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.00001)), vec3f(1.0));
+    return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
 }
 
 fn radialReversePattern(uv: vec2f) -> vec3f {
     let backgroundUv = ((uv - vec2f(0.5)) / 1.2) + vec2f(0.5);
     let dist = distance(backgroundUv, uniforms.pointer);
     let t = dist / max(farthestCornerDist(uniforms.pointer), 0.001);
-    let blackToWhite = smoothstep(0.5, 0.8, t);
-    let whiteToBlack = 1.0 - smoothstep(0.05, 0.5, t);
+    let whiteToBlack = 1.0 - clamp((t - 0.05) / 0.45, 0.0, 1.0);
+    let blackToWhite = clamp((t - 0.5) / 0.3, 0.0, 1.0);
     return vec3f(max(whiteToBlack, blackToWhite));
 }
 
 fn diagonalPattern(uv: vec2f) -> vec3f {
     let backgroundUv = (uv + uniforms.pointer) * 0.5;
     let axis = dot(backgroundUv - vec2f(0.5), normalize(vec2f(-1.0, -1.0))) + 0.5;
-    let blackToWhite = smoothstep(0.15, 0.5, axis);
-    let whiteToBlack = 1.0 - smoothstep(0.5, 0.85, axis);
+    let blackToWhite = clamp((axis - 0.15) / 0.35, 0.0, 1.0);
+    let whiteToBlack = 1.0 - clamp((axis - 0.5) / 0.35, 0.0, 1.0);
     let band = blackToWhite * whiteToBlack;
     return vec3f(band);
 }
@@ -185,7 +183,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
     let foilColor = textureSampleLevel(foilTexture, linearSampler, cardUV, 0.0).rgb;
     let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
-    let foilMask = cssMaskOpacity(maskColor.a);
+    let foilMask = maskColor.a;
     let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
 
     let pointerCenter = length(uniforms.pointer - vec2f(0.5)) / 0.70710678;
