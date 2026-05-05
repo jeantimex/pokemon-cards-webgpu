@@ -1,8 +1,4 @@
-import shaderCode from '../effects/galaxy-cosmos-holofoil/shader.wgsl?raw';
-import { appUrl } from '../app/asset-url';
-import { getLocalFoilImageUrl } from '../effects/asset-paths';
-import type { EffectVariant } from '../effects/category-types';
-import type { Card } from '../types';
+import shaderCode from '../shaders.wgsl?raw';
 import type { CardPointer } from '../ui/css-card-controller';
 
 interface WebGpuCardRendererOptions {
@@ -11,7 +7,7 @@ interface WebGpuCardRendererOptions {
 }
 
 export interface WebGpuCardRenderer {
-  updateTexture(url: string, card: Card, categoryName: string, variant: EffectVariant): Promise<void>;
+  updateTexture(url: string): Promise<void>;
   setPointer(pointer: CardPointer): void;
   handlePointerMove(event: PointerEvent): CardPointer;
   handlePointerLeave(): void;
@@ -96,8 +92,9 @@ export async function createWebGpuCardRenderer({
   });
   device.queue.writeBuffer(indexBuffer, 0, indices);
 
+  // resolution(2) + pointer(2) + rotation(2) + time(1) + dpr(1) + perspective(1) + pad(3) = 12 floats = 48 bytes
   const uniformBuffer = device.createBuffer({
-    size: 64,
+    size: 48,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -143,10 +140,6 @@ export async function createWebGpuCardRenderer({
   });
 
   let cardTexture = createSolidTexture([255, 255, 255, 255]);
-  let maskTexture = createSolidTexture([0, 0, 0, 0]);
-  let cosmosBottomTexture = createSolidTexture([0, 0, 0, 0]);
-  let cosmosMiddleTexture = createSolidTexture([0, 0, 0, 0]);
-  let cosmosTopTexture = createSolidTexture([0, 0, 0, 0]);
   let bindGroup = createBindGroup();
   let mouseX = 0.5;
   let mouseY = 0.5;
@@ -154,12 +147,6 @@ export async function createWebGpuCardRenderer({
   let targetRotationY = 0;
   let currentRotationX = 0;
   let currentRotationY = 0;
-  let targetOpacity = 0;
-  let currentOpacity = 0;
-  let effectMode = 0;
-  let clipMode = 0;
-  let cosmosOffsetX = 0;
-  let cosmosOffsetY = 0;
   const startTime = performance.now();
   let renderWidth = 1;
   let renderHeight = 1;
@@ -171,7 +158,6 @@ export async function createWebGpuCardRenderer({
     mouseY = 0.5;
     targetRotationX = 0;
     targetRotationY = 0;
-    targetOpacity = 0;
   }
 
   function scheduleReset(delay = 500) {
@@ -209,7 +195,6 @@ export async function createWebGpuCardRenderer({
     const centerY = mouseY - 0.5;
     targetRotationX = (-(centerX * 100) / 3.5) * (Math.PI / 180);
     targetRotationY = (-(centerY * 100) / 3.5) * (Math.PI / 180);
-    targetOpacity = 1;
   }
 
   function handlePointerMove(event: PointerEvent) {
@@ -290,129 +275,26 @@ export async function createWebGpuCardRenderer({
     return device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
-        {
-          binding: 0,
-          resource: {
-            buffer: uniformBuffer,
-          },
-        },
-        {
-          binding: 1,
-          resource: sampler,
-        },
-        {
-          binding: 2,
-          resource: cardTexture.createView(),
-        },
-        {
-          binding: 3,
-          resource: maskTexture.createView(),
-        },
-        {
-          binding: 4,
-          resource: cosmosBottomTexture.createView(),
-        },
-        {
-          binding: 5,
-          resource: cosmosMiddleTexture.createView(),
-        },
-        {
-          binding: 6,
-          resource: cosmosTopTexture.createView(),
-        },
+        { binding: 0, resource: { buffer: uniformBuffer } },
+        { binding: 1, resource: sampler },
+        { binding: 2, resource: cardTexture.createView() },
       ],
     });
   }
 
-  function hashCardId(cardId: string) {
-    let hash = 2166136261;
-    for (let i = 0; i < cardId.length; i += 1) {
-      hash ^= cardId.charCodeAt(i);
-      hash = Math.imul(hash, 16777619);
-    }
-    return hash >>> 0;
-  }
-
-  function getClipMode(card: Card) {
-    const subtypeText = (card.subtypes ?? []).join(' ').toLowerCase();
-    if (card.supertype.toLowerCase() === 'trainer' || subtypeText.startsWith('supporter')) {
-      return 2;
-    }
-    if (subtypeText.startsWith('stage')) {
-      return 1;
-    }
-    return 0;
-  }
-
-  async function updateTexture(
-    url: string,
-    card: Card,
-    categoryName: string,
-    variant: EffectVariant,
-  ) {
-    const isGalaxyCosmos = categoryName === 'Galaxy/Cosmos Holofoil';
+  async function updateTexture(url: string) {
     const nextCardTexture = await createTextureFromUrl(url);
-    let nextMaskTexture = maskTexture;
-    let nextCosmosBottomTexture = cosmosBottomTexture;
-    let nextCosmosMiddleTexture = cosmosMiddleTexture;
-    let nextCosmosTopTexture = cosmosTopTexture;
-
-    if (isGalaxyCosmos) {
-      const maskUrl = getLocalFoilImageUrl(card, 'masks', categoryName, variant);
-      const [
-        loadedMaskTexture,
-        loadedCosmosBottomTexture,
-        loadedCosmosMiddleTexture,
-        loadedCosmosTopTexture,
-      ] = await Promise.all([
-        createTextureFromUrl(maskUrl),
-        createTextureFromUrl(appUrl('img/cosmos-bottom.png')),
-        createTextureFromUrl(appUrl('img/cosmos-middle-trans.png')),
-        createTextureFromUrl(appUrl('img/cosmos-top-trans.png')),
-      ]);
-
-      nextMaskTexture = loadedMaskTexture;
-      nextCosmosBottomTexture = loadedCosmosBottomTexture;
-      nextCosmosMiddleTexture = loadedCosmosMiddleTexture;
-      nextCosmosTopTexture = loadedCosmosTopTexture;
-    }
-
     const previousCardTexture = cardTexture;
-    const previousMaskTexture = maskTexture;
-    const previousCosmosBottomTexture = cosmosBottomTexture;
-    const previousCosmosMiddleTexture = cosmosMiddleTexture;
-    const previousCosmosTopTexture = cosmosTopTexture;
-
     cardTexture = nextCardTexture;
-    maskTexture = isGalaxyCosmos ? nextMaskTexture : createSolidTexture([0, 0, 0, 0]);
-    cosmosBottomTexture = isGalaxyCosmos ? nextCosmosBottomTexture : createSolidTexture([0, 0, 0, 0]);
-    cosmosMiddleTexture = isGalaxyCosmos ? nextCosmosMiddleTexture : createSolidTexture([0, 0, 0, 0]);
-    cosmosTopTexture = isGalaxyCosmos ? nextCosmosTopTexture : createSolidTexture([0, 0, 0, 0]);
     bindGroup = createBindGroup();
-
     previousCardTexture.destroy();
-    previousMaskTexture.destroy();
-    previousCosmosBottomTexture.destroy();
-    previousCosmosMiddleTexture.destroy();
-    previousCosmosTopTexture.destroy();
-
-    effectMode = isGalaxyCosmos ? 1 : 0;
-    clipMode = getClipMode(card);
-
-    const seed = hashCardId(card.id);
-    cosmosOffsetX = seed % 734;
-    cosmosOffsetY = ((seed >>> 10) % 1280) - 128;
   }
 
   function render() {
     currentRotationX += (targetRotationX - currentRotationX) * 0.15;
     currentRotationY += (targetRotationY - currentRotationY) * 0.15;
-    currentOpacity += (targetOpacity - currentOpacity) * 0.15;
 
     const time = (performance.now() - startTime) / 1000;
-    const centerX = mouseX - 0.5;
-    const centerY = mouseY - 0.5;
-    const pointerFromCenter = Math.min(Math.sqrt(centerX * centerX + centerY * centerY) / 0.5, 1);
     const cssPerspective = 600 * ((2 * devicePixelRatio) / renderHeight);
     const uniformData = new Float32Array([
       renderWidth,
@@ -423,14 +305,8 @@ export async function createWebGpuCardRenderer({
       currentRotationY,
       time,
       devicePixelRatio,
-      currentOpacity,
-      effectMode,
-      clipMode,
-      pointerFromCenter,
-      cosmosOffsetX,
-      cosmosOffsetY,
       cssPerspective,
-      0,
+      0, 0, 0,
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
