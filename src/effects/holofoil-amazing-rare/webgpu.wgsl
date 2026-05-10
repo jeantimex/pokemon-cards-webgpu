@@ -352,20 +352,25 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let pointerFromCenter = length(uniforms.pointer - vec2f(0.5)) / 0.70710678;
 
     // === Build .card__shine compositing group ===
-    // In CSS, the pseudo-elements blend WITHIN the shine group,
-    // then the whole group blends with the card using color-dodge.
+    // In CSS, backgrounds are composited bottom-to-top:
+    // 1. radial gradient (base)
+    // 2. glitter2 color-burns onto radial
+    // 3. glitter1 soft-lights onto result
+    // The glitter positions are FIXED - they don't move with pointer.
 
-    // Shine main: glitter + glitter + radial, blend modes: soft-light, color-burn
-    // The radial gradient has varying alpha (0.1 at 50%) which controls effect intensity
     let shineRadial = shineRadialGradient(cardUV);
-    let shineAlpha = shineRadial.a;  // Use this to modulate the color-dodge intensity
+    let shineAlpha = shineRadial.a;
+
+    // Combine glitter textures - soft-light blend between the two glitter layers
+    let glitterCombined = softLightBlend(glitter1, glitter2);
+
+    // Extract sparkle intensity - bright spots in glitter become sparkles
+    let sparkleIntensity = max(max(glitterCombined.r, glitterCombined.g), glitterCombined.b);
+
+    // Start with radial as base for the shine
     var shineMain = shineRadial.rgb;
-    // Reduce glitter intensity to match CSS (glitter is subtle in CSS)
-    let glitterIntensity = 0.35;
-    let glitter1Reduced = mix(vec3f(0.5), glitter1, glitterIntensity);
-    let glitter2Reduced = mix(vec3f(0.5), glitter2, glitterIntensity);
-    shineMain = colorBurnBlend(shineMain, glitter2Reduced);
-    shineMain = softLightBlend(shineMain, glitter1Reduced);
+    // Apply glitter via color-burn (darkens based on glitter, bright glitter = less darkening)
+    shineMain = colorBurnBlend(shineMain, glitterCombined);
     shineMain = applyFilter(shineMain, 1.0, 1.0, 0.9);
 
     // Shine:before blends with shine main using lighten (NOT masked, opacity 0.5)
@@ -403,6 +408,13 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let shineOutsideBlended = colorDodgeBlend(cardRgb, shineOutsideWithSat);
     let outsideMask = (1.0 - foilMask) * cardMask;
     cardRgb = mix(cardRgb, shineOutsideBlended, uniforms.opacity * outsideMask * shineAlpha);
+
+    // Add stable glitter sparkles overlay (fixed positions, not affected by pointer)
+    // This creates the visible sparkle dots that stay in place
+    let sparkleThreshold = 0.65;  // Only show brightest spots as sparkles
+    let sparkle = smoothstep(sparkleThreshold, 0.9, sparkleIntensity);
+    let sparkleColor = glitterCombined * sparkle;
+    cardRgb = mix(cardRgb, cardRgb + sparkleColor * 0.4, uniforms.opacity * foilMask * cardMask);
 
     // === card__glare compositing group ===
     var glare = glareGradient(cardUV);
