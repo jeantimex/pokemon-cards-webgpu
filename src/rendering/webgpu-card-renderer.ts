@@ -4,6 +4,7 @@ import type { EffectVariant } from '../effects/category-types';
 import type { Card } from '../types';
 import type { CardEffect } from './card-effect';
 import { getEffect } from './effect-registry';
+import { appUrl } from '../app/asset-url';
 
 interface WebGpuCardRendererOptions {
   canvas: HTMLCanvasElement;
@@ -106,6 +107,7 @@ export async function createWebGpuCardRenderer({
       { binding: 2, visibility: GPUShaderStage.FRAGMENT, texture: {} },
       { binding: 3, visibility: GPUShaderStage.FRAGMENT, texture: {} },
       { binding: 4, visibility: GPUShaderStage.FRAGMENT, texture: {} },
+      { binding: 5, visibility: GPUShaderStage.FRAGMENT, texture: {} },
     ],
   });
 
@@ -159,6 +161,8 @@ export async function createWebGpuCardRenderer({
     return pipeline;
   }
 
+  const glitterTexture = await createTextureFromUrl(appUrl('img/glitter.png'));
+
   function createBindGroup(
     cardTex: GPUTexture,
     foilTex: GPUTexture,
@@ -172,6 +176,7 @@ export async function createWebGpuCardRenderer({
         { binding: 2, resource: cardTex.createView() },
         { binding: 3, resource: foilTex.createView() },
         { binding: 4, resource: maskTex.createView() },
+        { binding: 5, resource: glitterTexture.createView() },
       ],
     });
   }
