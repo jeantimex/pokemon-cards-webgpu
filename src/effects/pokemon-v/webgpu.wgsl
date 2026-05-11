@@ -204,11 +204,15 @@ fn verticalSunpillar(layerUv: vec2f) -> vec3f {
     return mix(SUNPILLAR_6, SUNPILLAR_1, (t - 0.714) / 0.286);
 }
 
-fn diagonalStripePhase(layerUv: vec2f) -> f32 {
+fn diagonalStripePhaseWithRepeat(layerUv: vec2f, repeatSize: f32) -> f32 {
     let angle = radians(115.0);
     let dir = vec2f(sin(angle), -cos(angle));
     let t = dot(layerUv, dir);
-    return fract(t / 0.12);
+    return fract(t / repeatSize);
+}
+
+fn diagonalStripePhase(layerUv: vec2f) -> f32 {
+    return diagonalStripePhaseWithRepeat(layerUv, 0.12);
 }
 
 // CSS repeating-linear-gradient(133deg, ... 12%).
@@ -245,6 +249,51 @@ fn diagonalBeamHalo(layerUv: vec2f) -> f32 {
     let broad = 1.0 - smoothstep(0.08, 0.43, distToPeak);
     let edge = smoothstep(0.035, 0.18, distToPeak);
     return broad * edge;
+}
+
+fn diagonalBackBeamMask(layerUv: vec2f) -> f32 {
+    let cycle = diagonalStripePhaseWithRepeat(layerUv, 0.24);
+    let distToPeak = abs(cycle - 0.375);
+    let core = 1.0 - smoothstep(0.0, 0.033, distToPeak);
+    let halo = 1.0 - smoothstep(0.02, 0.075, distToPeak);
+    return clamp(core * 1.2 + halo * 0.16, 0.0, 1.0);
+}
+
+fn diagonalBackBeamHalo(layerUv: vec2f) -> f32 {
+    let cycle = diagonalStripePhaseWithRepeat(layerUv, 0.24);
+    let distToPeak = abs(cycle - 0.375);
+    let broad = 1.0 - smoothstep(0.03, 0.18, distToPeak);
+    let edge = smoothstep(0.015, 0.075, distToPeak);
+    return broad * edge;
+}
+
+fn pokemonVBeamOverlap(uv: vec2f) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let frontUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), bg);
+    let backUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), -bg);
+    let frontBeam = diagonalBeamMask(frontUv);
+    let backBeam = diagonalBackBeamMask(backUv);
+    let overlap = pow(clamp(frontBeam * backBeam, 0.0, 1.0), 0.72);
+
+    let cardSize = getCardSize();
+    let cardWidthPx = max(cardSize.x * uniforms.resolution.y / uniforms.dpr, 1.0);
+    let grainWidth = 500.0 / cardWidthPx;
+    let grainUv = backgroundSampleUv(uv, vec2f(grainWidth, 1.0), vec2f(0.5, 0.5));
+    let grain = textureSampleLevel(glitterTexture, linearSampler, fract(grainUv), 0.0);
+    let fineGrain = textureSampleLevel(
+        glitterTexture,
+        linearSampler,
+        fract(grainUv * vec2f(1.85, 1.35) + vec2f(0.17, 0.39)),
+        0.0
+    );
+    let grainLuma = dot(grain.rgb, vec3f(0.299, 0.587, 0.114));
+    let fineGrainLuma = dot(fineGrain.rgb, vec3f(0.299, 0.587, 0.114));
+    let particle = 0.34 + smoothstep(0.08, 0.3, grainLuma) * 0.9 +
+        smoothstep(0.12, 0.34, fineGrainLuma) * 1.55;
+
+    let sunColor = verticalSunpillar(backgroundSampleUv(uv, vec2f(2.0, 7.0), vec2f(0.0, bg.y)));
+    let mergeTint = mix(sunColor * 1.35, vec3f(1.0, 0.94, 0.7), overlap * 0.45);
+    return mergeTint * overlap * particle * 1.25;
 }
 
 // Base radial gradient - subtle darkening at pointer
@@ -300,6 +349,8 @@ fn pokemonVShineLayer(uv: vec2f, afterLayer: bool) -> vec4f {
     );
     let sunUv = backgroundSampleUv(uv, sunSize, vec2f(0.0, bg.y));
     let diagonalUv = backgroundSampleUv(uv, diagonalSize, diagonalPos);
+    let frontRotationDiagonalUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), diagonalPos);
+    let boostedBeamUv = select(diagonalUv, frontRotationDiagonalUv, afterLayer);
     let sunColor = verticalSunpillar(sunUv);
     let sun = vec4f(sunColor, 1.0);
     let diagonal = vec4f(diagonalStripeColor(diagonalUv), 1.0);
@@ -319,20 +370,30 @@ fn pokemonVShineLayer(uv: vec2f, afterLayer: bool) -> vec4f {
         applyFilter(layer.rgb, 1.0, 2.5, 1.75),
         afterLayer
     );
-    let beam = diagonalBeamMask(diagonalUv);
-    let beamHalo = diagonalBeamHalo(diagonalUv);
+    let beam = select(diagonalBeamMask(boostedBeamUv), diagonalBackBeamMask(boostedBeamUv), afterLayer);
+    let beamHalo = select(diagonalBeamHalo(boostedBeamUv), diagonalBackBeamHalo(boostedBeamUv), afterLayer);
     let grainLuma = dot(grain.rgb, vec3f(0.299, 0.587, 0.114));
     let fineGrainLuma = dot(fineGrain.rgb, vec3f(0.299, 0.587, 0.114));
     let particleGrain = smoothstep(0.06, 0.26, grainLuma);
+    let particleGrainFine = smoothstep(0.05, 0.21, fineGrainLuma);
     let particleFlecks = smoothstep(0.12, 0.36, max(grainLuma, fineGrainLuma));
     let edgeFlecks = pow(smoothstep(0.1, 0.34, fineGrainLuma), 1.65);
-    let particleMask = 0.32 + particleGrain * 1.12 + particleFlecks * 2.85;
-    let beamStrength = select(1.38, 0.76, afterLayer);
-    let beamTint = mix(sunColor * 1.35, vec3f(1.0, 0.95, 0.76), particleFlecks * 0.38);
-    filtered = screenBlend(filtered, beamTint * beam * particleMask * beamStrength);
-    let fleckStrength = select(1.52, 0.76, afterLayer);
-    let fleckTint = mix(sunColor * 1.45, vec3f(1.0, 0.86, 0.45), edgeFlecks * 0.55);
-    filtered = screenBlend(filtered, fleckTint * (beamHalo + beam * 0.35) * edgeFlecks * fleckStrength);
+    let frontParticleMask = 0.32 + particleGrain * 1.12 + particleFlecks * 2.85;
+    let backParticleMask = 0.07 + particleGrain * 0.92 + particleGrainFine * 1.18 + particleFlecks * 3.55;
+    let particleMask = select(frontParticleMask, backParticleMask, afterLayer);
+    let visibleBeam = select(beam, beam, afterLayer);
+    let beamStrength = select(1.38, 1.45, afterLayer);
+    let frontTint = mix(sunColor * 1.35, vec3f(1.0, 0.95, 0.76), particleFlecks * 0.38);
+    let backTint = mix(sunColor * 1.15, vec3f(0.65, 0.86, 1.0), 0.32 + particleFlecks * 0.22);
+    let beamTint = select(frontTint, backTint, afterLayer);
+    filtered = screenBlend(filtered, beamTint * visibleBeam * particleMask * beamStrength);
+    let fleckStrength = select(1.52, 1.175, afterLayer);
+    let frontFleckTint = mix(sunColor * 1.45, vec3f(1.0, 0.86, 0.45), edgeFlecks * 0.55);
+    let backFleckTint = mix(sunColor * 1.2, vec3f(0.7, 0.9, 1.0), 0.4);
+    let fleckTint = select(frontFleckTint, backFleckTint, afterLayer);
+    let backFleckDensity = particleGrainFine * 1.12 + edgeFlecks * 1.25;
+    let fleckBeam = select(beamHalo + beam * 0.35, beam * (0.28 + edgeFlecks * 0.78 + backFleckDensity), afterLayer);
+    filtered = screenBlend(filtered, fleckTint * fleckBeam * edgeFlecks * fleckStrength);
     return vec4f(filtered, layer.a);
 }
 
@@ -391,6 +452,9 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let afterShine = pokemonVShineLayer(cardUV, true);
     let afterBlended = softLightBlend(cardRgb, afterShine.rgb);
     cardRgb = mix(cardRgb, afterBlended, afterShine.a * foilMask * uniforms.opacity * cardMask);
+
+    let beamMerge = pokemonVBeamOverlap(cardUV);
+    cardRgb = screenBlend(cardRgb, beamMerge * foilMask * uniforms.opacity * cardMask);
 
     // === GLARE LAYER ===
     let glare = glareGradient(cardUV);
