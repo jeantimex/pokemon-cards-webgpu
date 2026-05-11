@@ -149,9 +149,9 @@ fn crissCrossPattern(uv: vec2f) -> vec3f {
     // Apply offset
     let offsetUv = centeredUv + vec2f(offsetX, offsetY);
 
-    // Correct for card aspect ratio to make pattern visually square
-    // Card is taller than wide, so expand Y to compensate
-    let aspectCorrectedUv = vec2f(offsetUv.x, offsetUv.y / cardAspect);
+    // Multiply by card aspect ratio to stretch the pattern vertically even more,
+    // matching the vertical elongation seen in the CSS implementation.
+    let aspectCorrectedUv = vec2f(offsetUv.x, offsetUv.y * cardAspect);
 
     // Apply pattern scale
     let scaledUv = aspectCorrectedUv * vec2f(uniforms.patternScaleX, uniforms.patternScaleY);
