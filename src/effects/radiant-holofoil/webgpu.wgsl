@@ -171,12 +171,13 @@ fn crissCrossPattern(uv: vec2f) -> vec3f {
 
 // Radial gradient for shine center
 fn shineRadialGradient(uv: vec2f) -> vec3f {
-    // Follow mouse exactly to avoid the "offset" disk look
-    let center = uniforms.pointer;
+    // CSS: ellipse at calc((var(--pointer-x) * 0.5) + 25%) calc((var(--pointer-y) * 0.5) + 25%)
+    // Center moves less than pointer and is offset toward top-left
+    let center = uniforms.pointer * 0.5 + vec2f(0.25, 0.25);
     let dist = distance(uv, center);
 
-    // Use smoothstep for a soft fade instead of a hard-edged disk
-    let t = smoothstep(0.0, 1.2, dist);
+    // Use smoothstep for a soft fade - extend further to match CSS farthest-corner behavior
+    let t = smoothstep(0.0, 1.5, dist);
     let white = vec3f(0.95);
     let glow = vec3f(0.1, 0.1, 0.15);
 
