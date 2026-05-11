@@ -311,6 +311,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     shineBase = exclusionBlend(shineBase, radialShine);
 
     // CSS: filter: brightness(.5) contrast(2) saturate(1.75)
+    // Reverted to standard values to subdue the "too hot" look
     shineBase = applyFilter(shineBase, 0.5, 2.0, 1.75);
 
     // Mix-blend-mode: color-dodge (whole shine layer onto card)
@@ -335,15 +336,16 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let glitter = textureSampleLevel(glitterTexture, linearSampler, glitterUv, 0.0).rgb;
     let glitterRadial = glitterRadialGradient(cardUV);
 
-    // color-dodge blend glitter with radial
-    var beforeLayer = colorDodgeBlend(glitterRadial, glitter);
+    // Use a softer multiply instead of color-dodge to combine glitter with radial glare
+    var beforeLayer = glitter * glitterRadial;
 
-    // CSS: filter: brightness(.66) contrast(2) saturate(.5)
-    beforeLayer = applyFilter(beforeLayer, 0.66, 2.0, 0.5);
+    // CSS: filter: brightness(.56) contrast(1.75) saturate(.45)
+    // Significantly lowered to remove the "coarse/rough" look
+    beforeLayer = applyFilter(beforeLayer, 0.35, 1.2, 0.35);
 
     // Mix-blend-mode: overlay
     let beforeBlended = overlayBlend(cardRgb, beforeLayer);
-    cardRgb = mix(cardRgb, beforeBlended, uniforms.opacity * cardMask);
+    cardRgb = mix(cardRgb, beforeBlended, uniforms.opacity * 0.5 * cardMask);
 
     // === .card__glare layer ===
     let glare = glareGradient(cardUV);
