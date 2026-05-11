@@ -75,6 +75,7 @@ async function init() {
     onSelectionChange: (card, categoryName) => {
       writeCardSelectionToUrl(categoryName, card);
     },
+    webgpuRenderer,
   });
 
   cssCardRotator.addEventListener('pointermove', (event) => {

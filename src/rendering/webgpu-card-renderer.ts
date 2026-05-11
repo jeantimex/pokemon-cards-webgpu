@@ -31,6 +31,7 @@ export interface WebGpuCardRenderer {
   handlePointerLeave(): void;
   resetPointer(): void;
   render(): void;
+  setPatternParams(scale: number, squareness: number): void;
 }
 
 export async function createWebGpuCardRenderer({
@@ -93,10 +94,10 @@ export async function createWebGpuCardRenderer({
   });
   device.queue.writeBuffer(indexBuffer, 0, indices);
 
-  // Uniform layout (48 bytes / 12 floats):
-  // resolution(2) + pointer(2) + rotation(2) + time(1) + dpr(1) + perspective(1) + opacity(1) + pad(2)
+  // Uniform layout (64 bytes / 16 floats):
+  // resolution(2) + pointer(2) + rotation(2) + time(1) + dpr(1) + perspective(1) + opacity(1) + foilBrightness(1) + patternScale(1) + patternSquareness(1) + pad(1)
   const uniformBuffer = device.createBuffer({
-    size: 48,
+    size: 64,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -196,6 +197,8 @@ export async function createWebGpuCardRenderer({
   let targetOpacity = 0;
   let currentOpacity = 0;
   let foilBrightness = 0.55;
+  let patternScaleX = 0.2;
+  let patternScaleY = 0.4;
   const startTime = performance.now();
   let renderWidth = 1;
   let renderHeight = 1;
@@ -336,7 +339,8 @@ export async function createWebGpuCardRenderer({
       currentRotationX, currentRotationY,
       time, devicePixelRatio,
       cssPerspective, currentOpacity,
-      foilBrightness, 0,
+      foilBrightness, patternScaleX,
+      patternScaleY, 0, 0, 0,
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
@@ -360,6 +364,11 @@ export async function createWebGpuCardRenderer({
     device.queue.submit([commandEncoder.finish()]);
   }
 
+  function setPatternParams(scaleX: number, scaleY: number) {
+    patternScaleX = scaleX;
+    patternScaleY = scaleY;
+  }
+
   return {
     updateTexture,
     setPointer,
@@ -367,5 +376,6 @@ export async function createWebGpuCardRenderer({
     handlePointerLeave,
     resetPointer,
     render,
+    setPatternParams,
   };
 }
