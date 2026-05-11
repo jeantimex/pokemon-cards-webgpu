@@ -273,7 +273,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let glare = glareGradient(cardUV);
     let glareFiltered = applyFilter(glare.rgb, 1.3, 1.5, 1.0);
     let glareBlended = hardLightBlend(cardRgb, glareFiltered);
-    cardRgb = mix(cardRgb, glareBlended, glare.a * uniforms.opacity * cardMask * 0.48);
+    cardRgb = mix(cardRgb, glareBlended, glare.a * uniforms.opacity * cardMask * 0.3);
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
     let finalColor = alphaOver(shadowColor, finalCard);
