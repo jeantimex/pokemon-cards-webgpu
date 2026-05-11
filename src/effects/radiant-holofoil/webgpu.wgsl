@@ -158,10 +158,12 @@ fn crissCrossPattern(uv: vec2f) -> vec3f {
 
     // Simple 45deg rotation: t45 = x + y, tNeg45 = x - y
     // This naturally creates perpendicular stripes at 45 and -45 degrees
-    let t45 = scaledUv.x + scaledUv.y;
+    // Phase offset to align with CSS pattern positioning
+    let shiftedUv = scaledUv + vec2f(0.0, 0.033);
+    let t45 = shiftedUv.x + shiftedUv.y + 0.06;
     let pattern45 = barPattern(t45);
 
-    let tNeg45 = scaledUv.x - scaledUv.y;
+    let tNeg45 = shiftedUv.x - shiftedUv.y + 0.06;
     let patternNeg45 = barPattern(tNeg45);
 
     return vec3f(pattern45, patternNeg45, 0.0);
