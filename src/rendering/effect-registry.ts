@@ -4,6 +4,7 @@ import reverseHoloShaderCode from '../effects/reverse-holo/webgpu.wgsl?raw';
 import amazingRareShaderCode from '../effects/holofoil-amazing-rare/webgpu.wgsl?raw';
 import radiantHoloShaderCode from '../effects/radiant-holofoil/webgpu.wgsl?raw';
 import rainbowRareShaderCode from '../effects/rainbow-rare/webgpu.wgsl?raw';
+import secretRareShaderCode from '../effects/secret-rare/webgpu.wgsl?raw';
 import type { CardEffect } from './card-effect';
 
 const GLARE_EFFECT: CardEffect = {
@@ -36,12 +37,18 @@ const RAINBOW_RARE_EFFECT: CardEffect = {
   shaderCode: rainbowRareShaderCode,
 };
 
+const SECRET_RARE_EFFECT: CardEffect = {
+  id: 'secret-rare',
+  shaderCode: secretRareShaderCode,
+};
+
 const REGISTRY: Record<string, CardEffect> = {
   'Reverse Holo non-rares': REVERSE_HOLO_EFFECT,
   'Trainer Gallery (V)': PLAIN_EFFECT,
   'Holofoil Amazing Rare': AMAZING_RARE_EFFECT,
   'Radiant Holofoil': RADIANT_HOLO_EFFECT,
   'Rainbow Rare': RAINBOW_RARE_EFFECT,
+  'Secret Rare (Gold)': SECRET_RARE_EFFECT,
 };
 
 export function getEffect(categoryName: string): CardEffect {
