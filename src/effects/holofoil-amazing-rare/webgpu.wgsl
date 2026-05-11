@@ -418,13 +418,13 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
 
     // === card__glare compositing group ===
     var glare = glareGradient(cardUV);
-    let glareFiltered = applyFilter(glare.rgb, 0.9, 2.0, 1.0);
+    let glareFiltered = applyFilter(glare.rgb, 1.0, 2.0, 1.0);
     let glareBlended = overlayBlend(cardRgb, glareFiltered);
-    cardRgb = mix(cardRgb, glareBlended, glare.a * uniforms.opacity * cardMask);
+    cardRgb = mix(cardRgb, glareBlended, min(glare.a * 1.08, 1.0) * uniforms.opacity * cardMask);
 
     // Glare:after (MASKED to artwork)
     var glareAfter = glareAfterGradient(cardUV);
-    let glareAfterFiltered = applyFilter(glareAfter.rgb, 1.0, 1.5, 1.0);
+    let glareAfterFiltered = applyFilter(glareAfter.rgb, 1.06, 1.5, 1.0);
     let glareAfterBlended = overlayBlend(cardRgb, glareAfterFiltered);
     cardRgb = mix(cardRgb, glareAfterBlended, glareAfter.a * foilMask * cardMask);
 
