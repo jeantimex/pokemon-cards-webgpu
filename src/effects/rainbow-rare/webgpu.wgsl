@@ -298,6 +298,13 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let afterDodged = colorDodgeBlend(cardRgb, afterLayer);
     cardRgb = mix(cardRgb, afterDodged, uniforms.opacity * 0.5 * cardMask);
 
+    // === Subtle glitter sparkle overlay ===
+    // Add just the brightest glitter spots as a gentle overlay
+    let sparkleIntensity = max(max(glitter.r, glitter.g), glitter.b);
+    let sparkle = smoothstep(0.65, 0.95, sparkleIntensity);
+    let sparkleColor = glitter * sparkle;
+    cardRgb = mix(cardRgb, cardRgb + sparkleColor * 0.15, uniforms.opacity * cardMask);
+
     // === .card__glare layer ===
     let glare = glareGradient(cardUV);
     let glareFiltered = applyFilter(glare.rgb, 0.9, 1.75, 1.0);
