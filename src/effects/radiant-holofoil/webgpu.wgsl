@@ -169,24 +169,16 @@ fn crissCrossPattern(uv: vec2f) -> vec3f {
 
 // Radial gradient for shine center
 fn shineRadialGradient(uv: vec2f) -> vec3f {
-    // Position at (pointer * 0.5) + 25%
-    let center = uniforms.pointer * 0.5 + vec2f(0.25);
+    // Follow mouse exactly to avoid the "offset" disk look
+    let center = uniforms.pointer;
     let dist = distance(uv, center);
 
-    // Ellipse aspect - farthest corner
-    let maxDist = farthestCornerDist(center) * 1.2;
-    let t = clamp(dist / maxDist, 0.0, 1.0);
-
-    // hsl(0, 0%, 95%) at 20% -> card-glow (dark) at 130%
+    // Use smoothstep for a soft fade instead of a hard-edged disk
+    let t = smoothstep(0.0, 1.2, dist);
     let white = vec3f(0.95);
-    let glow = vec3f(0.1, 0.1, 0.15); // approximate card-glow
+    let glow = vec3f(0.1, 0.1, 0.15);
 
-    if (t < 0.2) {
-        return white;
-    } else {
-        let s = (t - 0.2) / 1.1; // 20% to 130% range
-        return mix(white, glow, clamp(s, 0.0, 1.0));
-    }
+    return mix(white, glow, t);
 }
 
 // Rainbow gradient for :after layer (55deg repeating)
@@ -235,25 +227,12 @@ fn rainbowGradient(uv: vec2f) -> vec3f {
 
 // Glitter radial gradient for :before layer
 fn glitterRadialGradient(uv: vec2f) -> vec3f {
-    let center = uniforms.pointer * 0.5 + vec2f(0.25);
-
-    // Scale to 350%
-    let scaledUv = (uv - 0.5) * 3.5 + vec2f(0.5);
-    let dist = distance(scaledUv, center * 3.5);
-    let maxDist = 1.5;
-    let t = clamp(dist / maxDist, 0.0, 1.0);
-
-    // hsla(0, 0%, 58%, 0.8) at 10% -> hsla(0, 0%, 20%, 0.9) at 20% -> hsla(0, 0%, 20%, 0.5) at 50%
-    let color1 = vec3f(0.58);
-    let color2 = vec3f(0.20);
-
-    if (t < 0.1) {
-        return color1;
-    } else if (t < 0.2) {
-        return mix(color1, color2, (t - 0.1) / 0.1);
-    } else {
-        return color2;
-    }
+    let center = uniforms.pointer;
+    let dist = distance(uv, center);
+    
+    // Soft glare for glitter
+    let t = smoothstep(0.0, 0.8, dist);
+    return mix(vec3f(0.58), vec3f(0.20), t);
 }
 
 // Glare layer radial gradient
