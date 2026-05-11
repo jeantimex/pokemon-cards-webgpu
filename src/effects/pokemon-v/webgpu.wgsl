@@ -205,7 +205,7 @@ fn verticalSunpillar(layerUv: vec2f) -> vec3f {
 }
 
 fn diagonalStripePhase(layerUv: vec2f) -> f32 {
-    let angle = radians(133.0);
+    let angle = radians(115.0);
     let dir = vec2f(sin(angle), -cos(angle));
     let t = dot(layerUv, dir);
     return fract(t / 0.12);
@@ -237,6 +237,14 @@ fn diagonalBeamMask(layerUv: vec2f) -> f32 {
     let core = 1.0 - smoothstep(0.0, 0.12, distToPeak);
     let halo = 1.0 - smoothstep(0.06, 0.34, distToPeak);
     return clamp(core * 0.65 + halo * 0.5, 0.0, 1.0);
+}
+
+fn diagonalBeamHalo(layerUv: vec2f) -> f32 {
+    let cycle = diagonalStripePhase(layerUv);
+    let distToPeak = abs(cycle - 0.375);
+    let broad = 1.0 - smoothstep(0.08, 0.43, distToPeak);
+    let edge = smoothstep(0.035, 0.18, distToPeak);
+    return broad * edge;
 }
 
 // Base radial gradient - subtle darkening at pointer
@@ -284,6 +292,12 @@ fn pokemonVShineLayer(uv: vec2f, afterLayer: bool) -> vec4f {
     let grainWidth = 500.0 / cardWidthPx;
     let grainUv = backgroundSampleUv(uv, vec2f(grainWidth, 1.0), vec2f(0.5, 0.5));
     let grain = textureSampleLevel(glitterTexture, linearSampler, fract(grainUv), 0.0);
+    let fineGrain = textureSampleLevel(
+        glitterTexture,
+        linearSampler,
+        fract(grainUv * vec2f(1.85, 1.35) + vec2f(0.17, 0.39)),
+        0.0
+    );
     let sunUv = backgroundSampleUv(uv, sunSize, vec2f(0.0, bg.y));
     let diagonalUv = backgroundSampleUv(uv, diagonalSize, diagonalPos);
     let sunColor = verticalSunpillar(sunUv);
@@ -306,13 +320,19 @@ fn pokemonVShineLayer(uv: vec2f, afterLayer: bool) -> vec4f {
         afterLayer
     );
     let beam = diagonalBeamMask(diagonalUv);
+    let beamHalo = diagonalBeamHalo(diagonalUv);
     let grainLuma = dot(grain.rgb, vec3f(0.299, 0.587, 0.114));
-    let particleGrain = smoothstep(0.16, 0.82, grainLuma);
-    let particleFlecks = smoothstep(0.48, 0.9, grainLuma);
-    let particleMask = mix(0.5, 1.35, particleGrain) + particleFlecks * 1.15;
-    let beamStrength = select(1.1, 0.62, afterLayer);
-    let beamTint = mix(sunColor * 1.25, vec3f(1.0, 0.95, 0.76), particleFlecks * 0.45);
+    let fineGrainLuma = dot(fineGrain.rgb, vec3f(0.299, 0.587, 0.114));
+    let particleGrain = smoothstep(0.06, 0.26, grainLuma);
+    let particleFlecks = smoothstep(0.12, 0.36, max(grainLuma, fineGrainLuma));
+    let edgeFlecks = pow(smoothstep(0.1, 0.34, fineGrainLuma), 1.65);
+    let particleMask = 0.2 + particleGrain * 0.8 + particleFlecks * 2.15;
+    let beamStrength = select(0.9, 0.5, afterLayer);
+    let beamTint = mix(sunColor * 1.35, vec3f(1.0, 0.95, 0.76), particleFlecks * 0.38);
     filtered = screenBlend(filtered, beamTint * beam * particleMask * beamStrength);
+    let fleckStrength = select(1.05, 0.52, afterLayer);
+    let fleckTint = mix(sunColor * 1.45, vec3f(1.0, 0.86, 0.45), edgeFlecks * 0.55);
+    filtered = screenBlend(filtered, fleckTint * (beamHalo + beam * 0.35) * edgeFlecks * fleckStrength);
     return vec4f(filtered, layer.a);
 }
 
