@@ -159,27 +159,35 @@ fn secretConicGradient(uv: vec2f) -> vec3f {
     return mix(SUNPILLAR_1, SUNPILLAR_4, (t - 0.75) * 4.0);
 }
 
+// CSS radial-gradient uses LINEAR interpolation between color stops
+fn linearStep(edge0: f32, edge1: f32, x: f32) -> f32 {
+    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
 fn baseRadialGradient(uv: vec2f) -> vec4f {
-    let t = clamp(distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
+    // CSS: radial-gradient(farthest-corner circle at pointer, hsla(150,0%,0%,.98) 10%, hsla(0,0%,95%,.15) 90%)
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
     let dark = vec4f(0.0, 0.0, 0.0, 0.98);
     let pale = vec4f(0.95, 0.95, 0.95, 0.15);
-    let s = smoothstep(0.10, 0.90, t);
+    let s = linearStep(0.10, 0.90, t);
     return mix(dark, pale, s);
 }
 
 fn beforeRadialGradient(uv: vec2f) -> vec4f {
-    let t = clamp(distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
+    // CSS: radial-gradient(farthest-corner circle at pointer, hsla(10,20%,90%,0.95) 10%, hsl(0,0%,0%) 70%)
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
     let pale = vec4f(0.918, 0.882, 0.863, 0.95);
     let black = vec4f(0.0, 0.0, 0.0, 1.0);
-    let s = smoothstep(0.10, 0.70, t);
+    let s = linearStep(0.10, 0.70, t);
     return mix(pale, black, s);
 }
 
 fn glareGradient(uv: vec2f) -> vec4f {
-    let t = clamp(distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
+    // CSS: radial-gradient(farthest-corner circle at pointer, hsla(45,8%,80%,0.3) 0%, hsl(22,15%,12%) 180%)
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
     let light = vec4f(0.812, 0.807, 0.788, 0.30);
     let dark = vec4f(0.138, 0.116, 0.102, 1.0);
-    let s = smoothstep(0.0, 1.8, t);
+    let s = linearStep(0.0, 1.8, t);
     return mix(light, dark, s);
 }
 
@@ -239,29 +247,28 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     baseShineRgb = applyFilter(baseShineRgb, 0.4 + pointerFromCenter * 0.2, 1.0, 2.7);
 
     let baseDodged = colorDodgeBlend(cardRgb, baseShineRgb);
-    cardRgb = mix(cardRgb, baseDodged, baseShine.a * uniforms.opacity * foilMask * cardMask * 0.72);
+    // In CSS, the radial gradient alpha (0.98 at pointer, 0.15 far) controls element opacity
+    cardRgb = mix(cardRgb, baseDodged, baseShine.a * uniforms.opacity * foilMask * cardMask);
 
     let beforeLayer = beforeRadialGradient(cardUV);
     var beforeLayerRgb = beforeLayer.rgb;
     let gold = goldLinearGradient(cardUV);
+    // CSS blend order: radial (base) -> gold with multiply -> foil with hard-light
     beforeLayerRgb = multiplyBlend(beforeLayerRgb, gold);
-    let foilFiltered = applyFilter(foilColor, 1.24, 1.55, 0.95);
-    beforeLayerRgb = hardLightBlend(beforeLayerRgb, foilFiltered);
+    beforeLayerRgb = hardLightBlend(beforeLayerRgb, foilColor);
+    // CSS filter applies AFTER all background blending
     beforeLayerRgb = applyFilter(beforeLayerRgb, 1.25, 1.25, 0.35);
     let beforeLightened = lightenBlend(cardRgb, beforeLayerRgb);
-    cardRgb = mix(cardRgb, beforeLightened, beforeLayer.a * uniforms.opacity * foilMask * cardMask * 0.70);
-
-    let foilLuma = dot(foilColor, vec3f(0.2126, 0.7152, 0.0722));
-    let etchedDetail = contrastMask(foilLuma, 3.3);
-    let etchedGold = mix(vec3f(0.72, 0.53, 0.16), vec3f(1.0, 0.92, 0.46), etchedDetail);
-    let detailBlend = overlayBlend(cardRgb, etchedGold);
-    cardRgb = mix(cardRgb, detailBlend, uniforms.opacity * foilMask * cardMask * 0.28);
+    // CSS has opacity: 0.8 on :before element
+    cardRgb = mix(cardRgb, beforeLightened, 0.8 * uniforms.opacity * foilMask * cardMask);
 
     let shiftedUv = cardUV + (vec2f(0.5) - uniforms.pointer) * 0.006;
     var afterGlitter = sampleGlitter(shiftedUv, vec2f(0.50, 0.50));
+    // CSS: filter brightness varies with pointer position (0.6 at center, 1.2 at edge)
     afterGlitter = applyFilter(afterGlitter, pointerFromCenter * 0.6 + 0.6, 1.5, 1.0);
     let afterOverlay = overlayBlend(cardRgb, afterGlitter);
-    cardRgb = mix(cardRgb, afterOverlay, uniforms.opacity * cardMask * 0.16);
+    // :after is child of .card__shine, so affected by parent's alpha (baseShine.a)
+    cardRgb = mix(cardRgb, afterOverlay, baseShine.a * uniforms.opacity * cardMask);
 
     let glare = glareGradient(cardUV);
     let glareFiltered = applyFilter(glare.rgb, 1.3, 1.5, 1.0);
