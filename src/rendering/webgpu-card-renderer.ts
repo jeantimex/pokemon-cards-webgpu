@@ -162,12 +162,23 @@ export async function createWebGpuCardRenderer({
     return pipeline;
   }
 
-  const glitterTexture = await createTextureFromUrl(appUrl('img/glitter.png'));
+  const auxiliaryTextureCache = new Map<string, GPUTexture>();
+
+  async function getAuxiliaryTexture(effect: CardEffect) {
+    const textureUrl = effect.auxiliaryTextureUrl ?? 'img/glitter.png';
+    let texture = auxiliaryTextureCache.get(textureUrl);
+    if (!texture) {
+      texture = await createTextureFromUrl(appUrl(textureUrl));
+      auxiliaryTextureCache.set(textureUrl, texture);
+    }
+    return texture;
+  }
 
   function createBindGroup(
     cardTex: GPUTexture,
     foilTex: GPUTexture,
     maskTex: GPUTexture,
+    auxiliaryTex: GPUTexture,
   ): GPUBindGroup {
     return device.createBindGroup({
       layout: bindGroupLayout,
@@ -177,7 +188,7 @@ export async function createWebGpuCardRenderer({
         { binding: 2, resource: cardTex.createView() },
         { binding: 3, resource: foilTex.createView() },
         { binding: 4, resource: maskTex.createView() },
-        { binding: 5, resource: glitterTexture.createView() },
+        { binding: 5, resource: auxiliaryTex.createView() },
       ],
     });
   }
@@ -185,8 +196,10 @@ export async function createWebGpuCardRenderer({
   let cardTexture = createSolidTexture([255, 255, 255, 255]);
   let foilTexture = createSolidTexture([0, 0, 0, 255]);
   let maskTexture = createSolidTexture([0, 0, 0, 0]);
-  let activePipeline = getPipeline(getEffect(''));
-  let bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture);
+  const initialEffect = getEffect('');
+  let activePipeline = getPipeline(initialEffect);
+  let activeAuxiliaryTexture = await getAuxiliaryTexture(initialEffect);
+  let bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture, activeAuxiliaryTexture);
 
   let mouseX = 0.5;
   let mouseY = 0.5;
@@ -319,8 +332,9 @@ export async function createWebGpuCardRenderer({
     foilTexture = nextFoilTexture;
     maskTexture = nextMaskTexture;
     activePipeline = nextPipeline;
+    activeAuxiliaryTexture = await getAuxiliaryTexture(effect);
     foilBrightness = getReverseHoloFoilBrightness(card);
-    bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture);
+    bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture, activeAuxiliaryTexture);
     previousCardTexture.destroy();
     previousFoilTexture.destroy();
     previousMaskTexture.destroy();
