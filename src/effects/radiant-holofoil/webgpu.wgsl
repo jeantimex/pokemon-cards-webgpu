@@ -150,8 +150,8 @@ fn crissCrossPattern(uv: vec2f) -> vec3f {
     let offsetUv = centeredUv + vec2f(offsetX, offsetY);
 
     // Correct for card aspect ratio to make pattern visually square
-    // Scale y by cardAspect so equal UV changes = equal visual distances
-    let aspectCorrectedUv = vec2f(offsetUv.x, offsetUv.y * cardAspect);
+    // Card is taller than wide, so expand Y to compensate
+    let aspectCorrectedUv = vec2f(offsetUv.x, offsetUv.y / cardAspect);
 
     // Apply pattern scale
     let scaledUv = aspectCorrectedUv * vec2f(uniforms.patternScaleX, uniforms.patternScaleY);
@@ -326,15 +326,13 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let patternNeg45 = vec3f(crissCross.g);
     let radialShine = shineRadialGradient(cardUV);
 
-    // Blend order (bottom to top): patternNeg45 -> pattern45 (darken) -> radial (exclusion)
-    // Then color-dodge onto result
-    var shineBase = colorDodgeBlend(patternNeg45, pattern45);
+    // CSS blend order (bottom to top): -45deg base -> 45deg (darken) -> radial (exclusion)
+    var shineBase = patternNeg45;
     shineBase = darkenBlend(shineBase, pattern45);
     shineBase = exclusionBlend(shineBase, radialShine);
 
-    // Apply filter: brightness(0.46) contrast(1.85) saturate(1.0)
-    // (CSS uses 1.5 but reduced to avoid over-saturation)
-    shineBase = applyFilter(shineBase, 0.46, 1.85, 1.0);
+    // CSS: filter: brightness(.5) contrast(2) saturate(1.75)
+    shineBase = applyFilter(shineBase, 0.5, 2.0, 1.75);
 
     // Mix-blend-mode: color-dodge (whole shine layer onto card)
     let shineBlended = colorDodgeBlend(cardRgb, shineBase);
@@ -346,8 +344,8 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     // hard-light blend foil with rainbow
     var afterLayer = hardLightBlend(rainbow, foilColor);
 
-    // Apply filter: brightness(0.52) contrast(2.6) saturate(1.8)
-    afterLayer = applyFilter(afterLayer, 0.52, 2.6, 1.8);
+    // CSS: filter: brightness(.6) contrast(3) saturate(2)
+    afterLayer = applyFilter(afterLayer, 0.6, 3.0, 2.0);
 
     // Mix-blend-mode: color-dodge
     let afterBlended = colorDodgeBlend(cardRgb, afterLayer);
@@ -361,8 +359,8 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     // color-dodge blend glitter with radial
     var beforeLayer = colorDodgeBlend(glitterRadial, glitter);
 
-    // Apply filter: brightness(0.56) contrast(1.75) saturate(0.45)
-    beforeLayer = applyFilter(beforeLayer, 0.56, 1.75, 0.45);
+    // CSS: filter: brightness(.66) contrast(2) saturate(.5)
+    beforeLayer = applyFilter(beforeLayer, 0.66, 2.0, 0.5);
 
     // Mix-blend-mode: overlay
     let beforeBlended = overlayBlend(cardRgb, beforeLayer);
@@ -371,12 +369,12 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     // === .card__glare layer ===
     let glare = glareGradient(cardUV);
 
-    // Apply filter: brightness(0.92) contrast(1.35)
-    let glareFiltered = applyFilter(glare.rgb, 0.92, 1.35, 1.0);
+    // CSS: filter: brightness(1) contrast(1.5)
+    let glareFiltered = applyFilter(glare.rgb, 1.0, 1.5, 1.0);
 
-    // Mix-blend-mode: hard-light (reduced intensity to match CSS)
+    // CSS: mix-blend-mode: hard-light
     let glareBlended = hardLightBlend(cardRgb, glareFiltered);
-    cardRgb = mix(cardRgb, glareBlended, glare.a * uniforms.opacity * cardMask * 0.5);
+    cardRgb = mix(cardRgb, glareBlended, glare.a * uniforms.opacity * cardMask);
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
     let finalColor = vec4f(
