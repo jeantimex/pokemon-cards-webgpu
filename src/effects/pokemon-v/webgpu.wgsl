@@ -326,11 +326,11 @@ fn pokemonVShineLayer(uv: vec2f, afterLayer: bool) -> vec4f {
     let particleGrain = smoothstep(0.06, 0.26, grainLuma);
     let particleFlecks = smoothstep(0.12, 0.36, max(grainLuma, fineGrainLuma));
     let edgeFlecks = pow(smoothstep(0.1, 0.34, fineGrainLuma), 1.65);
-    let particleMask = 0.2 + particleGrain * 0.8 + particleFlecks * 2.15;
-    let beamStrength = select(0.9, 0.5, afterLayer);
+    let particleMask = 0.32 + particleGrain * 1.12 + particleFlecks * 2.85;
+    let beamStrength = select(1.38, 0.76, afterLayer);
     let beamTint = mix(sunColor * 1.35, vec3f(1.0, 0.95, 0.76), particleFlecks * 0.38);
     filtered = screenBlend(filtered, beamTint * beam * particleMask * beamStrength);
-    let fleckStrength = select(1.05, 0.52, afterLayer);
+    let fleckStrength = select(1.52, 0.76, afterLayer);
     let fleckTint = mix(sunColor * 1.45, vec3f(1.0, 0.86, 0.45), edgeFlecks * 0.55);
     filtered = screenBlend(filtered, fleckTint * (beamHalo + beam * 0.35) * edgeFlecks * fleckStrength);
     return vec4f(filtered, layer.a);
