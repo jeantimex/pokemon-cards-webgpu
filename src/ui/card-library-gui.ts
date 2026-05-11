@@ -1,6 +1,7 @@
 import { GUI } from 'lil-gui';
 import type { Card } from '../types';
 import type { CardLibrary } from '../effects/library';
+import type { WebGpuCardRenderer } from '../rendering/webgpu-card-renderer';
 
 interface CardLibraryGuiOptions {
   cardLibrary: CardLibrary;
@@ -9,6 +10,7 @@ interface CardLibraryGuiOptions {
   initialCardId: string;
   onCardChange: (card: Card, categoryName: string) => Promise<void> | void;
   onSelectionChange?: (card: Card, categoryName: string) => void;
+  webgpuRenderer?: WebGpuCardRenderer;
 }
 
 export function setupCardLibraryGui({
@@ -18,9 +20,41 @@ export function setupCardLibraryGui({
   initialCardId,
   onCardChange,
   onSelectionChange,
+  webgpuRenderer,
 }: CardLibraryGuiOptions) {
   const gui = new GUI({ title: 'Card Library' });
   gui.close();
+
+  // Radiant Holofoil pattern controls
+  const radiantParams = {
+    patternWidth: 0.2,
+    patternHeight: 0.4,
+  };
+
+  let radiantFolder: GUI | null = null;
+
+  function updateRadiantControls(categoryName: string) {
+    if (categoryName === 'Radiant Holofoil') {
+      if (!radiantFolder) {
+        radiantFolder = gui.addFolder('Pattern Controls');
+        radiantFolder.add(radiantParams, 'patternWidth', 0.2, 5.0, 0.05)
+          .name('Width')
+          .onChange(() => {
+            webgpuRenderer?.setPatternParams(radiantParams.patternWidth, radiantParams.patternHeight);
+          });
+        radiantFolder.add(radiantParams, 'patternHeight', 0.2, 5.0, 0.05)
+          .name('Height')
+          .onChange(() => {
+            webgpuRenderer?.setPatternParams(radiantParams.patternWidth, radiantParams.patternHeight);
+          });
+        radiantFolder.open();
+      }
+      radiantFolder.show();
+      webgpuRenderer?.setPatternParams(radiantParams.patternWidth, radiantParams.patternHeight);
+    } else {
+      radiantFolder?.hide();
+    }
+  }
 
   const guiState = {
     category: cardLibrary.categoryNames.includes(initialCategory)
@@ -42,6 +76,7 @@ export function setupCardLibraryGui({
     descEl.textContent = cardLibrary.descriptions[categoryName];
     cardDropdown.options(getCardMap(categoryName));
     cardDropdown.updateDisplay();
+    updateRadiantControls(categoryName);
     onSelectionChange?.(card, categoryName);
     await onCardChange(card, categoryName);
   };
