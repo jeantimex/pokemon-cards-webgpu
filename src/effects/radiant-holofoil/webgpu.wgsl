@@ -171,15 +171,22 @@ fn crissCrossPattern(uv: vec2f) -> vec3f {
 
 // Radial gradient for shine center
 fn shineRadialGradient(uv: vec2f) -> vec3f {
-    // CSS: ellipse at calc((var(--pointer-x) * 0.5) + 25%) calc((var(--pointer-y) * 0.5) + 25%)
+    // CSS: farthest-corner ellipse at calc((var(--pointer-x) * 0.5) + 25%) calc((var(--pointer-y) * 0.5) + 25%)
     // Center moves less than pointer and is offset toward top-left
     let center = uniforms.pointer * 0.5 + vec2f(0.25, 0.25);
-    let dist = distance(uv, center);
 
-    // Use smoothstep for a soft fade - extend further to match CSS farthest-corner behavior
-    let t = smoothstep(0.0, 1.5, dist);
-    let white = vec3f(0.95);
-    let glow = vec3f(0.1, 0.1, 0.15);
+    // Calculate farthest corner distances for ellipse sizing
+    let toFarX = max(center.x, 1.0 - center.x);
+    let toFarY = max(center.y, 1.0 - center.y);
+
+    // Elliptical distance - normalize by farthest corner in each axis
+    let delta = (uv - center) / vec2f(toFarX, toFarY);
+    let dist = length(delta);
+
+    // CSS: hsl(0, 0%, 95%) 20%, var(--card-glow) 130%
+    let t = smoothstep(0.55, 1.8, dist);
+    let white = vec3f(1.0);
+    let glow = vec3f(0.25, 0.25, 0.3);
 
     return mix(white, glow, t);
 }
@@ -313,9 +320,11 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     shineBase = darkenBlend(shineBase, pattern45);
     shineBase = exclusionBlend(shineBase, radialShine);
 
-    // CSS: filter: brightness(.5) contrast(2) saturate(1.75)
-    // Slightly increased brightness to better match CSS grid visibility
-    shineBase = applyFilter(shineBase, 0.55, 2.0, 1.75);
+    // CSS: filter: brightness(.44) contrast(1.85) saturate(1.5)
+    // Boost brightness near pointer to match CSS bright spot
+    let pointerDist = distance(cardUV, uniforms.pointer);
+    let brightnessBoost = mix(0.52, 0.44, smoothstep(0.0, 0.5, pointerDist));
+    shineBase = applyFilter(shineBase, brightnessBoost, 1.85, 1.5);
 
     // Mix-blend-mode: color-dodge (whole shine layer onto card)
     let shineBlended = colorDodgeBlend(cardRgb, shineBase);
