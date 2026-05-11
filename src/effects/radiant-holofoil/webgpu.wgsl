@@ -311,8 +311,8 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     shineBase = exclusionBlend(shineBase, radialShine);
 
     // CSS: filter: brightness(.5) contrast(2) saturate(1.75)
-    // Reverted to standard values to subdue the "too hot" look
-    shineBase = applyFilter(shineBase, 0.5, 2.0, 1.75);
+    // Slightly increased brightness to better match CSS grid visibility
+    shineBase = applyFilter(shineBase, 0.55, 2.0, 1.75);
 
     // Mix-blend-mode: color-dodge (whole shine layer onto card)
     let shineBlended = colorDodgeBlend(cardRgb, shineBase);
