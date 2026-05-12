@@ -291,13 +291,13 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     var shineMain = mix(vec3f(0.0), radial.rgb, radial.a);
     shineMain = multiplyBlend(shineMain, rainbow1);
     shineMain = colorBurnBlend(shineMain, bottomTex);
-    shineMain = sparkleBoost(applyFilter(shineMain, 1.20, 1.34, 0.82), 1.02);
-    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, pearlTone(shineMain)), uniforms.opacity * artworkMask);
+    shineMain = sparkleBoost(applyFilter(shineMain, 1.26, 1.46, 0.86), 1.16);
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, pearlTone(shineMain)), uniforms.opacity * artworkMask * 1.08);
 
     let beforeLayerAlpha = max(0.11, middleTex.a);
     var shineBefore = mix(rainbow2, lightenBlend(rainbow2, middleTex.rgb), middleTex.a);
-    shineBefore = sparkleBoost(applyFilter(shineBefore, 1.32, 1.82, 0.8), 0.48);
-    cardRgb = mix(cardRgb, overlayBlend(cardRgb, shineBefore), uniforms.opacity * artworkMask * beforeLayerAlpha * 0.38);
+    shineBefore = sparkleBoost(applyFilter(shineBefore, 1.38, 1.94, 0.86), 0.58);
+    cardRgb = mix(cardRgb, overlayBlend(cardRgb, shineBefore), uniforms.opacity * artworkMask * beforeLayerAlpha * 0.44);
 
     let afterLayerAlpha = max(0.06, topTex.a);
     var shineAfter = mix(rainbow3, multiplyBlend(rainbow3, topTex.rgb), topTex.a);
@@ -308,13 +308,14 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let middleSpark = smoothstep(0.06, 0.34, dot(middleTex.rgb, vec3f(0.2126, 0.7152, 0.0722)) * middleTex.a);
     let topSpark = smoothstep(0.06, 0.34, dot(topTex.rgb, vec3f(0.2126, 0.7152, 0.0722)) * topTex.a);
     let pointerDist = distance(cardUV, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
-    let glareWashout = smoothstep(0.18, 0.50, pointerDist);
-    let speckMask = clamp(max(bottomSpark, max(middleSpark, topSpark)) * glareWashout, 0.0, 1.0);
+    let glareWashout = smoothstep(0.10, 0.22, pointerDist);
+    let mouseRange = 1.0 - smoothstep(0.42, 0.68, pointerDist);
+    let speckMask = clamp(max(bottomSpark, max(middleSpark, topSpark)) * glareWashout * mouseRange, 0.0, 1.0);
     let speckTexture = max(bottomTex, max(middleTex.rgb * middleTex.a, topTex.rgb * topTex.a));
     var speckShine = screenBlend(speckTexture, rainbow2);
-    speckShine = sparkleBoost(applyFilter(speckShine, 1.36, 1.92, 1.35), 1.12);
-    speckShine = specularBoost(speckShine, speckMask, 0.92);
-    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, speckShine), uniforms.opacity * artworkMask * speckMask * 0.82);
+    speckShine = sparkleBoost(applyFilter(speckShine, 1.48, 2.08, 1.45), 1.28);
+    speckShine = specularBoost(speckShine, speckMask, 1.12);
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, speckShine), uniforms.opacity * artworkMask * speckMask * 0.96);
 
     let glare = glareGradient(cardUV);
     let glareOpacity = uniforms.opacity * (0.25 + pointerFromCenter) * cardMask;
