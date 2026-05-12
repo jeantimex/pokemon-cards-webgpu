@@ -221,7 +221,7 @@ fn sunpillarGradient(y: f32) -> vec3f {
 }
 
 fn diagonalStripePhase(layerUv: vec2f, repeatSize: f32) -> f32 {
-    let angle = radians(133.0);
+    let angle = radians(115.0);
     let dir = vec2f(sin(angle), -cos(angle));
     let t = dot(layerUv, dir);
     return fract(t / repeatSize);
