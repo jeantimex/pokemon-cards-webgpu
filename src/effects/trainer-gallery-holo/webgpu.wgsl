@@ -185,6 +185,13 @@ fn glareLayer(uv: vec2f) -> vec4f {
     return vec4f(color, alpha);
 }
 
+fn pointerFalloff(uv: vec2f) -> f32 {
+    let dist = distance(uv, uniforms.pointer);
+    let maxDist = max(farthestCornerDist(uniforms.pointer), 0.001);
+    let t = clamp(dist / maxDist, 0.0, 1.0);
+    return 1.0 - smoothstep(0.20, 0.82, t);
+}
+
 @fragment
 fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
     let cardSize = getCardSize();
@@ -220,7 +227,8 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     var shine = trainerGalleryRainbow(cardUV);
     shine = applyFilter(shine, pointerFromCenter * 0.35 + 0.58, 2.15, 1.05);
     let shineBlended = colorDodgeBlend(cardRgb, shine);
-    cardRgb = mix(cardRgb, shineBlended, uniforms.opacity * 0.95 * shineMask);
+    let shineFalloff = pointerFalloff(cardUV);
+    cardRgb = mix(cardRgb, shineBlended, uniforms.opacity * 0.95 * shineMask * shineFalloff);
 
     var afterLayer = radialAfterLayer(cardUV);
     afterLayer = mix(afterLayer, foilColor, 0.08);
