@@ -128,26 +128,22 @@ fn trainerGalleryRainbow(uv: vec2f) -> vec3f {
     let bg = backgroundPosition();
     let layerUv = vec2f(
         uv.x / 3.0,
-        uv.y / 4.0 + bg.y
+        (uv.y - 0.5) / 4.0 + bg.y
     );
-    let angle = radians(-22.0);
+    let angle = radians(68.0);
     let dir = vec2f(cos(angle), sin(angle));
     let t = fract(dot(layerUv, dir) / 0.35);
 
-    let c1 = vec3f(0.631, 0.416, 0.784); // hsla(283, 49%, 60%)
-    let c2 = vec3f(0.894, 0.318, 0.271); // hsla(2, 74%, 59%)
-    let c3 = vec3f(0.847, 0.765, 0.212); // hsla(53, 67%, 53%)
-    let c4 = vec3f(0.450, 0.787, 0.253); // hsla(93, 56%, 52%)
-    let c5 = vec3f(0.310, 0.690, 0.665); // hsla(176, 38%, 50%)
-    let c6 = vec3f(0.540, 0.617, 1.000); // hsla(228, 100%, 77%)
-    let c7 = vec3f(0.634, 0.423, 0.797); // hsla(283, 49%, 61%)
+    let c1 = vec3f(1.000, 0.560, 0.165);
+    let c2 = vec3f(0.635, 0.310, 0.900);
+    let c3 = vec3f(0.360, 0.880, 0.300);
+    let c4 = vec3f(0.980, 0.900, 0.240);
+    let c5 = vec3f(1.000, 0.560, 0.165);
 
-    if (t < 0.167) { return mix(c1, c2, t / 0.167); }
-    if (t < 0.333) { return mix(c2, c3, (t - 0.167) / 0.166); }
-    if (t < 0.500) { return mix(c3, c4, (t - 0.333) / 0.167); }
-    if (t < 0.667) { return mix(c4, c5, (t - 0.500) / 0.167); }
-    if (t < 0.833) { return mix(c5, c6, (t - 0.667) / 0.166); }
-    return mix(c6, c7, (t - 0.833) / 0.167);
+    if (t < 0.25) { return mix(c1, c2, t / 0.25); }
+    if (t < 0.50) { return mix(c2, c3, (t - 0.25) / 0.25); }
+    if (t < 0.75) { return mix(c3, c4, (t - 0.50) / 0.25); }
+    return mix(c4, c5, (t - 0.75) / 0.25);
 }
 
 fn radialAfterLayer(uv: vec2f) -> vec3f {
