@@ -128,7 +128,7 @@ fn trainerGalleryRainbow(uv: vec2f) -> vec3f {
     let bg = backgroundPosition();
     let layerUv = vec2f(
         uv.x / 3.0,
-        (uv.y - 0.5) / 4.0 + bg.y
+        (uv.y - 0.65) / 4.0 + bg.y
     );
     let angle = radians(68.0);
     let dir = vec2f(cos(angle), sin(angle));
