@@ -85,6 +85,10 @@ fn lightenBlend(base: vec3f, blend: vec3f) -> vec3f {
     return max(base, blend);
 }
 
+fn screenBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return vec3f(1.0) - (vec3f(1.0) - base) * (vec3f(1.0) - blend);
+}
+
 fn overlayBlend(base: vec3f, blend: vec3f) -> vec3f {
     return mix(
         2.0 * base * blend,
@@ -129,20 +133,26 @@ fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> v
 fn coolRainbow(color: vec3f) -> vec3f {
     let luma = dot(color, vec3f(0.2126, 0.7152, 0.0722));
     let cool = vec3f(luma * 0.72, luma * 0.94, luma * 1.18);
-    return clamp(mix(color, cool, 0.26), vec3f(0.0), vec3f(1.0));
+    return clamp(mix(color, cool, 0.06), vec3f(0.0), vec3f(1.0));
 }
 
 fn pearlTone(color: vec3f) -> vec3f {
     let luma = dot(color, vec3f(0.2126, 0.7152, 0.0722));
     let pearl = vec3f(luma * 0.92, luma * 1.04, luma * 1.12);
-    return clamp(mix(color, pearl, 0.34), vec3f(0.0), vec3f(1.0));
+    return clamp(mix(color, pearl, 0.10), vec3f(0.0), vec3f(1.0));
 }
 
 fn sparkleBoost(color: vec3f, amount: f32) -> vec3f {
     let luma = dot(color, vec3f(0.2126, 0.7152, 0.0722));
     let sparkle = smoothstep(0.52, 0.92, luma);
-    let cyanWhite = mix(vec3f(0.60, 0.95, 1.0), vec3f(1.0), smoothstep(0.76, 1.0, luma));
-    return clamp(color + cyanWhite * sparkle * amount, vec3f(0.0), vec3f(1.0));
+    let hueLight = mix(color, vec3f(1.0), 0.28);
+    return clamp(color + hueLight * sparkle * amount, vec3f(0.0), vec3f(1.0));
+}
+
+fn specularBoost(color: vec3f, mask: f32, amount: f32) -> vec3f {
+    let hot = pow(clamp(mask, 0.0, 1.0), 2.35);
+    let hueSpecular = mix(color, vec3f(1.0), 0.18);
+    return clamp(color + hueSpecular * hot * amount, vec3f(0.0), vec3f(1.0));
 }
 
 fn isInArtworkArea(uv: vec2f) -> f32 {
@@ -255,7 +265,6 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     );
 
     let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
-    let foilColor = textureSampleLevel(foilTexture, linearSampler, cardUV, 0.0).rgb;
     let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
     let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
     let foilMask = maskColor.a;
@@ -282,26 +291,37 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     var shineMain = mix(vec3f(0.0), radial.rgb, radial.a);
     shineMain = multiplyBlend(shineMain, rainbow1);
     shineMain = colorBurnBlend(shineMain, bottomTex);
-    shineMain = sparkleBoost(applyFilter(shineMain, 1.1, 1.12, 0.86), 0.72);
-    shineMain = mix(shineMain, foilColor, 0.06);
+    shineMain = sparkleBoost(applyFilter(shineMain, 1.20, 1.34, 0.82), 1.02);
     cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, pearlTone(shineMain)), uniforms.opacity * artworkMask);
 
-    var shineBefore = lightenBlend(rainbow2, middleTex.rgb);
-    shineBefore = sparkleBoost(applyFilter(shineBefore, 1.25, 1.75, 0.8), 0.42);
-    let beforeStrength = middleTex.a * uniforms.opacity * artworkMask * 0.70;
-    cardRgb = mix(cardRgb, overlayBlend(cardRgb, shineBefore), beforeStrength);
+    let beforeLayerAlpha = max(0.11, middleTex.a);
+    var shineBefore = mix(rainbow2, lightenBlend(rainbow2, middleTex.rgb), middleTex.a);
+    shineBefore = sparkleBoost(applyFilter(shineBefore, 1.32, 1.82, 0.8), 0.48);
+    cardRgb = mix(cardRgb, overlayBlend(cardRgb, shineBefore), uniforms.opacity * artworkMask * beforeLayerAlpha * 0.38);
 
-    var shineAfter = multiplyBlend(rainbow3, topTex.rgb);
+    let afterLayerAlpha = max(0.06, topTex.a);
+    var shineAfter = mix(rainbow3, multiplyBlend(rainbow3, topTex.rgb), topTex.a);
     shineAfter = applyFilter(shineAfter, 1.25, 1.75, 0.8);
-    let afterStrength = topTex.a * uniforms.opacity * artworkMask * 0.36;
-    cardRgb = mix(cardRgb, multiplyBlend(cardRgb, shineAfter), afterStrength);
+    cardRgb = mix(cardRgb, multiplyBlend(cardRgb, shineAfter), uniforms.opacity * artworkMask * afterLayerAlpha * 0.16);
+
+    let bottomSpark = smoothstep(0.28, 0.70, dot(bottomTex, vec3f(0.2126, 0.7152, 0.0722)));
+    let middleSpark = smoothstep(0.06, 0.34, dot(middleTex.rgb, vec3f(0.2126, 0.7152, 0.0722)) * middleTex.a);
+    let topSpark = smoothstep(0.06, 0.34, dot(topTex.rgb, vec3f(0.2126, 0.7152, 0.0722)) * topTex.a);
+    let pointerDist = distance(cardUV, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let glareWashout = smoothstep(0.18, 0.50, pointerDist);
+    let speckMask = clamp(max(bottomSpark, max(middleSpark, topSpark)) * glareWashout, 0.0, 1.0);
+    let speckTexture = max(bottomTex, max(middleTex.rgb * middleTex.a, topTex.rgb * topTex.a));
+    var speckShine = screenBlend(speckTexture, rainbow2);
+    speckShine = sparkleBoost(applyFilter(speckShine, 1.36, 1.92, 1.35), 1.12);
+    speckShine = specularBoost(speckShine, speckMask, 0.92);
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, speckShine), uniforms.opacity * artworkMask * speckMask * 0.82);
 
     let glare = glareGradient(cardUV);
     let glareOpacity = uniforms.opacity * (0.25 + pointerFromCenter) * cardMask;
     cardRgb = mix(cardRgb, overlayBlend(cardRgb, glare.rgb), glare.a * glareOpacity);
 
     let glareAfter = glareAfterGradient(cardUV);
-    let glareAfterOpacity = (1.0 - pointerFromTop * 0.75) * artworkClip * uniforms.opacity * 0.58;
+    let glareAfterOpacity = (1.0 - pointerFromTop * 0.75) * artworkClip * uniforms.opacity * 0.40;
     cardRgb = mix(cardRgb, softLightBlend(cardRgb, glareAfter.rgb), glareAfter.a * glareAfterOpacity);
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
