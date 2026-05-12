@@ -227,6 +227,22 @@ fn diagonalStripePhase(layerUv: vec2f, repeatSize: f32) -> f32 {
     return fract(t / repeatSize);
 }
 
+// Calculate perspective stretch factor based on fragment depth
+// Parts of the card closer to viewer (smaller W) appear larger
+fn getPerspectiveStretch(localPos: vec2f) -> f32 {
+    // Reconstruct the 3D position after rotation (same as vertex shader)
+    var p = vec3f(localPos, 0.0);
+    p = rotateX(p, uniforms.rotation.y);
+    p = rotateY(p, uniforms.rotation.x);
+    // W value - smaller = closer to camera = more stretch
+    let w = uniforms.perspective - p.z;
+    // Normalize relative to base perspective (when card is flat, w = perspective)
+    // Invert so closer = larger stretch factor
+    let baseStretch = uniforms.perspective / w;
+    // Amplify the effect - raise to power and scale
+    return pow(baseStretch, 3.0);
+}
+
 fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
     let cycle = diagonalStripePhase(layerUv, 0.12);
     let dark = vec3f(0.055, 0.082, 0.18);
@@ -244,13 +260,18 @@ fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
 }
 
 // Beam mask - creates wider, softer beam effect
-fn diagonalBeamMask(layerUv: vec2f) -> f32 {
-    let cycle = diagonalStripePhase(layerUv, 0.24);
+// stretch: perspective stretch factor (not used for width anymore - uniform beams)
+// repeatSize: larger = fewer beams
+fn diagonalBeamMask(layerUv: vec2f, stretch: f32, repeatSize: f32) -> f32 {
+    let cycle = diagonalStripePhase(layerUv, repeatSize);
     let distToPeak = abs(cycle - 0.375);
+    // Fixed beam width - no perspective stretch for uniform thickness
+    let coreWidth = 0.025;
+    let haloWidth = 0.06;
     // Core beam - tight center
-    let core = 1.0 - smoothstep(0.0, 0.08, distToPeak);
+    let core = 1.0 - smoothstep(0.0, coreWidth, distToPeak);
     // Halo - soft glow
-    let halo = 1.0 - smoothstep(0.04, 0.20, distToPeak);
+    let halo = 1.0 - smoothstep(0.012, haloWidth, distToPeak);
     return clamp(core * 0.8 + halo * 0.5, 0.0, 1.0);
 }
 
@@ -281,6 +302,7 @@ fn composeAltArtLayer(
     beamOffset: vec2f,
     isBackLayer: bool,
     pointerFromCenter: f32,
+    stretch: f32,
 ) -> vec3f {
     let foil = textureSampleLevel(foilTexture, linearSampler, uv, 0.0).rgb;
     let diagonalUv = backgroundSampleUv(uv, diagonalSize, beamOffset);
@@ -292,7 +314,11 @@ fn composeAltArtLayer(
     let radial = baseRadialGradient(radialUv).a;
 
     var layer = vec3f(radial);
-    layer = hardLightBlend(layer, diagonal);
+    // Remove diagonal stripe for front layer to avoid thin beam lines
+    // Back: reduced to avoid dark bands
+    if (isBackLayer) {
+        layer = hardLightBlend(layer, mix(vec3f(0.5), diagonal, 0.15));
+    }
     layer = hueBlend(layer, sun);
     layer = softLightBlend(layer, foil);
 
@@ -309,7 +335,7 @@ fn composeAltArtLayer(
     // Add beam highlights for front layer only
     // Back layer beams are applied separately after exclusion blend
     if (!isBackLayer) {
-        let beam = diagonalBeamMask(diagonalUv);
+        let beam = diagonalBeamMask(diagonalUv, stretch, 0.22);
         let beamColor = sun * 1.2;
         filtered = screenBlend(filtered, beamColor * beam);
     }
@@ -317,13 +343,13 @@ fn composeAltArtLayer(
     return filtered;
 }
 
-fn getBackBeamHighlight(uv: vec2f, beamOffset: vec2f) -> vec3f {
+fn getBackBeamHighlight(uv: vec2f, beamOffset: vec2f, stretch: f32) -> vec3f {
     let diagonalUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), beamOffset);
     // Use same sun color calculation as front layer for consistent colors
     let bg = cssBackgroundPosition();
     let sunUv = backgroundSampleUv(uv, vec2f(2.0, 7.0), vec2f(0.0, bg.y));
     let sun = sunpillarGradient(sunUv.y);
-    let beam = diagonalBeamMask(diagonalUv);
+    let beam = diagonalBeamMask(diagonalUv, stretch, 0.22);  // Same as front beams - closer together
     return sun * 1.2 * beam;
 }
 
@@ -366,12 +392,15 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let pointerFromCenter = length(uniforms.pointer - vec2f(0.5)) / 0.70710678;
     let shineOpacity = clamp((1.35 * uniforms.opacity) - pointerFromCenter * 0.15, 0.0, 1.0);
 
+    // Calculate perspective stretch - beams are wider where card is closer to camera
+    let stretch = getPerspectiveStretch(localPos);
+
     let bg = cssBackgroundPosition();
     let beamPos = vec2f(bg.x + (bg.y * 0.2), bg.y);
     // Use same diagonal size for both layers so beams have identical width
     let diagonalSize = vec2f(3.0, 1.0);
-    let frontLayer = composeAltArtLayer(cardUV, diagonalSize, beamPos, false, pointerFromCenter);
-    let backLayer = composeAltArtLayer(cardUV, diagonalSize, -beamPos, true, pointerFromCenter);
+    let frontLayer = composeAltArtLayer(cardUV, diagonalSize, beamPos, false, pointerFromCenter, stretch);
+    let backLayer = composeAltArtLayer(cardUV, diagonalSize, -beamPos, true, pointerFromCenter, stretch);
 
     var cardRgb = textureColor.rgb;
     let frontShine = colorDodgeBlend(cardRgb, frontLayer);
@@ -381,8 +410,9 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     cardRgb = mix(cardRgb, backShine, shineOpacity * 0.65 * foilMask * cardMask);
 
     // Apply back beam highlights after exclusion blend using screen
-    let backBeam = getBackBeamHighlight(cardUV, -beamPos);
-    cardRgb = screenBlend(cardRgb, backBeam * shineOpacity * 0.8 * foilMask * cardMask);
+    // Use -beamPos so back beams are in different positions and move opposite to front
+    let backBeam = getBackBeamHighlight(cardUV, -beamPos, stretch);
+    cardRgb = screenBlend(cardRgb, backBeam * shineOpacity * 1.0 * foilMask * cardMask);
 
     let before = beforeOverlay(cardUV);
     let beforeBlend = overlayBlend(cardRgb, before);
