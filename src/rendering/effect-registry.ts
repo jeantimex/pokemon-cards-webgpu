@@ -6,6 +6,7 @@ import radiantHoloShaderCode from '../effects/radiant-holofoil/webgpu.wgsl?raw';
 import rainbowRareShaderCode from '../effects/rainbow-rare/webgpu.wgsl?raw';
 import secretRareShaderCode from '../effects/secret-rare/webgpu.wgsl?raw';
 import pokemonVShaderCode from '../effects/pokemon-v/webgpu.wgsl?raw';
+import pokemonVAlternateArtShaderCode from '../effects/pokemon-v-alternate-art/webgpu.wgsl?raw';
 import type { CardEffect } from './card-effect';
 
 const GLARE_EFFECT: CardEffect = {
@@ -49,6 +50,11 @@ const POKEMON_V_EFFECT: CardEffect = {
   auxiliaryTextureUrl: 'img/grain.webp',
 };
 
+const POKEMON_V_ALTERNATE_ART_EFFECT: CardEffect = {
+  id: 'pokemon-v-alternate-art',
+  shaderCode: pokemonVAlternateArtShaderCode,
+};
+
 const REGISTRY: Record<string, CardEffect> = {
   'Reverse Holo non-rares': REVERSE_HOLO_EFFECT,
   'Trainer Gallery (V)': PLAIN_EFFECT,
@@ -57,6 +63,7 @@ const REGISTRY: Record<string, CardEffect> = {
   'Rainbow Rare': RAINBOW_RARE_EFFECT,
   'Secret Rare (Gold)': SECRET_RARE_EFFECT,
   'Pokemon V': POKEMON_V_EFFECT,
+  'Pokemon V (Alternate Art)': POKEMON_V_ALTERNATE_ART_EFFECT,
 };
 
 export function getEffect(categoryName: string): CardEffect {
