@@ -243,6 +243,17 @@ fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
     return dark;
 }
 
+// Beam mask - creates wider, softer beam effect
+fn diagonalBeamMask(layerUv: vec2f) -> f32 {
+    let cycle = diagonalStripePhase(layerUv, 0.24);
+    let distToPeak = abs(cycle - 0.375);
+    // Core beam - tight center
+    let core = 1.0 - smoothstep(0.0, 0.08, distToPeak);
+    // Halo - soft glow
+    let halo = 1.0 - smoothstep(0.04, 0.20, distToPeak);
+    return clamp(core * 0.8 + halo * 0.5, 0.0, 1.0);
+}
+
 fn baseRadialGradient(uv: vec2f) -> vec4f {
     let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
     let dark = vec4f(0.0, 0.0, 0.0, 0.1);
@@ -269,6 +280,7 @@ fn composeAltArtLayer(
     diagonalSize: vec2f,
     beamOffset: vec2f,
     isBackLayer: bool,
+    pointerFromCenter: f32,
 ) -> vec3f {
     let foil = textureSampleLevel(foilTexture, linearSampler, uv, 0.0).rgb;
     let diagonalUv = backgroundSampleUv(uv, diagonalSize, beamOffset);
@@ -284,11 +296,35 @@ fn composeAltArtLayer(
     layer = hueBlend(layer, sun);
     layer = softLightBlend(layer, foil);
 
-    return select(
-        applyFilter(layer, 1.0, 1.4, 2.25),
-        applyFilter(layer, 1.0, 1.2, 1.6),
+    // CSS uses brightness that varies with pointer position
+    let frontBrightness = 0.8 + pointerFromCenter * 0.4;
+    let backBrightness = 1.0 + pointerFromCenter * 0.4;
+
+    var filtered = select(
+        applyFilter(layer, frontBrightness, 1.4, 2.25),
+        applyFilter(layer, backBrightness, 1.5, 1.25),
         isBackLayer
     );
+
+    // Add beam highlights for front layer only
+    // Back layer beams are applied separately after exclusion blend
+    if (!isBackLayer) {
+        let beam = diagonalBeamMask(diagonalUv);
+        let beamColor = sun * 1.2;
+        filtered = screenBlend(filtered, beamColor * beam);
+    }
+
+    return filtered;
+}
+
+fn getBackBeamHighlight(uv: vec2f, beamOffset: vec2f) -> vec3f {
+    let diagonalUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), beamOffset);
+    // Use same sun color calculation as front layer for consistent colors
+    let bg = cssBackgroundPosition();
+    let sunUv = backgroundSampleUv(uv, vec2f(2.0, 7.0), vec2f(0.0, bg.y));
+    let sun = sunpillarGradient(sunUv.y);
+    let beam = diagonalBeamMask(diagonalUv);
+    return sun * 1.2 * beam;
 }
 
 fn beforeOverlay(uv: vec2f) -> vec3f {
@@ -326,13 +362,16 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
     let foilMask = maskColor.a;
 
-    let pointerCenter = length(uniforms.pointer - vec2f(0.5)) / 0.70710678;
-    let shineOpacity = clamp((1.35 * uniforms.opacity) - pointerCenter * 0.15, 0.0, 1.0);
+    // CSS var(--pointer-from-center) is distance from center normalized to ~1 at corners
+    let pointerFromCenter = length(uniforms.pointer - vec2f(0.5)) / 0.70710678;
+    let shineOpacity = clamp((1.35 * uniforms.opacity) - pointerFromCenter * 0.15, 0.0, 1.0);
 
     let bg = cssBackgroundPosition();
     let beamPos = vec2f(bg.x + (bg.y * 0.2), bg.y);
-    let frontLayer = composeAltArtLayer(cardUV, vec2f(3.0, 1.0), beamPos, false);
-    let backLayer = composeAltArtLayer(cardUV, vec2f(1.95, 1.0), -beamPos, true);
+    // Use same diagonal size for both layers so beams have identical width
+    let diagonalSize = vec2f(3.0, 1.0);
+    let frontLayer = composeAltArtLayer(cardUV, diagonalSize, beamPos, false, pointerFromCenter);
+    let backLayer = composeAltArtLayer(cardUV, diagonalSize, -beamPos, true, pointerFromCenter);
 
     var cardRgb = textureColor.rgb;
     let frontShine = colorDodgeBlend(cardRgb, frontLayer);
@@ -340,6 +379,10 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
 
     let backShine = exclusionBlend(cardRgb, backLayer);
     cardRgb = mix(cardRgb, backShine, shineOpacity * 0.65 * foilMask * cardMask);
+
+    // Apply back beam highlights after exclusion blend using screen
+    let backBeam = getBackBeamHighlight(cardUV, -beamPos);
+    cardRgb = screenBlend(cardRgb, backBeam * shineOpacity * 0.8 * foilMask * cardMask);
 
     let before = beforeOverlay(cardUV);
     let beforeBlend = overlayBlend(cardRgb, before);
