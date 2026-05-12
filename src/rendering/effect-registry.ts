@@ -5,6 +5,7 @@ import amazingRareShaderCode from '../effects/holofoil-amazing-rare/webgpu.wgsl?
 import radiantHoloShaderCode from '../effects/radiant-holofoil/webgpu.wgsl?raw';
 import rainbowRareShaderCode from '../effects/rainbow-rare/webgpu.wgsl?raw';
 import secretRareShaderCode from '../effects/secret-rare/webgpu.wgsl?raw';
+import trainerGalleryHoloShaderCode from '../effects/trainer-gallery-holo/webgpu.wgsl?raw';
 import pokemonVShaderCode from '../effects/pokemon-v/webgpu.wgsl?raw';
 import pokemonVAlternateArtShaderCode from '../effects/pokemon-v-alternate-art/webgpu.wgsl?raw';
 import pokemonVFullArtShaderCode from '../effects/pokemon-v-full-art/webgpu.wgsl?raw';
@@ -45,6 +46,11 @@ const SECRET_RARE_EFFECT: CardEffect = {
   shaderCode: secretRareShaderCode,
 };
 
+const TRAINER_GALLERY_HOLO_EFFECT: CardEffect = {
+  id: 'trainer-gallery-holo',
+  shaderCode: trainerGalleryHoloShaderCode,
+};
+
 const POKEMON_V_EFFECT: CardEffect = {
   id: 'pokemon-v',
   shaderCode: pokemonVShaderCode,
@@ -65,6 +71,7 @@ const REGISTRY: Record<string, CardEffect> = {
   'Reverse Holo non-rares': REVERSE_HOLO_EFFECT,
   'Trainer Gallery (V)': PLAIN_EFFECT,
   'Holofoil Amazing Rare': AMAZING_RARE_EFFECT,
+  'Trainer Gallery Holofoil': TRAINER_GALLERY_HOLO_EFFECT,
   'Radiant Holofoil': RADIANT_HOLO_EFFECT,
   'Rainbow Rare': RAINBOW_RARE_EFFECT,
   'Secret Rare (Gold)': SECRET_RARE_EFFECT,
