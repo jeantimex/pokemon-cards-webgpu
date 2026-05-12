@@ -109,6 +109,8 @@ export async function createWebGpuCardRenderer({
       { binding: 3, visibility: GPUShaderStage.FRAGMENT, texture: {} },
       { binding: 4, visibility: GPUShaderStage.FRAGMENT, texture: {} },
       { binding: 5, visibility: GPUShaderStage.FRAGMENT, texture: {} },
+      { binding: 6, visibility: GPUShaderStage.FRAGMENT, texture: {} },
+      { binding: 7, visibility: GPUShaderStage.FRAGMENT, texture: {} },
     ],
   });
 
@@ -164,8 +166,7 @@ export async function createWebGpuCardRenderer({
 
   const auxiliaryTextureCache = new Map<string, GPUTexture>();
 
-  async function getAuxiliaryTexture(effect: CardEffect) {
-    const textureUrl = effect.auxiliaryTextureUrl ?? 'img/glitter.png';
+  async function getCachedTexture(textureUrl: string) {
     let texture = auxiliaryTextureCache.get(textureUrl);
     if (!texture) {
       texture = await createTextureFromUrl(appUrl(textureUrl));
@@ -174,11 +175,23 @@ export async function createWebGpuCardRenderer({
     return texture;
   }
 
+  async function getAuxiliaryTextures(effect: CardEffect) {
+    const textureUrls = effect.auxiliaryTextureUrls ?? [
+      effect.auxiliaryTextureUrl ?? 'img/glitter.png',
+    ];
+    const paddedTextureUrls = [
+      textureUrls[0] ?? 'img/glitter.png',
+      textureUrls[1] ?? 'img/glitter.png',
+      textureUrls[2] ?? 'img/glitter.png',
+    ];
+    return Promise.all(paddedTextureUrls.map(getCachedTexture));
+  }
+
   function createBindGroup(
     cardTex: GPUTexture,
     foilTex: GPUTexture,
     maskTex: GPUTexture,
-    auxiliaryTex: GPUTexture,
+    auxiliaryTextures: readonly GPUTexture[],
   ): GPUBindGroup {
     return device.createBindGroup({
       layout: bindGroupLayout,
@@ -188,7 +201,9 @@ export async function createWebGpuCardRenderer({
         { binding: 2, resource: cardTex.createView() },
         { binding: 3, resource: foilTex.createView() },
         { binding: 4, resource: maskTex.createView() },
-        { binding: 5, resource: auxiliaryTex.createView() },
+        { binding: 5, resource: auxiliaryTextures[0].createView() },
+        { binding: 6, resource: auxiliaryTextures[1].createView() },
+        { binding: 7, resource: auxiliaryTextures[2].createView() },
       ],
     });
   }
@@ -198,8 +213,8 @@ export async function createWebGpuCardRenderer({
   let maskTexture = createSolidTexture([0, 0, 0, 0]);
   const initialEffect = getEffect('');
   let activePipeline = getPipeline(initialEffect);
-  let activeAuxiliaryTexture = await getAuxiliaryTexture(initialEffect);
-  let bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture, activeAuxiliaryTexture);
+  let activeAuxiliaryTextures = await getAuxiliaryTextures(initialEffect);
+  let bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture, activeAuxiliaryTextures);
 
   let mouseX = 0.5;
   let mouseY = 0.5;
@@ -332,9 +347,9 @@ export async function createWebGpuCardRenderer({
     foilTexture = nextFoilTexture;
     maskTexture = nextMaskTexture;
     activePipeline = nextPipeline;
-    activeAuxiliaryTexture = await getAuxiliaryTexture(effect);
+    activeAuxiliaryTextures = await getAuxiliaryTextures(effect);
     foilBrightness = getReverseHoloFoilBrightness(card);
-    bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture, activeAuxiliaryTexture);
+    bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture, activeAuxiliaryTextures);
     previousCardTexture.destroy();
     previousFoilTexture.destroy();
     previousMaskTexture.destroy();
