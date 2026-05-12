@@ -1,4 +1,5 @@
 import { getDisplayRarity, getLocalFoilImageUrl } from '../effects/asset-paths';
+import { getCardPatternSeed } from '../effects/card-pattern-seed';
 import type { EffectVariant } from '../effects/category-types';
 import type { Card } from '../types';
 
@@ -57,20 +58,6 @@ export function createCssCardController({
     );
   }
 
-  const cssCardSeeds = new Map<string, { x: number; y: number }>();
-
-  function getCssCardSeed(card: Card) {
-    let seed = cssCardSeeds.get(card.id);
-    if (!seed) {
-      seed = {
-        x: Math.random(),
-        y: Math.random(),
-      };
-      cssCardSeeds.set(card.id, seed);
-    }
-    return seed;
-  }
-
   let cssTarget: CssCardTarget = {
     pointerX: 50,
     pointerY: 50,
@@ -125,11 +112,7 @@ export function createCssCardController({
   }
 
   function updateCard(card: Card, imageUrl: string, categoryName: string, variant: EffectVariant) {
-    const randomSeed = getCssCardSeed(card);
-    const cosmosPosition = {
-      x: Math.floor(randomSeed.x * 734),
-      y: Math.floor(randomSeed.y * 1280),
-    };
+    const patternSeed = getCardPatternSeed(card);
 
     cssCard.className = `${getCardClass(card)} loading`;
     const maskUrl = getLocalFoilImageUrl(card, 'masks', categoryName, variant);
@@ -143,9 +126,12 @@ export function createCssCardController({
     cssCard.dataset.trainerGallery = String(!!card.number.match(/^[tg]g/i));
     cssCardRotator.setAttribute('aria-label', `Expand the Pokemon Card; ${card.name}.`);
     cssCardImage.alt = `Front design of the ${card.name} Pokemon Card, with the stats and info around the edge`;
-    cssCardFront.style.setProperty('--seedx', String(randomSeed.x));
-    cssCardFront.style.setProperty('--seedy', String(randomSeed.y));
-    cssCardFront.style.setProperty('--cosmosbg', `${cosmosPosition.x}px ${cosmosPosition.y}px`);
+    cssCardFront.style.setProperty('--seedx', String(patternSeed.x));
+    cssCardFront.style.setProperty('--seedy', String(patternSeed.y));
+    cssCardFront.style.setProperty(
+      '--cosmosbg',
+      `${patternSeed.cosmosPixels.x}px ${patternSeed.cosmosPixels.y}px`,
+    );
     if (maskUrl) {
       cssCardFront.style.setProperty('--mask', `url(${maskUrl})`);
       cssCardFront.style.setProperty('--foil', `url(${foilUrl})`);

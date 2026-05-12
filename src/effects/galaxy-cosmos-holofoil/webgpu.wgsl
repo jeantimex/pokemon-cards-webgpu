@@ -9,8 +9,8 @@ struct Uniforms {
     foilBrightness: f32,
     patternScaleX: f32,
     patternScaleY: f32,
-    _pad0: f32,
-    _pad1: f32,
+    cosmosOffsetX: f32,
+    cosmosOffsetY: f32,
     _pad2: f32,
 };
 
@@ -142,8 +142,14 @@ fn backgroundUv(uv: vec2f, scale: vec2f, position: vec2f) -> vec2f {
     return (uv - origin) / scale;
 }
 
-fn cosmosUv(uv: vec2f, offset: vec2f) -> vec2f {
-    return fract(uv + offset);
+fn cosmosUv(uv: vec2f, cardSize: vec2f) -> vec2f {
+    let cardWidthPx = max(cardSize.x * uniforms.resolution.y / uniforms.dpr, 1.0);
+    let cardHeightPx = max(cardSize.y * uniforms.resolution.y / uniforms.dpr, 1.0);
+    let offset = vec2f(
+        uniforms.cosmosOffsetX / cardWidthPx,
+        uniforms.cosmosOffsetY / cardHeightPx
+    );
+    return fract(uv - offset);
 }
 
 fn cosmosRainbow(uv: vec2f, position: vec2f) -> vec3f {
@@ -172,16 +178,24 @@ fn cosmosRainbow(uv: vec2f, position: vec2f) -> vec3f {
     return mix(c2, c1, (t - 0.917) / 0.083);
 }
 
-fn shineRadial(uv: vec2f) -> vec3f {
+fn shineRadial(uv: vec2f) -> vec4f {
     let dist = distance(uv, uniforms.pointer);
     let t = clamp(dist / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
     if (t < 0.05) {
-        return vec3f(0.78, 1.0, 1.0);
+        return vec4f(0.78, 1.0, 1.0, 0.5);
     }
     if (t < 0.40) {
-        return mix(vec3f(0.78, 1.0, 1.0), vec3f(0.42, 0.49, 0.49), (t - 0.05) / 0.35);
+        return mix(
+            vec4f(0.78, 1.0, 1.0, 0.5),
+            vec4f(0.42, 0.49, 0.49, 0.3),
+            (t - 0.05) / 0.35
+        );
     }
-    return mix(vec3f(0.42, 0.49, 0.49), vec3f(0.0), clamp((t - 0.40) / 0.90, 0.0, 1.0));
+    return mix(
+        vec4f(0.42, 0.49, 0.49, 0.3),
+        vec4f(0.0, 0.0, 0.0, 1.0),
+        clamp((t - 0.40) / 0.90, 0.0, 1.0)
+    );
 }
 
 fn glareGradient(uv: vec2f) -> vec4f {
@@ -226,36 +240,41 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
     let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
     let foilMask = maskColor.a;
-    let artworkMask = isInArtworkArea(cardUV) * foilMask * cardMask;
+    let artworkClip = isInArtworkArea(cardUV) * cardMask;
+    let artworkMask = artworkClip * foilMask;
 
     let pointerFromCenter = clamp(length(uniforms.pointer - vec2f(0.5)) / 0.70710678, 0.0, 1.0);
     let pointerFromTop = uniforms.pointer.y;
 
     var cardRgb = textureColor.rgb;
 
-    let bottomTex = textureSampleLevel(cosmosBottomTexture, linearSampler, cosmosUv(cardUV, vec2f(0.18, 0.31)), 0.0).rgb;
-    let middleTex = textureSampleLevel(cosmosMiddleTexture, linearSampler, cosmosUv(cardUV, vec2f(0.20, 0.33)), 0.0);
-    let topTex = textureSampleLevel(cosmosTopTexture, linearSampler, cosmosUv(cardUV, vec2f(0.22, 0.35)), 0.0);
+    let cosmosSampleUv = cosmosUv(cardUV, cardSize);
+    let bottomTex = textureSampleLevel(cosmosBottomTexture, linearSampler, cosmosSampleUv, 0.0).rgb;
+    let middleSample = textureSampleLevel(cosmosMiddleTexture, linearSampler, cosmosSampleUv, 0.0);
+    let topSample = textureSampleLevel(cosmosTopTexture, linearSampler, cosmosSampleUv, 0.0);
+    let middleTex = middleSample;
+    let topTex = topSample;
 
     let rainbow1 = cosmosRainbow(cardUV, vec2f(0.10 + uniforms.pointer.x * 0.80, 0.10 + uniforms.pointer.y * 0.80));
     let rainbow2 = cosmosRainbow(cardUV, vec2f(0.15 + uniforms.pointer.x * 0.70, 0.15 + uniforms.pointer.y * 0.70));
     let rainbow3 = cosmosRainbow(cardUV, vec2f(0.20 + uniforms.pointer.x * 0.60, 0.20 + uniforms.pointer.y * 0.60));
 
-    var shineMain = shineRadial(cardUV);
-    shineMain = multiplyBlend(colorBurnBlend(bottomTex, rainbow1), shineMain);
+    let radial = shineRadial(cardUV);
+    var shineMain = mix(vec3f(0.0), radial.rgb, radial.a);
+    shineMain = multiplyBlend(shineMain, rainbow1);
+    shineMain = colorBurnBlend(shineMain, bottomTex);
     shineMain = applyFilter(shineMain, 1.0, 1.0, 0.8);
-    shineMain = mix(shineMain, foilColor, 0.18);
-    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineMain), uniforms.opacity * artworkMask * 0.92);
+    shineMain = mix(shineMain, foilColor, 0.08);
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineMain), uniforms.opacity * artworkMask * 0.84);
 
-    var shineBefore = lightenBlend(middleTex.rgb, rainbow2);
-    shineBefore = multiplyBlend(shineBefore, rainbow2);
+    var shineBefore = multiplyBlend(rainbow2, lightenBlend(rainbow2, middleTex.rgb));
     shineBefore = applyFilter(shineBefore, 1.25, 1.75, 0.8);
-    let beforeStrength = middleTex.a * uniforms.opacity * artworkMask * 0.72;
+    let beforeStrength = middleTex.a * uniforms.opacity * artworkMask * 0.66;
     cardRgb = mix(cardRgb, overlayBlend(cardRgb, shineBefore), beforeStrength);
 
-    var shineAfter = multiplyBlend(topTex.rgb, rainbow3);
+    var shineAfter = multiplyBlend(rainbow3, multiplyBlend(rainbow3, topTex.rgb));
     shineAfter = applyFilter(shineAfter, 1.25, 1.75, 0.8);
-    let afterStrength = topTex.a * uniforms.opacity * artworkMask * 0.58;
+    let afterStrength = topTex.a * uniforms.opacity * artworkMask * 0.52;
     cardRgb = mix(cardRgb, multiplyBlend(cardRgb, shineAfter), afterStrength);
 
     let glare = glareGradient(cardUV);
@@ -263,7 +282,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     cardRgb = mix(cardRgb, overlayBlend(cardRgb, glare.rgb), glare.a * glareOpacity);
 
     let glareAfter = glareAfterGradient(cardUV);
-    let glareAfterOpacity = (1.0 - pointerFromTop * 0.75) * artworkMask * uniforms.opacity;
+    let glareAfterOpacity = (1.0 - pointerFromTop * 0.75) * artworkClip * uniforms.opacity;
     cardRgb = mix(cardRgb, softLightBlend(cardRgb, glareAfter.rgb), glareAfter.a * glareAfterOpacity);
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);

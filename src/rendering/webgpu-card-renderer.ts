@@ -1,5 +1,6 @@
 import type { CardPointer } from '../ui/css-card-controller';
 import { getLocalFoilImageUrl } from '../effects/asset-paths';
+import { getCardPatternSeed } from '../effects/card-pattern-seed';
 import type { EffectVariant } from '../effects/category-types';
 import type { Card } from '../types';
 import type { CardEffect } from './card-effect';
@@ -95,7 +96,7 @@ export async function createWebGpuCardRenderer({
   device.queue.writeBuffer(indexBuffer, 0, indices);
 
   // Uniform layout (64 bytes / 16 floats):
-  // resolution(2) + pointer(2) + rotation(2) + time(1) + dpr(1) + perspective(1) + opacity(1) + foilBrightness(1) + patternScale(1) + patternSquareness(1) + pad(1)
+  // resolution(2) + pointer(2) + rotation(2) + time(1) + dpr(1) + perspective(1) + opacity(1) + foilBrightness(1) + patternScale(2) + cosmosOffset(2) + pad(1)
   const uniformBuffer = device.createBuffer({
     size: 64,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -227,6 +228,8 @@ export async function createWebGpuCardRenderer({
   let foilBrightness = 0.55;
   let patternScaleX = 0.476;
   let patternScaleY = 0.476;
+  let cosmosOffsetX = 0;
+  let cosmosOffsetY = 0;
   const startTime = performance.now();
   let renderWidth = 1;
   let renderHeight = 1;
@@ -349,6 +352,9 @@ export async function createWebGpuCardRenderer({
     activePipeline = nextPipeline;
     activeAuxiliaryTextures = await getAuxiliaryTextures(effect);
     foilBrightness = getReverseHoloFoilBrightness(card);
+    const patternSeed = getCardPatternSeed(card);
+    cosmosOffsetX = patternSeed.cosmosPixels.x;
+    cosmosOffsetY = patternSeed.cosmosPixels.y;
     bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture, activeAuxiliaryTextures);
     previousCardTexture.destroy();
     previousFoilTexture.destroy();
@@ -369,7 +375,8 @@ export async function createWebGpuCardRenderer({
       time, devicePixelRatio,
       cssPerspective, currentOpacity,
       foilBrightness, patternScaleX,
-      patternScaleY, 0, 0, 0,
+      patternScaleY, cosmosOffsetX,
+      cosmosOffsetY, 0,
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
