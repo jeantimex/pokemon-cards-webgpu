@@ -25,34 +25,14 @@ export function setupCardLibraryGui({
   const gui = new GUI({ title: 'Card Library' });
   gui.close();
 
-  // Radiant Holofoil pattern controls
   const radiantParams = {
     patternWidth: 0.2,
     patternHeight: 0.4,
   };
 
-  let radiantFolder: GUI | null = null;
-
-  function updateRadiantControls(categoryName: string) {
+  function updateRadiantPattern(categoryName: string) {
     if (categoryName === 'Radiant Holofoil') {
-      if (!radiantFolder) {
-        radiantFolder = gui.addFolder('Pattern Controls');
-        radiantFolder.add(radiantParams, 'patternWidth', 0.2, 5.0, 0.05)
-          .name('Width')
-          .onChange(() => {
-            webgpuRenderer?.setPatternParams(radiantParams.patternWidth, radiantParams.patternHeight);
-          });
-        radiantFolder.add(radiantParams, 'patternHeight', 0.2, 5.0, 0.05)
-          .name('Height')
-          .onChange(() => {
-            webgpuRenderer?.setPatternParams(radiantParams.patternWidth, radiantParams.patternHeight);
-          });
-        radiantFolder.open();
-      }
-      radiantFolder.show();
       webgpuRenderer?.setPatternParams(radiantParams.patternWidth, radiantParams.patternHeight);
-    } else {
-      radiantFolder?.hide();
     }
   }
 
@@ -76,7 +56,7 @@ export function setupCardLibraryGui({
     descEl.textContent = cardLibrary.descriptions[categoryName];
     cardDropdown.options(getCardMap(categoryName));
     cardDropdown.updateDisplay();
-    updateRadiantControls(categoryName);
+    updateRadiantPattern(categoryName);
     onSelectionChange?.(card, categoryName);
     await onCardChange(card, categoryName);
   };
