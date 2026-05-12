@@ -240,7 +240,7 @@ fn getPerspectiveStretch(localPos: vec2f) -> f32 {
     // Invert so closer = larger stretch factor
     let baseStretch = uniforms.perspective / w;
     // Amplify the effect - raise to power and scale
-    return pow(baseStretch, 3.0);
+    return pow(baseStretch, 20.0);
 }
 
 fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
@@ -265,13 +265,14 @@ fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
 fn diagonalBeamMask(layerUv: vec2f, stretch: f32, repeatSize: f32) -> f32 {
     let cycle = diagonalStripePhase(layerUv, repeatSize);
     let distToPeak = abs(cycle - 0.375);
-    // Fixed beam width - no perspective stretch for uniform thickness
-    let coreWidth = 0.025;
-    let haloWidth = 0.06;
+    // Scale beam width by perspective stretch - wider when closer to camera
+    // Use max() to ensure far beams don't get too thin
+    let coreWidth = max(0.04 * stretch, 0.025);
+    let haloWidth = max(0.09 * stretch, 0.05);
     // Core beam - tight center
     let core = 1.0 - smoothstep(0.0, coreWidth, distToPeak);
     // Halo - soft glow
-    let halo = 1.0 - smoothstep(0.012, haloWidth, distToPeak);
+    let halo = 1.0 - smoothstep(max(0.02 * stretch, 0.012), haloWidth, distToPeak);
     return clamp(core * 0.8 + halo * 0.5, 0.0, 1.0);
 }
 
@@ -334,10 +335,13 @@ fn composeAltArtLayer(
 
     // Add beam highlights for front layer only
     // Back layer beams are applied separately after exclusion blend
+    // Fade beams based on tilt - less visible when card is flat
     if (!isBackLayer) {
+        let tiltAmount = length(uniforms.rotation) * 5.0;  // Scale rotation to useful range
+        let beamFade = clamp(tiltAmount, 0.0, 1.0);
         let beam = diagonalBeamMask(diagonalUv, stretch, 0.22);
         let beamColor = sun * 1.2;
-        filtered = screenBlend(filtered, beamColor * beam);
+        filtered = screenBlend(filtered, beamColor * beam * beamFade);
     }
 
     return filtered;
@@ -411,8 +415,11 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
 
     // Apply back beam highlights after exclusion blend using screen
     // Use -beamPos so back beams are in different positions and move opposite to front
+    // Fade beams based on tilt - less visible when card is flat
+    let tiltAmount = length(uniforms.rotation) * 5.0;
+    let beamFade = clamp(tiltAmount, 0.0, 1.0);
     let backBeam = getBackBeamHighlight(cardUV, -beamPos, stretch);
-    cardRgb = screenBlend(cardRgb, backBeam * shineOpacity * 1.0 * foilMask * cardMask);
+    cardRgb = screenBlend(cardRgb, backBeam * shineOpacity * beamFade * foilMask * cardMask);
 
     let before = beforeOverlay(cardUV);
     let beforeBlend = overlayBlend(cardRgb, before);
