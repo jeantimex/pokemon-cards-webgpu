@@ -1,6 +1,7 @@
 import plainShaderCode from '../shaders.wgsl?raw';
 import glareShaderCode from '../effects/common-and-uncommon/webgpu.wgsl?raw';
 import galaxyCosmosHoloShaderCode from '../effects/galaxy-cosmos-holofoil/webgpu.wgsl?raw';
+import holofoilRareShaderCode from '../effects/holofoil-rare/webgpu.wgsl?raw';
 import reverseHoloShaderCode from '../effects/reverse-holo/webgpu.wgsl?raw';
 import amazingRareShaderCode from '../effects/holofoil-amazing-rare/webgpu.wgsl?raw';
 import radiantHoloShaderCode from '../effects/radiant-holofoil/webgpu.wgsl?raw';
@@ -42,6 +43,11 @@ const GALAXY_COSMOS_HOLO_EFFECT: CardEffect = {
   ],
 };
 
+const HOLOFOIL_RARE_EFFECT: CardEffect = {
+  id: 'holofoil-rare',
+  shaderCode: holofoilRareShaderCode,
+};
+
 const RADIANT_HOLO_EFFECT: CardEffect = {
   id: 'radiant-holo',
   shaderCode: radiantHoloShaderCode,
@@ -80,6 +86,7 @@ const POKEMON_V_FULL_ART_EFFECT: CardEffect = {
 
 const REGISTRY: Record<string, CardEffect> = {
   'Reverse Holo non-rares': REVERSE_HOLO_EFFECT,
+  'Holofoil Rare': HOLOFOIL_RARE_EFFECT,
   'Trainer Gallery (V)': PLAIN_EFFECT,
   'Holofoil Amazing Rare': AMAZING_RARE_EFFECT,
   'Galaxy/Cosmos Holofoil': GALAXY_COSMOS_HOLO_EFFECT,
