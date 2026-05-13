@@ -164,14 +164,32 @@ fn scanlineLayer(uv: vec2f, cardSize: vec2f) -> vec3f {
     return vec3f(value);
 }
 
+fn cssLinearGradientStop(t: f32, aPos: f32, aValue: f32, bPos: f32, bValue: f32) -> f32 {
+    return mix(aValue, bValue, clamp((t - aPos) / (bPos - aPos), 0.0, 1.0));
+}
+
 fn barPattern(uv: vec2f, position: vec2f, repeatEnd: f32) -> vec3f {
     let layerUv = backgroundUv(uv, vec2f(2.0, 2.0), position);
+    let bars = 0.03;
     let x = fract(layerUv.x / repeatEnd) * repeatEnd;
-    let bar = smoothstep(0.060, 0.086, x)
-        * (1.0 - smoothstep(0.086, 0.096, x))
-        + smoothstep(0.112, 0.124, x)
-        * (1.0 - smoothstep(0.124, 0.136, x));
-    return vec3f(clamp(bar * 0.70, 0.0, 0.70));
+    let p0 = bars * 2.0;
+    let p1 = bars * 3.0;
+    let p2 = bars * 3.5;
+    let p3 = bars * 4.0;
+    let p4 = bars * 5.0;
+    var value = 0.0;
+    if (x < p0) {
+        value = 0.0;
+    } else if (x < p1) {
+        value = cssLinearGradientStop(x, p0, 0.0, p1, 0.70);
+    } else if (x < p2) {
+        value = cssLinearGradientStop(x, p1, 0.70, p2, 0.0);
+    } else if (x < p3) {
+        value = cssLinearGradientStop(x, p2, 0.0, p3, 0.70);
+    } else if (x < p4) {
+        value = cssLinearGradientStop(x, p3, 0.70, p4, 0.0);
+    }
+    return vec3f(value);
 }
 
 fn shineAfterLayer(uv: vec2f) -> vec3f {
@@ -245,18 +263,17 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let rainbow = rainbowLayer(cardUV);
     var shine = overlayBlend(rainbow, scanlineLayer(cardUV, cardSize));
     shine = applyFilter(shine, 1.1, 1.1, 0.35);
-    let shineCoverage = smoothstep(0.58, 0.92, luma(shine));
-    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shine), uniforms.opacity * holoMask * shineCoverage * 0.42);
 
     let barPos1 = vec2f((((0.5 - bg.x) * 1.65) + 0.5) + (bg.y * 0.5), bg.x);
     let barPos2 = vec2f((((0.5 - bg.x) * -0.9) + 0.5) - (bg.y * 0.75), bg.y);
     let bars1 = barPattern(cardUV, barPos1, 0.42);
     let bars2 = barPattern(cardUV, barPos2, 0.30);
-    let barMask = clamp(luma(screenBlend(bars1, bars2)), 0.0, 1.0);
-    var bars = vec3f(barMask * 0.70);
+    var bars = screenBlend(bars1, bars2);
     bars = applyFilter(bars, 1.15, 1.1, 1.0);
-    let barCoverage = smoothstep(0.28, 0.62, barMask);
-    cardRgb = mix(cardRgb, hardLightBlend(cardRgb, bars), uniforms.opacity * holoMask * barCoverage * 0.68);
+
+    let shineGroup = hardLightBlend(shine, bars);
+    let shineCoverage = smoothstep(0.08, 0.84, luma(shineGroup));
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineGroup), uniforms.opacity * holoMask * shineCoverage * 0.42);
 
     let luminosity = shineAfterLayer(cardUV);
     let luminosityCoverage = smoothstep(0.18, 0.82, luma(luminosity));
