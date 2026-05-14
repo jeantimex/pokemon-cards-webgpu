@@ -20,6 +20,13 @@ function getReverseHoloFoilBrightness(card: Card) {
   return 0.55;
 }
 
+function getArtworkClipMode(card: Card) {
+  const subtypes = (card.subtypes ?? []).map((subtype) => subtype.toLowerCase());
+  if (card.supertype.toLowerCase() === 'trainer') return 2;
+  if (subtypes.some((subtype) => subtype.startsWith('stage'))) return 1;
+  return 0;
+}
+
 export interface WebGpuCardRenderer {
   updateTexture(
     url: string,
@@ -96,7 +103,7 @@ export async function createWebGpuCardRenderer({
   device.queue.writeBuffer(indexBuffer, 0, indices);
 
   // Uniform layout (64 bytes / 16 floats):
-  // resolution(2) + pointer(2) + rotation(2) + time(1) + dpr(1) + perspective(1) + opacity(1) + foilBrightness(1) + patternScale(2) + cosmosOffset(2) + pad(1)
+  // resolution(2) + pointer(2) + rotation(2) + time(1) + dpr(1) + perspective(1) + opacity(1) + foilBrightness(1) + patternScale(2) + cosmosOffset(2) + clipMode(1)
   const uniformBuffer = device.createBuffer({
     size: 64,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -230,6 +237,7 @@ export async function createWebGpuCardRenderer({
   let patternScaleY = 0.476;
   let cosmosOffsetX = 0;
   let cosmosOffsetY = 0;
+  let artworkClipMode = 0;
   const startTime = performance.now();
   let renderWidth = 1;
   let renderHeight = 1;
@@ -355,6 +363,7 @@ export async function createWebGpuCardRenderer({
     const patternSeed = getCardPatternSeed(card);
     cosmosOffsetX = patternSeed.cosmosPixels.x;
     cosmosOffsetY = patternSeed.cosmosPixels.y;
+    artworkClipMode = getArtworkClipMode(card);
     bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture, activeAuxiliaryTextures);
     previousCardTexture.destroy();
     previousFoilTexture.destroy();
@@ -376,7 +385,7 @@ export async function createWebGpuCardRenderer({
       cssPerspective, currentOpacity,
       foilBrightness, patternScaleX,
       patternScaleY, cosmosOffsetX,
-      cosmosOffsetY, 0,
+      cosmosOffsetY, artworkClipMode,
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 

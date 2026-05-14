@@ -11,7 +11,7 @@ struct Uniforms {
     patternScaleY: f32,
     cosmosOffsetX: f32,
     cosmosOffsetY: f32,
-    _pad2: f32,
+    clipMode: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -112,14 +112,38 @@ fn luminosityBlend(base: vec3f, blend: vec3f) -> vec3f {
     return clamp(base + vec3f(delta), vec3f(0.0), vec3f(1.0));
 }
 
-fn isInArtworkArea(uv: vec2f) -> f32 {
-    let top = 0.0985;
-    let right = 0.08;
-    let bottom = 0.5285;
-    let left = 0.08;
+fn isInRect(uv: vec2f, left: f32, top: f32, right: f32, bottom: f32) -> f32 {
     let inX = step(left, uv.x) * step(uv.x, 1.0 - right);
     let inY = step(top, uv.y) * step(uv.y, 1.0 - bottom);
     return inX * inY;
+}
+
+fn isInStageArtworkArea(uv: vec2f) -> f32 {
+    let top = 0.0985;
+    let bottom = 0.4715;
+    let inY = step(top, uv.y) * step(uv.y, bottom);
+
+    let right = mix(0.915, 0.92, clamp((uv.y - top) / (bottom - top), 0.0, 1.0));
+    var left = 0.08;
+    if (uv.y < 0.12) {
+        left = mix(0.57, 0.54, clamp((uv.y - 0.0985) / (0.12 - 0.0985), 0.0, 1.0));
+    } else if (uv.y < 0.14) {
+        left = mix(0.17, 0.16, clamp((uv.y - 0.12) / (0.14 - 0.12), 0.0, 1.0));
+    } else if (uv.y < 0.16) {
+        left = mix(0.16, 0.12, clamp((uv.y - 0.14) / (0.16 - 0.14), 0.0, 1.0));
+    }
+
+    return inY * step(left, uv.x) * step(uv.x, right);
+}
+
+fn isInArtworkArea(uv: vec2f) -> f32 {
+    if (uniforms.clipMode > 1.5) {
+        return isInRect(uv, 0.085, 0.145, 0.085, 0.482);
+    }
+    if (uniforms.clipMode > 0.5) {
+        return isInStageArtworkArea(uv);
+    }
+    return isInRect(uv, 0.08, 0.0985, 0.08, 0.5285);
 }
 
 fn backgroundUv(uv: vec2f, scale: vec2f, position: vec2f) -> vec2f {
@@ -162,6 +186,15 @@ fn scanlineLayer(uv: vec2f, cardSize: vec2f) -> vec3f {
     let stripe = fract(uv.x * cardWidthPx / 4.0);
     let value = select(0.0, 0.4, stripe >= 0.5);
     return vec3f(value);
+}
+
+fn verticalBeamLines(uv: vec2f, cardSize: vec2f) -> vec3f {
+    let cardWidthPx = max(cardSize.x * uniforms.resolution.y / uniforms.dpr, 1.0);
+    let fineStripe = fract(uv.x * cardWidthPx / 3.0);
+    let fine = 1.0 - smoothstep(0.10, 0.20, fineStripe);
+    let coarseStripe = fract(uv.x * cardWidthPx / 22.0);
+    let coarse = 1.0 - smoothstep(0.06, 0.13, coarseStripe);
+    return vec3f(clamp(fine * 0.28 + coarse * 0.30, 0.0, 0.46));
 }
 
 fn cssLinearGradientStop(t: f32, aPos: f32, aValue: f32, bPos: f32, bValue: f32) -> f32 {
@@ -269,11 +302,12 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let bars1 = barPattern(cardUV, barPos1, 0.42);
     let bars2 = barPattern(cardUV, barPos2, 0.30);
     var bars = screenBlend(bars1, bars2);
-    bars = applyFilter(bars, 1.15, 1.1, 1.0);
+    bars = applyFilter(bars, 1.08, 1.18, 1.0);
 
-    let shineGroup = hardLightBlend(shine, bars);
-    let shineCoverage = smoothstep(0.08, 0.84, luma(shineGroup));
-    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineGroup), uniforms.opacity * holoMask * shineCoverage * 0.42);
+    var shineGroup = hardLightBlend(shine, bars);
+    shineGroup = screenBlend(shineGroup, verticalBeamLines(cardUV, cardSize));
+    let shineCoverage = smoothstep(0.05, 0.66, luma(shineGroup));
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineGroup), uniforms.opacity * holoMask * shineCoverage * 0.62);
 
     let luminosity = shineAfterLayer(cardUV);
     let luminosityCoverage = smoothstep(0.18, 0.82, luma(luminosity));
