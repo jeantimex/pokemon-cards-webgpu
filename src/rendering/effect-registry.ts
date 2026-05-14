@@ -11,6 +11,7 @@ import trainerGalleryHoloShaderCode from '../effects/trainer-gallery-holo/webgpu
 import pokemonVShaderCode from '../effects/pokemon-v/webgpu.wgsl?raw';
 import pokemonVAlternateArtShaderCode from '../effects/pokemon-v-alternate-art/webgpu.wgsl?raw';
 import pokemonVFullArtShaderCode from '../effects/pokemon-v-full-art/webgpu.wgsl?raw';
+import shinyVaultShaderCode from '../effects/shiny-vault/webgpu.wgsl?raw';
 import type { CardEffect } from './card-effect';
 
 const GLARE_EFFECT: CardEffect = {
@@ -84,6 +85,16 @@ const POKEMON_V_FULL_ART_EFFECT: CardEffect = {
   shaderCode: pokemonVFullArtShaderCode,
 };
 
+const SHINY_VAULT_EFFECT: CardEffect = {
+  id: 'shiny-vault',
+  shaderCode: shinyVaultShaderCode,
+  auxiliaryTextureUrls: [
+    'img/glitter.png',
+    'img/illusion.png',
+    'img/glitter.png',
+  ],
+};
+
 const REGISTRY: Record<string, CardEffect> = {
   'Reverse Holo non-rares': REVERSE_HOLO_EFFECT,
   'Holofoil Rare': HOLOFOIL_RARE_EFFECT,
@@ -97,6 +108,7 @@ const REGISTRY: Record<string, CardEffect> = {
   'Pokemon V': POKEMON_V_EFFECT,
   'Pokemon V (Alternate Art)': POKEMON_V_ALTERNATE_ART_EFFECT,
   'Pokemon V (Full Art)': POKEMON_V_FULL_ART_EFFECT,
+  'Shiny Vault': SHINY_VAULT_EFFECT,
 };
 
 export function getEffect(categoryName: string): CardEffect {

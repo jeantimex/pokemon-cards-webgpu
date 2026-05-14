@@ -27,6 +27,14 @@ function getArtworkClipMode(card: Card) {
   return 0;
 }
 
+function getShinyVaultKind(categoryName: string, card: Card) {
+  if (categoryName !== 'Shiny Vault' || !card.number.toLowerCase().startsWith('sv')) return 0;
+  const subtypes = new Set((card.subtypes ?? []).map((subtype) => subtype.toLowerCase()));
+  if (subtypes.has('vmax')) return 2;
+  if (subtypes.has('v')) return 1;
+  return 0;
+}
+
 export interface WebGpuCardRenderer {
   updateTexture(
     url: string,
@@ -102,10 +110,10 @@ export async function createWebGpuCardRenderer({
   });
   device.queue.writeBuffer(indexBuffer, 0, indices);
 
-  // Uniform layout (64 bytes / 16 floats):
-  // resolution(2) + pointer(2) + rotation(2) + time(1) + dpr(1) + perspective(1) + opacity(1) + foilBrightness(1) + patternScale(2) + cosmosOffset(2) + clipMode(1)
+  // Uniform layout (80 bytes / 20 floats):
+  // resolution(2) + pointer(2) + rotation(2) + time(1) + dpr(1) + perspective(1) + opacity(1) + foilBrightness(1) + patternScale(2) + cosmosOffset(2) + clipMode(1) + shinyKind(1) + hasMask(1) + padding(2)
   const uniformBuffer = device.createBuffer({
-    size: 64,
+    size: 80,
     usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
   });
 
@@ -238,6 +246,8 @@ export async function createWebGpuCardRenderer({
   let cosmosOffsetX = 0;
   let cosmosOffsetY = 0;
   let artworkClipMode = 0;
+  let shinyKind = 0;
+  let activeHasMask = 0;
   const startTime = performance.now();
   let renderWidth = 1;
   let renderHeight = 1;
@@ -364,6 +374,8 @@ export async function createWebGpuCardRenderer({
     cosmosOffsetX = patternSeed.cosmosPixels.x;
     cosmosOffsetY = patternSeed.cosmosPixels.y;
     artworkClipMode = getArtworkClipMode(card);
+    shinyKind = getShinyVaultKind(categoryName, card);
+    activeHasMask = maskUrl ? 1 : 0;
     bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture, activeAuxiliaryTextures);
     previousCardTexture.destroy();
     previousFoilTexture.destroy();
@@ -386,6 +398,8 @@ export async function createWebGpuCardRenderer({
       foilBrightness, patternScaleX,
       patternScaleY, cosmosOffsetX,
       cosmosOffsetY, artworkClipMode,
+      shinyKind, activeHasMask,
+      0, 0,
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
