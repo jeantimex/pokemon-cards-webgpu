@@ -91,7 +91,7 @@ const SHINY_VAULT_EFFECT: CardEffect = {
   auxiliaryTextureUrls: [
     'img/glitter.png',
     'img/illusion.png',
-    'img/glitter.png',
+    'img/grain.webp',
   ],
 };
 
