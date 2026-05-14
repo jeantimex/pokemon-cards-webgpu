@@ -228,21 +228,21 @@ fn shineAfterLayer(uv: vec2f) -> vec3f {
     let dist = distance(uv, uniforms.pointer);
     let t = clamp(dist / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
     var gray: f32;
-    if (t < 0.32) {
-        gray = mix(0.94, 0.78, t / 0.32);
+    if (t < 0.34) {
+        gray = mix(0.98, 0.80, t / 0.34);
     } else {
-        gray = mix(0.78, 0.0, clamp((t - 0.32) / 0.72, 0.0, 1.0));
+        gray = mix(0.80, 0.0, clamp((t - 0.34) / 0.76, 0.0, 1.0));
     }
-    return applyFilter(vec3f(gray), 0.78, 4.3, 1.0);
+    return applyFilter(vec3f(gray), 0.86, 4.45, 1.0);
 }
 
 fn shineAfterAlpha(uv: vec2f) -> f32 {
     let dist = distance(uv, uniforms.pointer);
     let t = clamp(dist / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
-    if (t < 0.32) {
-        return mix(0.88, 0.16, t / 0.32);
+    if (t < 0.34) {
+        return mix(0.96, 0.20, t / 0.34);
     }
-    return mix(0.16, 1.0, clamp((t - 0.32) / 0.72, 0.0, 1.0));
+    return mix(0.20, 1.0, clamp((t - 0.34) / 0.76, 0.0, 1.0));
 }
 
 fn glareAfterLayer(uv: vec2f) -> vec3f {
@@ -323,7 +323,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let luminosityCoverage = shineAfterAlpha(cardUV);
     shineGroup = mix(shineGroup, luminosityBlend(shineGroup, luminosity), luminosityCoverage);
     let shineCoverage = smoothstep(0.05, 0.66, luma(shineGroup));
-    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineGroup), uniforms.opacity * holoMask * shineCoverage * 0.74);
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineGroup), uniforms.opacity * holoMask * shineCoverage * 0.82);
 
     let glare = baseGlareLayer(cardUV);
     cardRgb = mix(cardRgb, overlayBlend(cardRgb, glare), uniforms.opacity * cardMask * 0.68);
