@@ -234,7 +234,16 @@ fn shineAfterLayer(uv: vec2f) -> vec3f {
     } else {
         gray = mix(0.78, 0.0, clamp((t - 0.25) / 0.65, 0.0, 1.0));
     }
-    return applyFilter(vec3f(gray), 0.6, 4.0, 1.0);
+    return applyFilter(vec3f(gray), 0.72, 4.3, 1.0);
+}
+
+fn shineAfterAlpha(uv: vec2f) -> f32 {
+    let dist = distance(uv, uniforms.pointer);
+    let t = clamp(dist / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
+    if (t < 0.25) {
+        return mix(0.8, 0.1, t / 0.25);
+    }
+    return mix(0.1, 1.0, clamp((t - 0.25) / 0.65, 0.0, 1.0));
 }
 
 fn glareAfterLayer(uv: vec2f) -> vec3f {
@@ -251,14 +260,14 @@ fn glareAfterLayer(uv: vec2f) -> vec3f {
     } else {
         color = mix(c2, c3, clamp((t - 0.55) / 0.55, 0.0, 1.0));
     }
-    return applyFilter(color, 0.6, 3.0, 1.0);
+    return applyFilter(color, 0.48, 2.4, 1.0);
 }
 
 fn baseGlareLayer(uv: vec2f) -> vec3f {
     let dist = distance(uv, uniforms.pointer);
     let t = clamp(dist / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
     let color = mix(vec3f(1.0), vec3f(0.0), smoothstep(0.20, 0.90, t));
-    return applyFilter(color, 0.8, 1.5, 1.0);
+    return applyFilter(color, 0.72, 1.38, 1.0);
 }
 
 @fragment
@@ -306,19 +315,19 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
 
     var shineGroup = hardLightBlend(shine, bars);
     shineGroup = screenBlend(shineGroup, verticalBeamLines(cardUV, cardSize));
-    let shineCoverage = smoothstep(0.05, 0.66, luma(shineGroup));
-    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineGroup), uniforms.opacity * holoMask * shineCoverage * 0.62);
 
     let luminosity = shineAfterLayer(cardUV);
-    let luminosityCoverage = smoothstep(0.18, 0.82, luma(luminosity));
-    cardRgb = mix(cardRgb, luminosityBlend(cardRgb, luminosity), uniforms.opacity * holoMask * luminosityCoverage * 0.58);
+    let luminosityCoverage = shineAfterAlpha(cardUV);
+    shineGroup = mix(shineGroup, luminosityBlend(shineGroup, luminosity), luminosityCoverage);
+    let shineCoverage = smoothstep(0.05, 0.66, luma(shineGroup));
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineGroup), uniforms.opacity * holoMask * shineCoverage * 0.66);
 
     let glare = baseGlareLayer(cardUV);
-    cardRgb = mix(cardRgb, overlayBlend(cardRgb, glare), uniforms.opacity * cardMask * 0.8);
+    cardRgb = mix(cardRgb, overlayBlend(cardRgb, glare), uniforms.opacity * cardMask * 0.68);
 
     let glareAfter = glareAfterLayer(cardUV);
     let glareAfterCoverage = smoothstep(0.10, 0.78, luma(glareAfter));
-    cardRgb = mix(cardRgb, overlayBlend(cardRgb, glareAfter), uniforms.opacity * holoMask * glareAfterCoverage * 0.62);
+    cardRgb = mix(cardRgb, overlayBlend(cardRgb, glareAfter), uniforms.opacity * holoMask * glareAfterCoverage * 0.42);
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
     let finalColor = vec4f(
