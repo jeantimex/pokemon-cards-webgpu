@@ -526,12 +526,12 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
         cardRgb = mix(cardRgb, hueBlend(cardRgb, after.rgb), after.a * foilMask * uniforms.opacity * cardMask);
 
         let glare = vmaxGlare(cardUV, false);
-        let glareFiltered = applyFilter(glare.rgb, 1.0, 1.25, 1.0);
+        let glareFiltered = applyFilter(glare.rgb, 1.09, 1.3, 1.0);
         cardRgb = mix(cardRgb, overlayBlend(cardRgb, glareFiltered), glare.a * uniforms.opacity * cardMask);
 
         let glareAfter = vmaxGlare(cardUV, true);
-        let glareAfterFiltered = applyFilter(glareAfter.rgb, 1.0, 1.25, 1.0);
-        cardRgb = mix(cardRgb, overlayBlend(cardRgb, glareAfterFiltered), glareAfter.a * foilMask * uniforms.opacity * cardMask);
+        let glareAfterFiltered = applyFilter(glareAfter.rgb, 1.1, 1.3, 1.0);
+        cardRgb = mix(cardRgb, overlayBlend(cardRgb, glareAfterFiltered), glareAfter.a * 1.08 * foilMask * uniforms.opacity * cardMask);
     } else {
         let normalClip = select(1.0, clipMask, uniforms.shinyKind < 0.5);
         let shineMask = foilMask * normalClip * cardMask;
