@@ -188,15 +188,6 @@ fn scanlineLayer(uv: vec2f, cardSize: vec2f) -> vec3f {
     return vec3f(value);
 }
 
-fn verticalBeamLines(uv: vec2f, cardSize: vec2f) -> vec3f {
-    let cardWidthPx = max(cardSize.x * uniforms.resolution.y / uniforms.dpr, 1.0);
-    let fineStripe = fract(uv.x * cardWidthPx / 3.0);
-    let fine = 1.0 - smoothstep(0.10, 0.20, fineStripe);
-    let coarseStripe = fract(uv.x * cardWidthPx / 22.0);
-    let coarse = 1.0 - smoothstep(0.06, 0.13, coarseStripe);
-    return vec3f(clamp(fine * 0.28 + coarse * 0.30, 0.0, 0.46));
-}
-
 fn cssLinearGradientStop(t: f32, aPos: f32, aValue: f32, bPos: f32, bValue: f32) -> f32 {
     return mix(aValue, bValue, clamp((t - aPos) / (bPos - aPos), 0.0, 1.0));
 }
@@ -225,25 +216,33 @@ fn barPattern(uv: vec2f, position: vec2f, repeatEnd: f32) -> vec3f {
     return vec3f(value);
 }
 
+fn movingBeamLineDetail(uv: vec2f, position: vec2f, repeatEnd: f32) -> vec3f {
+    let layerUv = backgroundUv(uv, vec2f(2.0, 2.0), position);
+    let beamPhase = fract(layerUv.x / repeatEnd);
+    let fine = 1.0 - smoothstep(0.020, 0.045, fract(beamPhase * 18.0));
+    let withinBeam = smoothstep(0.14, 0.22, beamPhase) * (1.0 - smoothstep(0.38, 0.52, beamPhase));
+    return vec3f(fine * withinBeam * 0.22);
+}
+
 fn shineAfterLayer(uv: vec2f) -> vec3f {
     let dist = distance(uv, uniforms.pointer);
     let t = clamp(dist / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
     var gray: f32;
-    if (t < 0.25) {
-        gray = mix(0.9, 0.78, t / 0.25);
+    if (t < 0.32) {
+        gray = mix(0.94, 0.78, t / 0.32);
     } else {
-        gray = mix(0.78, 0.0, clamp((t - 0.25) / 0.65, 0.0, 1.0));
+        gray = mix(0.78, 0.0, clamp((t - 0.32) / 0.72, 0.0, 1.0));
     }
-    return applyFilter(vec3f(gray), 0.72, 4.3, 1.0);
+    return applyFilter(vec3f(gray), 0.78, 4.3, 1.0);
 }
 
 fn shineAfterAlpha(uv: vec2f) -> f32 {
     let dist = distance(uv, uniforms.pointer);
     let t = clamp(dist / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
-    if (t < 0.25) {
-        return mix(0.8, 0.1, t / 0.25);
+    if (t < 0.32) {
+        return mix(0.88, 0.16, t / 0.32);
     }
-    return mix(0.1, 1.0, clamp((t - 0.25) / 0.65, 0.0, 1.0));
+    return mix(0.16, 1.0, clamp((t - 0.32) / 0.72, 0.0, 1.0));
 }
 
 fn glareAfterLayer(uv: vec2f) -> vec3f {
@@ -312,15 +311,19 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let bars2 = barPattern(cardUV, barPos2, 0.30);
     var bars = screenBlend(bars1, bars2);
     bars = applyFilter(bars, 1.08, 1.18, 1.0);
+    let movingLines = screenBlend(
+        movingBeamLineDetail(cardUV, barPos1, 0.42),
+        movingBeamLineDetail(cardUV, barPos2, 0.30)
+    );
 
     var shineGroup = hardLightBlend(shine, bars);
-    shineGroup = screenBlend(shineGroup, verticalBeamLines(cardUV, cardSize));
+    shineGroup = screenBlend(shineGroup, movingLines);
 
     let luminosity = shineAfterLayer(cardUV);
     let luminosityCoverage = shineAfterAlpha(cardUV);
     shineGroup = mix(shineGroup, luminosityBlend(shineGroup, luminosity), luminosityCoverage);
     let shineCoverage = smoothstep(0.05, 0.66, luma(shineGroup));
-    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineGroup), uniforms.opacity * holoMask * shineCoverage * 0.66);
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineGroup), uniforms.opacity * holoMask * shineCoverage * 0.74);
 
     let glare = baseGlareLayer(cardUV);
     cardRgb = mix(cardRgb, overlayBlend(cardRgb, glare), uniforms.opacity * cardMask * 0.68);
