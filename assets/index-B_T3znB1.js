@@ -1,10 +1,10 @@
-(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const i of document.querySelectorAll('link[rel="modulepreload"]'))r(i);new MutationObserver(i=>{for(const l of i)if(l.type==="childList")for(const c of l.addedNodes)c.tagName==="LINK"&&c.rel==="modulepreload"&&r(c)}).observe(document,{childList:!0,subtree:!0});function t(i){const l={};return i.integrity&&(l.integrity=i.integrity),i.referrerPolicy&&(l.referrerPolicy=i.referrerPolicy),i.crossOrigin==="use-credentials"?l.credentials="include":i.crossOrigin==="anonymous"?l.credentials="omit":l.credentials="same-origin",l}function r(i){if(i.ep)return;i.ep=!0;const l=t(i);fetch(i.href,l)}})();function R(n){const e=n.startsWith("/")?n.slice(1):n;return new URL(e,document.baseURI).href}function Ge(){const n=document.documentElement.style;n.setProperty("--asset-grain",`url(${R("img/grain.webp")})`),n.setProperty("--asset-glitter",`url(${R("img/glitter.png")})`),n.setProperty("--asset-cosmos-bottom",`url(${R("img/cosmos-bottom.png")})`),n.setProperty("--asset-cosmos-middle-trans",`url(${R("img/cosmos-middle-trans.png")})`),n.setProperty("--asset-cosmos-top-trans",`url(${R("img/cosmos-top-trans.png")})`),n.setProperty("--asset-illusion",`url(${R("img/illusion.png")})`),n.setProperty("--asset-illusion-mask",`url(${R("img/illusion-mask.png")})`),n.setProperty("--asset-geometric",`url(${R("img/geometric.png")})`),n.setProperty("--asset-trainerbg",`url(${R("img/trainerbg.png")})`),n.setProperty("--asset-vmaxbg",`url(${R("img/vmaxbg.jpg")})`),n.setProperty("--asset-ancient",`url(${R("img/ancient.png")})`)}function $e(n){const e=new URL(n);return R(`cards${e.pathname}`)}function Ce(n,e,t){var l,c;const r=n.rarity.toLowerCase(),i=n.number.toLowerCase().startsWith("sv");return t==="reverse-holo"?`${r} reverse holo`:e==="Shiny Vault"&&i?r==="rare holo vmax"||(l=n.subtypes)!=null&&l.includes("VMAX")?"rare shiny vmax":r==="rare holo v"||(c=n.subtypes)!=null&&c.includes("V")?"rare shiny v":"rare shiny":e==="VMax (Alternate/Rainbow)"?"rare rainbow alt":r}const Ie={"amazing rare":{etch:"etched",style:"swsecret"},"rare holo cosmos":{etch:"holo",style:"cosmos"},"rare holo":{etch:"holo",style:"swholo"},"rare holo v":{etch:"holo",style:"sunpillar"},"rare holo vmax":{etch:"etched",style:"sunpillar"},"rare holo vstar":{etch:"etched",style:"sunpillar"},"rare ultra":{etch:"etched",style:"sunpillar"},"rare secret":{etch:"etched",style:"swsecret"},"rare rainbow":{etch:"etched",style:"swsecret"},"rare shiny":{etch:"etched",style:"sunpillar"},"rare shiny v":{etch:"etched",style:"sunpillar"},"rare shiny vmax":{etch:"etched",style:"swsecret"}};function We(n,e){var t;return e.endsWith("reverse holo")?{etch:"holo",style:"reverse"}:e==="trainer gallery rare holo"?{etch:"holo",style:"rainbow"}:e==="rare holo v"?{etch:n.number.match(/^[tg]g/i)?"etched":"holo",style:"sunpillar"}:e==="rare rainbow alt"?{etch:"etched",style:(t=n.subtypes)!=null&&t.includes("VMAX")?"swsecret":"sunpillar"}:Ie[e]??null}function N(n,e,t,r){const i=Ce(n,t,r),l=i==="trainer gallery rare holo"?"rare holo":i,h=l==="rare holo"&&(i==="trainer gallery rare holo"||n.number.match(/^[tg]g/i))?{etch:"holo",style:"rainbow"}:We(n,l);if(!h)return"";const m=n.number.toString().toLowerCase().replace("swsh","").padStart(3,"0"),s=n.set.toString().toLowerCase().replace(/(tg|gg|sv)/,""),d=(h==null?void 0:h.etch)??"holo",g=(h==null?void 0:h.style)??"cosmos";return R(`foils/${s}/${e}/upscaled/${m}_foil_${d}_${g}_2x.webp`)}function w(n,e,t,r="standard"){return{name:n,description:e,cards:t,variant:r}}function He(n){return w("Common & Uncommon","All cards get a 3d rotation with CSS based on the cursor position. The default basic non-holo cards simply apply a flare/glare effect.",n.slice(1,4))}function Ne(n){return w("Galaxy/Cosmos Holofoil","Special image background of a galaxy effect with a gradient rainbow set to color-dodge & color-burn on top.",n.slice(13,16))}function qe(n){return w("Holofoil Amazing Rare","Unique shiny foil that extends past the frame and is much shinier than a regular holo effect, and textured.",n.slice(76,85))}function Ye(n){return w("Holofoil Rare","Holo cards have an additional vertical beam holo effect. This uses a combintation of repeating gradients and filters.",n.slice(7,13))}function Xe(n){return w("Trainer Gallery Holofoil","Kind of metallic effect with iridescent shine. Achieved with a large color dodge linear gradient.",n.filter(e=>e.rarity.toLowerCase()==="trainer gallery rare holo").sort((e,t)=>e.name.localeCompare(t.name)))}function je(n){const e=n.find(t=>t.id==="swsh12pt5-160");return w("Secret Rare (Gold)","GOLD! Here we apply two glitter layers on top of each other with a overlay effect and slide the two layers in opposite directions.",[n[58],n[59],n[60],n[61],n[62],n[63],e].filter(t=>!!t))}function Ke(n){return w("Shiny Vault","Foil background is a shiny silver color. Applied with radial gradients to darken the foil over the background.",n.slice(85,91))}function Ze(n){return w("Pokemon V (Alternate Art)","Practically the same holo effect as the Ultra Rare (Full Art) cards. The only difference is the pattern texture.",n.slice(28,34))}function Je(n){return w("Pokemon V","Diagonal holographic effect which that appears to travel in opposite directions when you tilt the card.",n.slice(22,25))}function Qe(n){return w("Pokemon V (Full Art)","Similar to the Pokemon V effect, but they have additional texture when looked at from certain angles.",n.slice(25,28))}function en(n){return w("Radiant Holofoil","The newest holofoil added to the series! Uses a criss-cross linear gradient pattern that moves across the card.",n.slice(16,19))}function nn(n){return w("Rainbow Rare","Super glittery effect on top of pastel gradients. Achieved with background glitter and color-burn/hard-light blends.",n.slice(52,58))}function tn(n){return w("Reverse Holo non-rares","Reverse holo cards come in many shapes and sizes. The background uses a foil and a mask layer along with a glare.",[...n.slice(4,7),...n.slice(70,76)],"reverse-holo")}function rn(n){return w("VMax (Alternate/Rainbow)","Vibrant and glittery overlay. Achieved with a background image of glitter/sparkles sandwiching linear gradients.",n.slice(40,43).filter(e=>e.rarity.toLowerCase()==="rare rainbow").sort((e,t)=>e.name.localeCompare(t.name)))}function an(n){return w("VMax","The gradient effect of Pokemon VMax is more subtle, using a larger background gradient which moves more slowly.",n.slice(37,40).filter(e=>e.rarity.toLowerCase()==="rare holo vmax").sort((e,t)=>e.name.localeCompare(t.name)))}function ln(n){return w("VStar","Diagonal gradients overlaying a texture. Brighter with a pastel hue, making the gradient and texture more subtle.",n.slice(43,46).filter(e=>e.rarity.toLowerCase()==="rare holo vstar").sort((e,t)=>e.name.localeCompare(t.name)))}function on(n){return w("Trainer Gallery (VMax)","Generally quite similar to the normal V and VMax cards, with a different background texture.",n.slice(64,70).filter(e=>e.rarity.toLowerCase()==="rare holo vmax").sort((e,t)=>e.name.localeCompare(t.name)))}function sn(n){return w("Trainer Gallery (V)","Generally quite similar to the normal V and VMax cards, with a different background texture.",n.slice(64,70).filter(e=>e.rarity.toLowerCase()==="rare holo v").sort((e,t)=>e.name.localeCompare(t.name)))}function cn(n){return w("Trainer Holo","Diagonal gradients overlaying a texture, quite similar to the Ultra Rare cards but generally brighter.",n.filter(e=>{var t;return e.rarity.toLowerCase()==="rare ultra"&&((t=e.subtypes)==null?void 0:t.includes("Supporter"))}).sort((e,t)=>e.name.localeCompare(t.name)))}function dn(n){return[]}function fn(n,e){const t=[je(n),He(n),tn(n),Ye(n),Xe(n),Ne(n),qe(n),en(n),Je(n),Qe(n),Ze(n),nn(n),Ke(n),an(n),rn(n),ln(n),sn(n),on(n),cn(n),...dn()].map(s=>({...s,cards:s.cards.filter(d=>!e.has(d.id)).sort((d,g)=>d.name.localeCompare(g.name))})).filter(s=>s.cards.length>0).sort((s,d)=>s.name.localeCompare(d.name)),r=Object.fromEntries(t.map(s=>[s.name,s.cards])),i=Object.fromEntries(t.map(s=>[s.name,s.description])),l=Object.fromEntries(t.map(s=>[s.name,s.variant])),c=t.map(s=>s.name),h=c[0],m=r[h][0];return{categories:r,descriptions:i,variants:l,categoryNames:c,initialCategory:h,initialCard:m}}function xe(n,e){let t=e;for(let r=0;r<n.length;r+=1)t^=n.charCodeAt(r),t=Math.imul(t,16777619);return t>>>0}function ye(n){return n/4294967295}function ke(n){const e=`${n.id}:${n.set}:${n.number}`,t=ye(xe(e,2166136261)),r=ye(xe(e,709607)),i={x:Math.floor(t*734),y:Math.floor(r*1280)};return{x:t,y:r,cosmosPixels:i}}function un({cssCard:n,cssCardImage:e,cssCardFront:t,cssCardRotator:r}){function i(a,v=0,C=100){return Math.min(Math.max(a,v),C)}function l(a,v=3){return parseFloat(a.toFixed(v))}function c(a,v,C,U,A){return l(U+(A-U)*(a-v)/(C-v))}function h(a){return["card","interactive",...(a.types??[]).map(v=>v.toLowerCase())].join(" ")}let m={pointerX:50,pointerY:50,rotateX:0,rotateY:0,backgroundX:50,backgroundY:50,opacity:0},s={...m},d;function g(a){const v=i(Math.sqrt((a.pointerY-50)*(a.pointerY-50)+(a.pointerX-50)*(a.pointerX-50))/50,0,1);n.style.setProperty("--pointer-x",`${a.pointerX}%`),n.style.setProperty("--pointer-y",`${a.pointerY}%`),n.style.setProperty("--pointer-from-center",String(v)),n.style.setProperty("--pointer-from-top",String(a.pointerY/100)),n.style.setProperty("--pointer-from-left",String(a.pointerX/100)),n.style.setProperty("--card-opacity",String(a.opacity)),n.style.setProperty("--rotate-x",`${a.rotateX}deg`),n.style.setProperty("--rotate-y",`${a.rotateY}deg`),n.style.setProperty("--background-x",`${a.backgroundX}%`),n.style.setProperty("--background-y",`${a.backgroundY}%`),n.style.setProperty("--card-scale","1"),n.style.setProperty("--translate-x","0px"),n.style.setProperty("--translate-y","0px")}function b(a=500){window.clearTimeout(d),d=window.setTimeout(()=>{n.classList.remove("interacting"),m={pointerX:50,pointerY:50,rotateX:0,rotateY:0,backgroundX:50,backgroundY:50,opacity:0}},a)}function x(a,v,C,U){const A=ke(a);n.className=`${h(a)} loading`;const F=N(a,"masks",C,U),z=N(a,"foils",C,U);n.classList.toggle("masked",!!F),n.dataset.number=a.number.toLowerCase(),n.dataset.set=a.set,n.dataset.subtypes=(a.subtypes??[]).join(" ").toLowerCase(),n.dataset.supertype=a.supertype.toLowerCase(),n.dataset.rarity=Ce(a,C,U),n.dataset.trainerGallery=String(!!a.number.match(/^[tg]g/i)),r.setAttribute("aria-label",`Expand the Pokemon Card; ${a.name}.`),e.alt=`Front design of the ${a.name} Pokemon Card, with the stats and info around the edge`,t.style.setProperty("--seedx",String(A.x)),t.style.setProperty("--seedy",String(A.y)),t.style.setProperty("--cosmosbg",`${A.cosmosPixels.x}px ${A.cosmosPixels.y}px`),F?(t.style.setProperty("--mask",`url(${F})`),t.style.setProperty("--foil",`url(${z})`)):(t.style.removeProperty("--mask"),t.style.removeProperty("--foil")),e.onload=()=>{n.classList.remove("loading")},e.src=v}function P(a){window.clearTimeout(d),n.classList.add("interacting");const v={x:i(l(a.x*100)),y:i(l(a.y*100))},C={x:v.x-50,y:v.y-50};m={backgroundX:c(v.x,0,100,37,63),backgroundY:c(v.y,0,100,33,67),rotateX:l(-(C.x/3.5)),rotateY:l(C.y/3.5),pointerX:l(v.x),pointerY:l(v.y),opacity:1}}function L(a){const v=r.getBoundingClientRect(),C={x:a.clientX-v.left,y:a.clientY-v.top},U={x:i(C.x/v.width,0,1),y:i(C.y/v.height,0,1)};return P(U),U}function y(){b()}function f(){b(0)}function o(){s={pointerX:s.pointerX+(m.pointerX-s.pointerX)*.15,pointerY:s.pointerY+(m.pointerY-s.pointerY)*.15,rotateX:s.rotateX+(m.rotateX-s.rotateX)*.15,rotateY:s.rotateY+(m.rotateY-s.rotateY)*.15,backgroundX:s.backgroundX+(m.backgroundX-s.backgroundX)*.15,backgroundY:s.backgroundY+(m.backgroundY-s.backgroundY)*.15,opacity:s.opacity+(m.opacity-s.opacity)*.15},g(s)}return{updateCard:x,setPointer:P,handlePointerMove:L,handlePointerLeave:y,handleBlur:f,tick:o}}/**
+(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const l of document.querySelectorAll('link[rel="modulepreload"]'))r(l);new MutationObserver(l=>{for(const i of l)if(i.type==="childList")for(const c of i.addedNodes)c.tagName==="LINK"&&c.rel==="modulepreload"&&r(c)}).observe(document,{childList:!0,subtree:!0});function t(l){const i={};return l.integrity&&(i.integrity=l.integrity),l.referrerPolicy&&(i.referrerPolicy=l.referrerPolicy),l.crossOrigin==="use-credentials"?i.credentials="include":l.crossOrigin==="anonymous"?i.credentials="omit":i.credentials="same-origin",i}function r(l){if(l.ep)return;l.ep=!0;const i=t(l);fetch(l.href,i)}})();function R(n){const e=n.startsWith("/")?n.slice(1):n;return new URL(e,document.baseURI).href}function Ee(){const n=document.documentElement.style;n.setProperty("--asset-grain",`url(${R("img/grain.webp")})`),n.setProperty("--asset-glitter",`url(${R("img/glitter.png")})`),n.setProperty("--asset-cosmos-bottom",`url(${R("img/cosmos-bottom.png")})`),n.setProperty("--asset-cosmos-middle-trans",`url(${R("img/cosmos-middle-trans.png")})`),n.setProperty("--asset-cosmos-top-trans",`url(${R("img/cosmos-top-trans.png")})`),n.setProperty("--asset-illusion",`url(${R("img/illusion.png")})`),n.setProperty("--asset-illusion-mask",`url(${R("img/illusion-mask.png")})`),n.setProperty("--asset-geometric",`url(${R("img/geometric.png")})`),n.setProperty("--asset-trainerbg",`url(${R("img/trainerbg.png")})`),n.setProperty("--asset-vmaxbg",`url(${R("img/vmaxbg.jpg")})`),n.setProperty("--asset-ancient",`url(${R("img/ancient.png")})`)}function Ie(n){const e=new URL(n);return R(`cards${e.pathname}`)}function ke(n,e,t){var i,c;const r=n.rarity.toLowerCase(),l=n.number.toLowerCase().startsWith("sv");return t==="reverse-holo"?`${r} reverse holo`:e==="Shiny Vault"&&l?r==="rare holo vmax"||(i=n.subtypes)!=null&&i.includes("VMAX")?"rare shiny vmax":r==="rare holo v"||(c=n.subtypes)!=null&&c.includes("V")?"rare shiny v":"rare shiny":e==="VMax (Alternate/Rainbow)"?"rare rainbow alt":r}const qe={"amazing rare":{etch:"etched",style:"swsecret"},"rare holo cosmos":{etch:"holo",style:"cosmos"},"rare holo":{etch:"holo",style:"swholo"},"rare holo v":{etch:"holo",style:"sunpillar"},"rare holo vmax":{etch:"etched",style:"sunpillar"},"rare holo vstar":{etch:"etched",style:"sunpillar"},"rare ultra":{etch:"etched",style:"sunpillar"},"rare secret":{etch:"etched",style:"swsecret"},"rare rainbow":{etch:"etched",style:"swsecret"},"rare shiny":{etch:"etched",style:"sunpillar"},"rare shiny v":{etch:"etched",style:"sunpillar"},"rare shiny vmax":{etch:"etched",style:"swsecret"}};function We(n,e){var t;return e.endsWith("reverse holo")?{etch:"holo",style:"reverse"}:e==="trainer gallery rare holo"?{etch:"holo",style:"rainbow"}:e==="rare holo v"?{etch:n.number.match(/^[tg]g/i)?"etched":"holo",style:"sunpillar"}:e==="rare rainbow alt"?{etch:"etched",style:(t=n.subtypes)!=null&&t.includes("VMAX")?"swsecret":"sunpillar"}:qe[e]??null}function H(n,e,t,r){const l=ke(n,t,r),i=l==="trainer gallery rare holo"?"rare holo":l,h=i==="rare holo"&&(l==="trainer gallery rare holo"||n.number.match(/^[tg]g/i))?{etch:"holo",style:"rainbow"}:We(n,i);if(!h)return"";const m=n.number.toString().toLowerCase().replace("swsh","").padStart(3,"0"),s=n.set.toString().toLowerCase().replace(/(tg|gg|sv)/,""),f=(h==null?void 0:h.etch)??"holo",g=(h==null?void 0:h.style)??"cosmos";return R(`foils/${s}/${e}/upscaled/${m}_foil_${f}_${g}_2x.webp`)}function w(n,e,t,r="standard"){return{name:n,description:e,cards:t,variant:r}}function Ne(n){return w("Common & Uncommon","All cards get a 3d rotation with CSS based on the cursor position. The default basic non-holo cards simply apply a flare/glare effect.",n.slice(1,4))}function He(n){return w("Galaxy/Cosmos Holofoil","Special image background of a galaxy effect with a gradient rainbow set to color-dodge & color-burn on top.",n.slice(13,16))}function $e(n){return w("Holofoil Amazing Rare","Unique shiny foil that extends past the frame and is much shinier than a regular holo effect, and textured.",n.slice(76,85))}function Ye(n){return w("Holofoil Rare","Holo cards have an additional vertical beam holo effect. This uses a combintation of repeating gradients and filters.",n.slice(7,13))}function Xe(n){return w("Trainer Gallery Holofoil","Kind of metallic effect with iridescent shine. Achieved with a large color dodge linear gradient.",n.filter(e=>e.rarity.toLowerCase()==="trainer gallery rare holo").sort((e,t)=>e.name.localeCompare(t.name)))}function je(n){const e=n.find(t=>t.id==="swsh12pt5-160");return w("Secret Rare (Gold)","GOLD! Here we apply two glitter layers on top of each other with a overlay effect and slide the two layers in opposite directions.",[n[58],n[59],n[60],n[61],n[62],n[63],e].filter(t=>!!t))}function Ke(n){return w("Shiny Vault","Foil background is a shiny silver color. Applied with radial gradients to darken the foil over the background.",n.slice(85,91))}function Ze(n){return w("Pokemon V (Alternate Art)","Practically the same holo effect as the Ultra Rare (Full Art) cards. The only difference is the pattern texture.",n.slice(28,34))}function Je(n){return w("Pokemon V","Diagonal holographic effect which that appears to travel in opposite directions when you tilt the card.",n.slice(22,25))}function Qe(n){return w("Pokemon V (Full Art)","Similar to the Pokemon V effect, but they have additional texture when looked at from certain angles.",n.slice(25,28))}function en(n){return w("Radiant Holofoil","The newest holofoil added to the series! Uses a criss-cross linear gradient pattern that moves across the card.",n.slice(16,19))}function nn(n){return w("Rainbow Rare","Super glittery effect on top of pastel gradients. Achieved with background glitter and color-burn/hard-light blends.",n.slice(52,58))}function tn(n){return w("Reverse Holo non-rares","Reverse holo cards come in many shapes and sizes. The background uses a foil and a mask layer along with a glare.",[...n.slice(4,7),...n.slice(70,76)],"reverse-holo")}function rn(n){return w("VMax (Alternate/Rainbow)","Vibrant and glittery overlay. Achieved with a background image of glitter/sparkles sandwiching linear gradients.",n.slice(40,43).filter(e=>e.rarity.toLowerCase()==="rare rainbow").sort((e,t)=>e.name.localeCompare(t.name)))}function an(n){return w("VMax","The gradient effect of Pokemon VMax is more subtle, using a larger background gradient which moves more slowly.",n.slice(37,40).filter(e=>e.rarity.toLowerCase()==="rare holo vmax").sort((e,t)=>e.name.localeCompare(t.name)))}function ln(n){return w("VStar","Diagonal gradients overlaying a texture. Brighter with a pastel hue, making the gradient and texture more subtle.",n.slice(43,46).filter(e=>e.rarity.toLowerCase()==="rare holo vstar").sort((e,t)=>e.name.localeCompare(t.name)))}function on(n){return w("Trainer Gallery (VMax)","Generally quite similar to the normal V and VMax cards, with a different background texture.",n.slice(64,70).filter(e=>e.rarity.toLowerCase()==="rare holo vmax").sort((e,t)=>e.name.localeCompare(t.name)))}function sn(n){return w("Trainer Gallery (V)","Generally quite similar to the normal V and VMax cards, with a different background texture.",n.slice(64,70).filter(e=>e.rarity.toLowerCase()==="rare holo v").sort((e,t)=>e.name.localeCompare(t.name)))}function cn(n){return w("Trainer Holo","Diagonal gradients overlaying a texture, quite similar to the Ultra Rare cards but generally brighter.",n.filter(e=>{var t;return e.rarity.toLowerCase()==="rare ultra"&&((t=e.subtypes)==null?void 0:t.includes("Supporter"))}).sort((e,t)=>e.name.localeCompare(t.name)))}function fn(n){return[]}function dn(n,e){const t=[je(n),Ne(n),tn(n),Ye(n),Xe(n),He(n),$e(n),en(n),Je(n),Qe(n),Ze(n),nn(n),Ke(n),an(n),rn(n),ln(n),sn(n),on(n),cn(n),...fn()].map(s=>({...s,cards:s.cards.filter(f=>!e.has(f.id)).sort((f,g)=>f.name.localeCompare(g.name))})).filter(s=>s.cards.length>0).sort((s,f)=>s.name.localeCompare(f.name)),r=Object.fromEntries(t.map(s=>[s.name,s.cards])),l=Object.fromEntries(t.map(s=>[s.name,s.description])),i=Object.fromEntries(t.map(s=>[s.name,s.variant])),c=t.map(s=>s.name),h=c[0],m=r[h][0];return{categories:r,descriptions:l,variants:i,categoryNames:c,initialCategory:h,initialCard:m}}function xe(n,e){let t=e;for(let r=0;r<n.length;r+=1)t^=n.charCodeAt(r),t=Math.imul(t,16777619);return t>>>0}function ye(n){return n/4294967295}function Ce(n){const e=`${n.id}:${n.set}:${n.number}`,t=ye(xe(e,2166136261)),r=ye(xe(e,709607)),l={x:Math.floor(t*734),y:Math.floor(r*1280)};return{x:t,y:r,cosmosPixels:l}}function un({cssCard:n,cssCardImage:e,cssCardFront:t,cssCardRotator:r}){function l(a,v=0,k=100){return Math.min(Math.max(a,v),k)}function i(a,v=3){return parseFloat(a.toFixed(v))}function c(a,v,k,U,A){return i(U+(A-U)*(a-v)/(k-v))}function h(a){return["card","interactive",...(a.types??[]).map(v=>v.toLowerCase())].join(" ")}let m={pointerX:50,pointerY:50,rotateX:0,rotateY:0,backgroundX:50,backgroundY:50,opacity:0},s={...m},f;function g(a){const v=l(Math.sqrt((a.pointerY-50)*(a.pointerY-50)+(a.pointerX-50)*(a.pointerX-50))/50,0,1);n.style.setProperty("--pointer-x",`${a.pointerX}%`),n.style.setProperty("--pointer-y",`${a.pointerY}%`),n.style.setProperty("--pointer-from-center",String(v)),n.style.setProperty("--pointer-from-top",String(a.pointerY/100)),n.style.setProperty("--pointer-from-left",String(a.pointerX/100)),n.style.setProperty("--card-opacity",String(a.opacity)),n.style.setProperty("--rotate-x",`${a.rotateX}deg`),n.style.setProperty("--rotate-y",`${a.rotateY}deg`),n.style.setProperty("--background-x",`${a.backgroundX}%`),n.style.setProperty("--background-y",`${a.backgroundY}%`),n.style.setProperty("--card-scale","1"),n.style.setProperty("--translate-x","0px"),n.style.setProperty("--translate-y","0px")}function b(a=500){window.clearTimeout(f),f=window.setTimeout(()=>{n.classList.remove("interacting"),m={pointerX:50,pointerY:50,rotateX:0,rotateY:0,backgroundX:50,backgroundY:50,opacity:0}},a)}function x(a,v,k,U){const A=Ce(a);n.className=`${h(a)} loading`;const F=H(a,"masks",k,U),z=H(a,"foils",k,U);n.classList.toggle("masked",!!F),n.dataset.number=a.number.toLowerCase(),n.dataset.set=a.set,n.dataset.subtypes=(a.subtypes??[]).join(" ").toLowerCase(),n.dataset.supertype=a.supertype.toLowerCase(),n.dataset.rarity=ke(a,k,U),n.dataset.trainerGallery=String(!!a.number.match(/^[tg]g/i)),r.setAttribute("aria-label",`Expand the Pokemon Card; ${a.name}.`),e.alt=`Front design of the ${a.name} Pokemon Card, with the stats and info around the edge`,t.style.setProperty("--seedx",String(A.x)),t.style.setProperty("--seedy",String(A.y)),t.style.setProperty("--cosmosbg",`${A.cosmosPixels.x}px ${A.cosmosPixels.y}px`),F?(t.style.setProperty("--mask",`url(${F})`),t.style.setProperty("--foil",`url(${z})`)):(t.style.removeProperty("--mask"),t.style.removeProperty("--foil")),e.onload=()=>{n.classList.remove("loading")},e.src=v}function P(a){window.clearTimeout(f),n.classList.add("interacting");const v={x:l(i(a.x*100)),y:l(i(a.y*100))},k={x:v.x-50,y:v.y-50};m={backgroundX:c(v.x,0,100,37,63),backgroundY:c(v.y,0,100,33,67),rotateX:i(-(k.x/3.5)),rotateY:i(k.y/3.5),pointerX:i(v.x),pointerY:i(v.y),opacity:1}}function L(a){const v=r.getBoundingClientRect(),k={x:a.clientX-v.left,y:a.clientY-v.top},U={x:l(k.x/v.width,0,1),y:l(k.y/v.height,0,1)};return P(U),U}function y(){b()}function d(){b(0)}function o(){s={pointerX:s.pointerX+(m.pointerX-s.pointerX)*.15,pointerY:s.pointerY+(m.pointerY-s.pointerY)*.15,rotateX:s.rotateX+(m.rotateX-s.rotateX)*.15,rotateY:s.rotateY+(m.rotateY-s.rotateY)*.15,backgroundX:s.backgroundX+(m.backgroundX-s.backgroundX)*.15,backgroundY:s.backgroundY+(m.backgroundY-s.backgroundY)*.15,opacity:s.opacity+(m.opacity-s.opacity)*.15},g(s)}return{updateCard:x,setPointer:P,handlePointerMove:L,handlePointerLeave:y,handleBlur:d,tick:o}}/**
  * lil-gui
  * https://lil-gui.georgealways.com
  * @version 0.21.0
  * @author George Michael Brower
  * @license MIT
- */class B{constructor(e,t,r,i,l="div"){this.parent=e,this.object=t,this.property=r,this._disabled=!1,this._hidden=!1,this.initialValue=this.getValue(),this.domElement=document.createElement(l),this.domElement.classList.add("lil-controller"),this.domElement.classList.add(i),this.$name=document.createElement("div"),this.$name.classList.add("lil-name"),B.nextNameID=B.nextNameID||0,this.$name.id=`lil-gui-name-${++B.nextNameID}`,this.$widget=document.createElement("div"),this.$widget.classList.add("lil-widget"),this.$disable=this.$widget,this.domElement.appendChild(this.$name),this.domElement.appendChild(this.$widget),this.domElement.addEventListener("keydown",c=>c.stopPropagation()),this.domElement.addEventListener("keyup",c=>c.stopPropagation()),this.parent.children.push(this),this.parent.controllers.push(this),this.parent.$children.appendChild(this.domElement),this._listenCallback=this._listenCallback.bind(this),this.name(r)}name(e){return this._name=e,this.$name.textContent=e,this}onChange(e){return this._onChange=e,this}_callOnChange(){this.parent._callOnChange(this),this._onChange!==void 0&&this._onChange.call(this,this.getValue()),this._changed=!0}onFinishChange(e){return this._onFinishChange=e,this}_callOnFinishChange(){this._changed&&(this.parent._callOnFinishChange(this),this._onFinishChange!==void 0&&this._onFinishChange.call(this,this.getValue())),this._changed=!1}reset(){return this.setValue(this.initialValue),this._callOnFinishChange(),this}enable(e=!0){return this.disable(!e)}disable(e=!0){return e===this._disabled?this:(this._disabled=e,this.domElement.classList.toggle("lil-disabled",e),this.$disable.toggleAttribute("disabled",e),this)}show(e=!0){return this._hidden=!e,this.domElement.style.display=this._hidden?"none":"",this}hide(){return this.show(!1)}options(e){const t=this.parent.add(this.object,this.property,e);return t.name(this._name),this.destroy(),t}min(e){return this}max(e){return this}step(e){return this}decimals(e){return this}listen(e=!0){return this._listening=e,this._listenCallbackID!==void 0&&(cancelAnimationFrame(this._listenCallbackID),this._listenCallbackID=void 0),this._listening&&this._listenCallback(),this}_listenCallback(){this._listenCallbackID=requestAnimationFrame(this._listenCallback);const e=this.save();e!==this._listenPrevValue&&this.updateDisplay(),this._listenPrevValue=e}getValue(){return this.object[this.property]}setValue(e){return this.getValue()!==e&&(this.object[this.property]=e,this._callOnChange(),this.updateDisplay()),this}updateDisplay(){return this}load(e){return this.setValue(e),this._callOnFinishChange(),this}save(){return this.getValue()}destroy(){this.listen(!1),this.parent.children.splice(this.parent.children.indexOf(this),1),this.parent.controllers.splice(this.parent.controllers.indexOf(this),1),this.parent.$children.removeChild(this.domElement)}}class pn extends B{constructor(e,t,r){super(e,t,r,"lil-boolean","label"),this.$input=document.createElement("input"),this.$input.setAttribute("type","checkbox"),this.$input.setAttribute("aria-labelledby",this.$name.id),this.$widget.appendChild(this.$input),this.$input.addEventListener("change",()=>{this.setValue(this.$input.checked),this._callOnFinishChange()}),this.$disable=this.$input,this.updateDisplay()}updateDisplay(){return this.$input.checked=this.getValue(),this}}function te(n){let e,t;return(e=n.match(/(#|0x)?([a-f0-9]{6})/i))?t=e[2]:(e=n.match(/rgb\(\s*(\d*)\s*,\s*(\d*)\s*,\s*(\d*)\s*\)/))?t=parseInt(e[1]).toString(16).padStart(2,0)+parseInt(e[2]).toString(16).padStart(2,0)+parseInt(e[3]).toString(16).padStart(2,0):(e=n.match(/^#?([a-f0-9])([a-f0-9])([a-f0-9])$/i))&&(t=e[1]+e[1]+e[2]+e[2]+e[3]+e[3]),t?"#"+t:!1}const vn={isPrimitive:!0,match:n=>typeof n=="string",fromHexString:te,toHexString:te},O={isPrimitive:!0,match:n=>typeof n=="number",fromHexString:n=>parseInt(n.substring(1),16),toHexString:n=>"#"+n.toString(16).padStart(6,0)},hn={isPrimitive:!1,match:n=>Array.isArray(n)||ArrayBuffer.isView(n),fromHexString(n,e,t=1){const r=O.fromHexString(n);e[0]=(r>>16&255)/255*t,e[1]=(r>>8&255)/255*t,e[2]=(r&255)/255*t},toHexString([n,e,t],r=1){r=255/r;const i=n*r<<16^e*r<<8^t*r<<0;return O.toHexString(i)}},mn={isPrimitive:!1,match:n=>Object(n)===n,fromHexString(n,e,t=1){const r=O.fromHexString(n);e.r=(r>>16&255)/255*t,e.g=(r>>8&255)/255*t,e.b=(r&255)/255*t},toHexString({r:n,g:e,b:t},r=1){r=255/r;const i=n*r<<16^e*r<<8^t*r<<0;return O.toHexString(i)}},gn=[vn,O,hn,mn];function bn(n){return gn.find(e=>e.match(n))}class xn extends B{constructor(e,t,r,i){super(e,t,r,"lil-color"),this.$input=document.createElement("input"),this.$input.setAttribute("type","color"),this.$input.setAttribute("tabindex",-1),this.$input.setAttribute("aria-labelledby",this.$name.id),this.$text=document.createElement("input"),this.$text.setAttribute("type","text"),this.$text.setAttribute("spellcheck","false"),this.$text.setAttribute("aria-labelledby",this.$name.id),this.$display=document.createElement("div"),this.$display.classList.add("lil-display"),this.$display.appendChild(this.$input),this.$widget.appendChild(this.$display),this.$widget.appendChild(this.$text),this._format=bn(this.initialValue),this._rgbScale=i,this._initialValueHexString=this.save(),this._textFocused=!1,this.$input.addEventListener("input",()=>{this._setValueFromHexString(this.$input.value)}),this.$input.addEventListener("blur",()=>{this._callOnFinishChange()}),this.$text.addEventListener("input",()=>{const l=te(this.$text.value);l&&this._setValueFromHexString(l)}),this.$text.addEventListener("focus",()=>{this._textFocused=!0,this.$text.select()}),this.$text.addEventListener("blur",()=>{this._textFocused=!1,this.updateDisplay(),this._callOnFinishChange()}),this.$disable=this.$text,this.updateDisplay()}reset(){return this._setValueFromHexString(this._initialValueHexString),this}_setValueFromHexString(e){if(this._format.isPrimitive){const t=this._format.fromHexString(e);this.setValue(t)}else this._format.fromHexString(e,this.getValue(),this._rgbScale),this._callOnChange(),this.updateDisplay()}save(){return this._format.toHexString(this.getValue(),this._rgbScale)}load(e){return this._setValueFromHexString(e),this._callOnFinishChange(),this}updateDisplay(){return this.$input.value=this._format.toHexString(this.getValue(),this._rgbScale),this._textFocused||(this.$text.value=this.$input.value.substring(1)),this.$display.style.backgroundColor=this.$input.value,this}}class ne extends B{constructor(e,t,r){super(e,t,r,"lil-function"),this.$button=document.createElement("button"),this.$button.appendChild(this.$name),this.$widget.appendChild(this.$button),this.$button.addEventListener("click",i=>{i.preventDefault(),this.getValue().call(this.object),this._callOnChange()}),this.$button.addEventListener("touchstart",()=>{},{passive:!0}),this.$disable=this.$button}}class yn extends B{constructor(e,t,r,i,l,c){super(e,t,r,"lil-number"),this._initInput(),this.min(i),this.max(l);const h=c!==void 0;this.step(h?c:this._getImplicitStep(),h),this.updateDisplay()}decimals(e){return this._decimals=e,this.updateDisplay(),this}min(e){return this._min=e,this._onUpdateMinMax(),this}max(e){return this._max=e,this._onUpdateMinMax(),this}step(e,t=!0){return this._step=e,this._stepExplicit=t,this}updateDisplay(){const e=this.getValue();if(this._hasSlider){let t=(e-this._min)/(this._max-this._min);t=Math.max(0,Math.min(t,1)),this.$fill.style.width=t*100+"%"}return this._inputFocused||(this.$input.value=this._decimals===void 0?e:e.toFixed(this._decimals)),this}_initInput(){this.$input=document.createElement("input"),this.$input.setAttribute("type","text"),this.$input.setAttribute("aria-labelledby",this.$name.id),window.matchMedia("(pointer: coarse)").matches&&(this.$input.setAttribute("type","number"),this.$input.setAttribute("step","any")),this.$widget.appendChild(this.$input),this.$disable=this.$input;const t=()=>{let o=parseFloat(this.$input.value);isNaN(o)||(this._stepExplicit&&(o=this._snap(o)),this.setValue(this._clamp(o)))},r=o=>{const a=parseFloat(this.$input.value);isNaN(a)||(this._snapClampSetValue(a+o),this.$input.value=this.getValue())},i=o=>{o.key==="Enter"&&this.$input.blur(),o.code==="ArrowUp"&&(o.preventDefault(),r(this._step*this._arrowKeyMultiplier(o))),o.code==="ArrowDown"&&(o.preventDefault(),r(this._step*this._arrowKeyMultiplier(o)*-1))},l=o=>{this._inputFocused&&(o.preventDefault(),r(this._step*this._normalizeMouseWheel(o)))};let c=!1,h,m,s,d,g;const b=5,x=o=>{h=o.clientX,m=s=o.clientY,c=!0,d=this.getValue(),g=0,window.addEventListener("mousemove",P),window.addEventListener("mouseup",L)},P=o=>{if(c){const a=o.clientX-h,v=o.clientY-m;Math.abs(v)>b?(o.preventDefault(),this.$input.blur(),c=!1,this._setDraggingStyle(!0,"vertical")):Math.abs(a)>b&&L()}if(!c){const a=o.clientY-s;g-=a*this._step*this._arrowKeyMultiplier(o),d+g>this._max?g=this._max-d:d+g<this._min&&(g=this._min-d),this._snapClampSetValue(d+g)}s=o.clientY},L=()=>{this._setDraggingStyle(!1,"vertical"),this._callOnFinishChange(),window.removeEventListener("mousemove",P),window.removeEventListener("mouseup",L)},y=()=>{this._inputFocused=!0},f=()=>{this._inputFocused=!1,this.updateDisplay(),this._callOnFinishChange()};this.$input.addEventListener("input",t),this.$input.addEventListener("keydown",i),this.$input.addEventListener("wheel",l,{passive:!1}),this.$input.addEventListener("mousedown",x),this.$input.addEventListener("focus",y),this.$input.addEventListener("blur",f)}_initSlider(){this._hasSlider=!0,this.$slider=document.createElement("div"),this.$slider.classList.add("lil-slider"),this.$fill=document.createElement("div"),this.$fill.classList.add("lil-fill"),this.$slider.appendChild(this.$fill),this.$widget.insertBefore(this.$slider,this.$input),this.domElement.classList.add("lil-has-slider");const e=(f,o,a,v,C)=>(f-o)/(a-o)*(C-v)+v,t=f=>{const o=this.$slider.getBoundingClientRect();let a=e(f,o.left,o.right,this._min,this._max);this._snapClampSetValue(a)},r=f=>{this._setDraggingStyle(!0),t(f.clientX),window.addEventListener("mousemove",i),window.addEventListener("mouseup",l)},i=f=>{t(f.clientX)},l=()=>{this._callOnFinishChange(),this._setDraggingStyle(!1),window.removeEventListener("mousemove",i),window.removeEventListener("mouseup",l)};let c=!1,h,m;const s=f=>{f.preventDefault(),this._setDraggingStyle(!0),t(f.touches[0].clientX),c=!1},d=f=>{f.touches.length>1||(this._hasScrollBar?(h=f.touches[0].clientX,m=f.touches[0].clientY,c=!0):s(f),window.addEventListener("touchmove",g,{passive:!1}),window.addEventListener("touchend",b))},g=f=>{if(c){const o=f.touches[0].clientX-h,a=f.touches[0].clientY-m;Math.abs(o)>Math.abs(a)?s(f):(window.removeEventListener("touchmove",g),window.removeEventListener("touchend",b))}else f.preventDefault(),t(f.touches[0].clientX)},b=()=>{this._callOnFinishChange(),this._setDraggingStyle(!1),window.removeEventListener("touchmove",g),window.removeEventListener("touchend",b)},x=this._callOnFinishChange.bind(this),P=400;let L;const y=f=>{if(Math.abs(f.deltaX)<Math.abs(f.deltaY)&&this._hasScrollBar)return;f.preventDefault();const a=this._normalizeMouseWheel(f)*this._step;this._snapClampSetValue(this.getValue()+a),this.$input.value=this.getValue(),clearTimeout(L),L=setTimeout(x,P)};this.$slider.addEventListener("mousedown",r),this.$slider.addEventListener("touchstart",d,{passive:!1}),this.$slider.addEventListener("wheel",y,{passive:!1})}_setDraggingStyle(e,t="horizontal"){this.$slider&&this.$slider.classList.toggle("lil-active",e),document.body.classList.toggle("lil-dragging",e),document.body.classList.toggle(`lil-${t}`,e)}_getImplicitStep(){return this._hasMin&&this._hasMax?(this._max-this._min)/1e3:.1}_onUpdateMinMax(){!this._hasSlider&&this._hasMin&&this._hasMax&&(this._stepExplicit||this.step(this._getImplicitStep(),!1),this._initSlider(),this.updateDisplay())}_normalizeMouseWheel(e){let{deltaX:t,deltaY:r}=e;return Math.floor(e.deltaY)!==e.deltaY&&e.wheelDelta&&(t=0,r=-e.wheelDelta/120,r*=this._stepExplicit?1:10),t+-r}_arrowKeyMultiplier(e){let t=this._stepExplicit?1:10;return e.shiftKey?t*=10:e.altKey&&(t/=10),t}_snap(e){let t=0;return this._hasMin?t=this._min:this._hasMax&&(t=this._max),e-=t,e=Math.round(e/this._step)*this._step,e+=t,e=parseFloat(e.toPrecision(15)),e}_clamp(e){return e<this._min&&(e=this._min),e>this._max&&(e=this._max),e}_snapClampSetValue(e){this.setValue(this._clamp(this._snap(e)))}get _hasScrollBar(){const e=this.parent.root.$children;return e.scrollHeight>e.clientHeight}get _hasMin(){return this._min!==void 0}get _hasMax(){return this._max!==void 0}}class Sn extends B{constructor(e,t,r,i){super(e,t,r,"lil-option"),this.$select=document.createElement("select"),this.$select.setAttribute("aria-labelledby",this.$name.id),this.$display=document.createElement("div"),this.$display.classList.add("lil-display"),this.$select.addEventListener("change",()=>{this.setValue(this._values[this.$select.selectedIndex]),this._callOnFinishChange()}),this.$select.addEventListener("focus",()=>{this.$display.classList.add("lil-focus")}),this.$select.addEventListener("blur",()=>{this.$display.classList.remove("lil-focus")}),this.$widget.appendChild(this.$select),this.$widget.appendChild(this.$display),this.$disable=this.$select,this.options(i)}options(e){return this._values=Array.isArray(e)?e:Object.values(e),this._names=Array.isArray(e)?e:Object.keys(e),this.$select.replaceChildren(),this._names.forEach(t=>{const r=document.createElement("option");r.textContent=t,this.$select.appendChild(r)}),this.updateDisplay(),this}updateDisplay(){const e=this.getValue(),t=this._values.indexOf(e);return this.$select.selectedIndex=t,this.$display.textContent=t===-1?e:this._names[t],this}}class wn extends B{constructor(e,t,r){super(e,t,r,"lil-string"),this.$input=document.createElement("input"),this.$input.setAttribute("type","text"),this.$input.setAttribute("spellcheck","false"),this.$input.setAttribute("aria-labelledby",this.$name.id),this.$input.addEventListener("input",()=>{this.setValue(this.$input.value)}),this.$input.addEventListener("keydown",i=>{i.code==="Enter"&&this.$input.blur()}),this.$input.addEventListener("blur",()=>{this._callOnFinishChange()}),this.$widget.appendChild(this.$input),this.$disable=this.$input,this.updateDisplay()}updateDisplay(){return this.$input.value=this.getValue(),this}}var Cn=`.lil-gui {
+ */class B{constructor(e,t,r,l,i="div"){this.parent=e,this.object=t,this.property=r,this._disabled=!1,this._hidden=!1,this.initialValue=this.getValue(),this.domElement=document.createElement(i),this.domElement.classList.add("lil-controller"),this.domElement.classList.add(l),this.$name=document.createElement("div"),this.$name.classList.add("lil-name"),B.nextNameID=B.nextNameID||0,this.$name.id=`lil-gui-name-${++B.nextNameID}`,this.$widget=document.createElement("div"),this.$widget.classList.add("lil-widget"),this.$disable=this.$widget,this.domElement.appendChild(this.$name),this.domElement.appendChild(this.$widget),this.domElement.addEventListener("keydown",c=>c.stopPropagation()),this.domElement.addEventListener("keyup",c=>c.stopPropagation()),this.parent.children.push(this),this.parent.controllers.push(this),this.parent.$children.appendChild(this.domElement),this._listenCallback=this._listenCallback.bind(this),this.name(r)}name(e){return this._name=e,this.$name.textContent=e,this}onChange(e){return this._onChange=e,this}_callOnChange(){this.parent._callOnChange(this),this._onChange!==void 0&&this._onChange.call(this,this.getValue()),this._changed=!0}onFinishChange(e){return this._onFinishChange=e,this}_callOnFinishChange(){this._changed&&(this.parent._callOnFinishChange(this),this._onFinishChange!==void 0&&this._onFinishChange.call(this,this.getValue())),this._changed=!1}reset(){return this.setValue(this.initialValue),this._callOnFinishChange(),this}enable(e=!0){return this.disable(!e)}disable(e=!0){return e===this._disabled?this:(this._disabled=e,this.domElement.classList.toggle("lil-disabled",e),this.$disable.toggleAttribute("disabled",e),this)}show(e=!0){return this._hidden=!e,this.domElement.style.display=this._hidden?"none":"",this}hide(){return this.show(!1)}options(e){const t=this.parent.add(this.object,this.property,e);return t.name(this._name),this.destroy(),t}min(e){return this}max(e){return this}step(e){return this}decimals(e){return this}listen(e=!0){return this._listening=e,this._listenCallbackID!==void 0&&(cancelAnimationFrame(this._listenCallbackID),this._listenCallbackID=void 0),this._listening&&this._listenCallback(),this}_listenCallback(){this._listenCallbackID=requestAnimationFrame(this._listenCallback);const e=this.save();e!==this._listenPrevValue&&this.updateDisplay(),this._listenPrevValue=e}getValue(){return this.object[this.property]}setValue(e){return this.getValue()!==e&&(this.object[this.property]=e,this._callOnChange(),this.updateDisplay()),this}updateDisplay(){return this}load(e){return this.setValue(e),this._callOnFinishChange(),this}save(){return this.getValue()}destroy(){this.listen(!1),this.parent.children.splice(this.parent.children.indexOf(this),1),this.parent.controllers.splice(this.parent.controllers.indexOf(this),1),this.parent.$children.removeChild(this.domElement)}}class pn extends B{constructor(e,t,r){super(e,t,r,"lil-boolean","label"),this.$input=document.createElement("input"),this.$input.setAttribute("type","checkbox"),this.$input.setAttribute("aria-labelledby",this.$name.id),this.$widget.appendChild(this.$input),this.$input.addEventListener("change",()=>{this.setValue(this.$input.checked),this._callOnFinishChange()}),this.$disable=this.$input,this.updateDisplay()}updateDisplay(){return this.$input.checked=this.getValue(),this}}function te(n){let e,t;return(e=n.match(/(#|0x)?([a-f0-9]{6})/i))?t=e[2]:(e=n.match(/rgb\(\s*(\d*)\s*,\s*(\d*)\s*,\s*(\d*)\s*\)/))?t=parseInt(e[1]).toString(16).padStart(2,0)+parseInt(e[2]).toString(16).padStart(2,0)+parseInt(e[3]).toString(16).padStart(2,0):(e=n.match(/^#?([a-f0-9])([a-f0-9])([a-f0-9])$/i))&&(t=e[1]+e[1]+e[2]+e[2]+e[3]+e[3]),t?"#"+t:!1}const vn={isPrimitive:!0,match:n=>typeof n=="string",fromHexString:te,toHexString:te},O={isPrimitive:!0,match:n=>typeof n=="number",fromHexString:n=>parseInt(n.substring(1),16),toHexString:n=>"#"+n.toString(16).padStart(6,0)},hn={isPrimitive:!1,match:n=>Array.isArray(n)||ArrayBuffer.isView(n),fromHexString(n,e,t=1){const r=O.fromHexString(n);e[0]=(r>>16&255)/255*t,e[1]=(r>>8&255)/255*t,e[2]=(r&255)/255*t},toHexString([n,e,t],r=1){r=255/r;const l=n*r<<16^e*r<<8^t*r<<0;return O.toHexString(l)}},mn={isPrimitive:!1,match:n=>Object(n)===n,fromHexString(n,e,t=1){const r=O.fromHexString(n);e.r=(r>>16&255)/255*t,e.g=(r>>8&255)/255*t,e.b=(r&255)/255*t},toHexString({r:n,g:e,b:t},r=1){r=255/r;const l=n*r<<16^e*r<<8^t*r<<0;return O.toHexString(l)}},gn=[vn,O,hn,mn];function bn(n){return gn.find(e=>e.match(n))}class xn extends B{constructor(e,t,r,l){super(e,t,r,"lil-color"),this.$input=document.createElement("input"),this.$input.setAttribute("type","color"),this.$input.setAttribute("tabindex",-1),this.$input.setAttribute("aria-labelledby",this.$name.id),this.$text=document.createElement("input"),this.$text.setAttribute("type","text"),this.$text.setAttribute("spellcheck","false"),this.$text.setAttribute("aria-labelledby",this.$name.id),this.$display=document.createElement("div"),this.$display.classList.add("lil-display"),this.$display.appendChild(this.$input),this.$widget.appendChild(this.$display),this.$widget.appendChild(this.$text),this._format=bn(this.initialValue),this._rgbScale=l,this._initialValueHexString=this.save(),this._textFocused=!1,this.$input.addEventListener("input",()=>{this._setValueFromHexString(this.$input.value)}),this.$input.addEventListener("blur",()=>{this._callOnFinishChange()}),this.$text.addEventListener("input",()=>{const i=te(this.$text.value);i&&this._setValueFromHexString(i)}),this.$text.addEventListener("focus",()=>{this._textFocused=!0,this.$text.select()}),this.$text.addEventListener("blur",()=>{this._textFocused=!1,this.updateDisplay(),this._callOnFinishChange()}),this.$disable=this.$text,this.updateDisplay()}reset(){return this._setValueFromHexString(this._initialValueHexString),this}_setValueFromHexString(e){if(this._format.isPrimitive){const t=this._format.fromHexString(e);this.setValue(t)}else this._format.fromHexString(e,this.getValue(),this._rgbScale),this._callOnChange(),this.updateDisplay()}save(){return this._format.toHexString(this.getValue(),this._rgbScale)}load(e){return this._setValueFromHexString(e),this._callOnFinishChange(),this}updateDisplay(){return this.$input.value=this._format.toHexString(this.getValue(),this._rgbScale),this._textFocused||(this.$text.value=this.$input.value.substring(1)),this.$display.style.backgroundColor=this.$input.value,this}}class ne extends B{constructor(e,t,r){super(e,t,r,"lil-function"),this.$button=document.createElement("button"),this.$button.appendChild(this.$name),this.$widget.appendChild(this.$button),this.$button.addEventListener("click",l=>{l.preventDefault(),this.getValue().call(this.object),this._callOnChange()}),this.$button.addEventListener("touchstart",()=>{},{passive:!0}),this.$disable=this.$button}}class yn extends B{constructor(e,t,r,l,i,c){super(e,t,r,"lil-number"),this._initInput(),this.min(l),this.max(i);const h=c!==void 0;this.step(h?c:this._getImplicitStep(),h),this.updateDisplay()}decimals(e){return this._decimals=e,this.updateDisplay(),this}min(e){return this._min=e,this._onUpdateMinMax(),this}max(e){return this._max=e,this._onUpdateMinMax(),this}step(e,t=!0){return this._step=e,this._stepExplicit=t,this}updateDisplay(){const e=this.getValue();if(this._hasSlider){let t=(e-this._min)/(this._max-this._min);t=Math.max(0,Math.min(t,1)),this.$fill.style.width=t*100+"%"}return this._inputFocused||(this.$input.value=this._decimals===void 0?e:e.toFixed(this._decimals)),this}_initInput(){this.$input=document.createElement("input"),this.$input.setAttribute("type","text"),this.$input.setAttribute("aria-labelledby",this.$name.id),window.matchMedia("(pointer: coarse)").matches&&(this.$input.setAttribute("type","number"),this.$input.setAttribute("step","any")),this.$widget.appendChild(this.$input),this.$disable=this.$input;const t=()=>{let o=parseFloat(this.$input.value);isNaN(o)||(this._stepExplicit&&(o=this._snap(o)),this.setValue(this._clamp(o)))},r=o=>{const a=parseFloat(this.$input.value);isNaN(a)||(this._snapClampSetValue(a+o),this.$input.value=this.getValue())},l=o=>{o.key==="Enter"&&this.$input.blur(),o.code==="ArrowUp"&&(o.preventDefault(),r(this._step*this._arrowKeyMultiplier(o))),o.code==="ArrowDown"&&(o.preventDefault(),r(this._step*this._arrowKeyMultiplier(o)*-1))},i=o=>{this._inputFocused&&(o.preventDefault(),r(this._step*this._normalizeMouseWheel(o)))};let c=!1,h,m,s,f,g;const b=5,x=o=>{h=o.clientX,m=s=o.clientY,c=!0,f=this.getValue(),g=0,window.addEventListener("mousemove",P),window.addEventListener("mouseup",L)},P=o=>{if(c){const a=o.clientX-h,v=o.clientY-m;Math.abs(v)>b?(o.preventDefault(),this.$input.blur(),c=!1,this._setDraggingStyle(!0,"vertical")):Math.abs(a)>b&&L()}if(!c){const a=o.clientY-s;g-=a*this._step*this._arrowKeyMultiplier(o),f+g>this._max?g=this._max-f:f+g<this._min&&(g=this._min-f),this._snapClampSetValue(f+g)}s=o.clientY},L=()=>{this._setDraggingStyle(!1,"vertical"),this._callOnFinishChange(),window.removeEventListener("mousemove",P),window.removeEventListener("mouseup",L)},y=()=>{this._inputFocused=!0},d=()=>{this._inputFocused=!1,this.updateDisplay(),this._callOnFinishChange()};this.$input.addEventListener("input",t),this.$input.addEventListener("keydown",l),this.$input.addEventListener("wheel",i,{passive:!1}),this.$input.addEventListener("mousedown",x),this.$input.addEventListener("focus",y),this.$input.addEventListener("blur",d)}_initSlider(){this._hasSlider=!0,this.$slider=document.createElement("div"),this.$slider.classList.add("lil-slider"),this.$fill=document.createElement("div"),this.$fill.classList.add("lil-fill"),this.$slider.appendChild(this.$fill),this.$widget.insertBefore(this.$slider,this.$input),this.domElement.classList.add("lil-has-slider");const e=(d,o,a,v,k)=>(d-o)/(a-o)*(k-v)+v,t=d=>{const o=this.$slider.getBoundingClientRect();let a=e(d,o.left,o.right,this._min,this._max);this._snapClampSetValue(a)},r=d=>{this._setDraggingStyle(!0),t(d.clientX),window.addEventListener("mousemove",l),window.addEventListener("mouseup",i)},l=d=>{t(d.clientX)},i=()=>{this._callOnFinishChange(),this._setDraggingStyle(!1),window.removeEventListener("mousemove",l),window.removeEventListener("mouseup",i)};let c=!1,h,m;const s=d=>{d.preventDefault(),this._setDraggingStyle(!0),t(d.touches[0].clientX),c=!1},f=d=>{d.touches.length>1||(this._hasScrollBar?(h=d.touches[0].clientX,m=d.touches[0].clientY,c=!0):s(d),window.addEventListener("touchmove",g,{passive:!1}),window.addEventListener("touchend",b))},g=d=>{if(c){const o=d.touches[0].clientX-h,a=d.touches[0].clientY-m;Math.abs(o)>Math.abs(a)?s(d):(window.removeEventListener("touchmove",g),window.removeEventListener("touchend",b))}else d.preventDefault(),t(d.touches[0].clientX)},b=()=>{this._callOnFinishChange(),this._setDraggingStyle(!1),window.removeEventListener("touchmove",g),window.removeEventListener("touchend",b)},x=this._callOnFinishChange.bind(this),P=400;let L;const y=d=>{if(Math.abs(d.deltaX)<Math.abs(d.deltaY)&&this._hasScrollBar)return;d.preventDefault();const a=this._normalizeMouseWheel(d)*this._step;this._snapClampSetValue(this.getValue()+a),this.$input.value=this.getValue(),clearTimeout(L),L=setTimeout(x,P)};this.$slider.addEventListener("mousedown",r),this.$slider.addEventListener("touchstart",f,{passive:!1}),this.$slider.addEventListener("wheel",y,{passive:!1})}_setDraggingStyle(e,t="horizontal"){this.$slider&&this.$slider.classList.toggle("lil-active",e),document.body.classList.toggle("lil-dragging",e),document.body.classList.toggle(`lil-${t}`,e)}_getImplicitStep(){return this._hasMin&&this._hasMax?(this._max-this._min)/1e3:.1}_onUpdateMinMax(){!this._hasSlider&&this._hasMin&&this._hasMax&&(this._stepExplicit||this.step(this._getImplicitStep(),!1),this._initSlider(),this.updateDisplay())}_normalizeMouseWheel(e){let{deltaX:t,deltaY:r}=e;return Math.floor(e.deltaY)!==e.deltaY&&e.wheelDelta&&(t=0,r=-e.wheelDelta/120,r*=this._stepExplicit?1:10),t+-r}_arrowKeyMultiplier(e){let t=this._stepExplicit?1:10;return e.shiftKey?t*=10:e.altKey&&(t/=10),t}_snap(e){let t=0;return this._hasMin?t=this._min:this._hasMax&&(t=this._max),e-=t,e=Math.round(e/this._step)*this._step,e+=t,e=parseFloat(e.toPrecision(15)),e}_clamp(e){return e<this._min&&(e=this._min),e>this._max&&(e=this._max),e}_snapClampSetValue(e){this.setValue(this._clamp(this._snap(e)))}get _hasScrollBar(){const e=this.parent.root.$children;return e.scrollHeight>e.clientHeight}get _hasMin(){return this._min!==void 0}get _hasMax(){return this._max!==void 0}}class Sn extends B{constructor(e,t,r,l){super(e,t,r,"lil-option"),this.$select=document.createElement("select"),this.$select.setAttribute("aria-labelledby",this.$name.id),this.$display=document.createElement("div"),this.$display.classList.add("lil-display"),this.$select.addEventListener("change",()=>{this.setValue(this._values[this.$select.selectedIndex]),this._callOnFinishChange()}),this.$select.addEventListener("focus",()=>{this.$display.classList.add("lil-focus")}),this.$select.addEventListener("blur",()=>{this.$display.classList.remove("lil-focus")}),this.$widget.appendChild(this.$select),this.$widget.appendChild(this.$display),this.$disable=this.$select,this.options(l)}options(e){return this._values=Array.isArray(e)?e:Object.values(e),this._names=Array.isArray(e)?e:Object.keys(e),this.$select.replaceChildren(),this._names.forEach(t=>{const r=document.createElement("option");r.textContent=t,this.$select.appendChild(r)}),this.updateDisplay(),this}updateDisplay(){const e=this.getValue(),t=this._values.indexOf(e);return this.$select.selectedIndex=t,this.$display.textContent=t===-1?e:this._names[t],this}}class wn extends B{constructor(e,t,r){super(e,t,r,"lil-string"),this.$input=document.createElement("input"),this.$input.setAttribute("type","text"),this.$input.setAttribute("spellcheck","false"),this.$input.setAttribute("aria-labelledby",this.$name.id),this.$input.addEventListener("input",()=>{this.setValue(this.$input.value)}),this.$input.addEventListener("keydown",l=>{l.code==="Enter"&&this.$input.blur()}),this.$input.addEventListener("blur",()=>{this._callOnFinishChange()}),this.$widget.appendChild(this.$input),this.$disable=this.$input,this.updateDisplay()}updateDisplay(){return this.$input.value=this.getValue(),this}}var kn=`.lil-gui {
   font-family: var(--font-family);
   font-size: var(--font-size);
   line-height: 1;
@@ -425,133 +425,10 @@
 @font-face {
   font-family: "lil-gui";
   src: url("data:application/font-woff2;charset=utf-8;base64,d09GMgABAAAAAALkAAsAAAAABtQAAAKVAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHFQGYACDMgqBBIEbATYCJAMUCwwABCAFhAoHgQQbHAbIDiUFEYVARAAAYQTVWNmz9MxhEgodq49wYRUFKE8GWNiUBxI2LBRaVnc51U83Gmhs0Q7JXWMiz5eteLwrKwuxHO8VFxUX9UpZBs6pa5ABRwHA+t3UxUnH20EvVknRerzQgX6xC/GH6ZUvTcAjAv122dF28OTqCXrPuyaDER30YBA1xnkVutDDo4oCi71Ca7rrV9xS8dZHbPHefsuwIyCpmT7j+MnjAH5X3984UZoFFuJ0yiZ4XEJFxjagEBeqs+e1iyK8Xf/nOuwF+vVK0ur765+vf7txotUi0m3N0m/84RGSrBCNrh8Ee5GjODjF4gnWP+dJrH/Lk9k4oT6d+gr6g/wssA2j64JJGP6cmx554vUZnpZfn6ZfX2bMwPPrlANsB86/DiHjhl0OP+c87+gaJo/gY084s3HoYL/ZkWHTRfBXvvoHnnkHvngKun4KBE/ede7tvq3/vQOxDXB1/fdNz6XbPdcr0Vhpojj9dG+owuSKFsslCi1tgEjirjXdwMiov2EioadxmqTHUCIwo8NgQaeIasAi0fTYSPTbSmwbMOFduyh9wvBrESGY0MtgRjtgQR8Q1bRPohn2UoCRZf9wyYANMXFeJTysqAe0I4mrherOekFdKMrYvJjLvOIUM9SuwYB5DVZUwwVjJJOaUnZCmcEkIZZrKqNvRGRMvmFZsmhP4VMKCSXBhSqUBxgMS7h0cZvEd71AWkEhGWaeMFcNnpqyJkyXgYL7PQ1MoSq0wDAkRtJIijkZSmqYTiSImfLiSWXIZwhRh3Rug2X0kk1Dgj+Iu43u5p98ghopcpSo0Uyc8SnjlYX59WUeaMoDqmVD2TOWD9a4pCRAzf2ECgwGcrHjPOWY9bNxq/OL3I/QjwEAAAA=") format("woff2");
-}`;function kn(n){const e=document.createElement("style");e.innerHTML=n;const t=document.querySelector("head link[rel=stylesheet], head style");t?document.head.insertBefore(e,t):document.head.appendChild(e)}let Se=!1;class re{constructor({parent:e,autoPlace:t=e===void 0,container:r,width:i,title:l="Controls",closeFolders:c=!1,injectStyles:h=!0,touchStyles:m=!0}={}){if(this.parent=e,this.root=e?e.root:this,this.children=[],this.controllers=[],this.folders=[],this._closed=!1,this._hidden=!1,this.domElement=document.createElement("div"),this.domElement.classList.add("lil-gui"),this.$title=document.createElement("button"),this.$title.classList.add("lil-title"),this.$title.setAttribute("aria-expanded",!0),this.$title.addEventListener("click",()=>this.openAnimated(this._closed)),this.$title.addEventListener("touchstart",()=>{},{passive:!0}),this.$children=document.createElement("div"),this.$children.classList.add("lil-children"),this.domElement.appendChild(this.$title),this.domElement.appendChild(this.$children),this.title(l),this.parent){this.parent.children.push(this),this.parent.folders.push(this),this.parent.$children.appendChild(this.domElement);return}this.domElement.classList.add("lil-root"),m&&this.domElement.classList.add("lil-allow-touch-styles"),!Se&&h&&(kn(Cn),Se=!0),r?r.appendChild(this.domElement):t&&(this.domElement.classList.add("lil-auto-place","autoPlace"),document.body.appendChild(this.domElement)),i&&this.domElement.style.setProperty("--width",i+"px"),this._closeFolders=c}add(e,t,r,i,l){if(Object(r)===r)return new Sn(this,e,t,r);const c=e[t];switch(typeof c){case"number":return new yn(this,e,t,r,i,l);case"boolean":return new pn(this,e,t);case"string":return new wn(this,e,t);case"function":return new ne(this,e,t)}console.error(`gui.add failed
+}`;function Cn(n){const e=document.createElement("style");e.innerHTML=n;const t=document.querySelector("head link[rel=stylesheet], head style");t?document.head.insertBefore(e,t):document.head.appendChild(e)}let Se=!1;class re{constructor({parent:e,autoPlace:t=e===void 0,container:r,width:l,title:i="Controls",closeFolders:c=!1,injectStyles:h=!0,touchStyles:m=!0}={}){if(this.parent=e,this.root=e?e.root:this,this.children=[],this.controllers=[],this.folders=[],this._closed=!1,this._hidden=!1,this.domElement=document.createElement("div"),this.domElement.classList.add("lil-gui"),this.$title=document.createElement("button"),this.$title.classList.add("lil-title"),this.$title.setAttribute("aria-expanded",!0),this.$title.addEventListener("click",()=>this.openAnimated(this._closed)),this.$title.addEventListener("touchstart",()=>{},{passive:!0}),this.$children=document.createElement("div"),this.$children.classList.add("lil-children"),this.domElement.appendChild(this.$title),this.domElement.appendChild(this.$children),this.title(i),this.parent){this.parent.children.push(this),this.parent.folders.push(this),this.parent.$children.appendChild(this.domElement);return}this.domElement.classList.add("lil-root"),m&&this.domElement.classList.add("lil-allow-touch-styles"),!Se&&h&&(Cn(kn),Se=!0),r?r.appendChild(this.domElement):t&&(this.domElement.classList.add("lil-auto-place","autoPlace"),document.body.appendChild(this.domElement)),l&&this.domElement.style.setProperty("--width",l+"px"),this._closeFolders=c}add(e,t,r,l,i){if(Object(r)===r)return new Sn(this,e,t,r);const c=e[t];switch(typeof c){case"number":return new yn(this,e,t,r,l,i);case"boolean":return new pn(this,e,t);case"string":return new wn(this,e,t);case"function":return new ne(this,e,t)}console.error(`gui.add failed
 	property:`,t,`
 	object:`,e,`
-	value:`,c)}addColor(e,t,r=1){return new xn(this,e,t,r)}addFolder(e){const t=new re({parent:this,title:e});return this.root._closeFolders&&t.close(),t}load(e,t=!0){return e.controllers&&this.controllers.forEach(r=>{r instanceof ne||r._name in e.controllers&&r.load(e.controllers[r._name])}),t&&e.folders&&this.folders.forEach(r=>{r._title in e.folders&&r.load(e.folders[r._title])}),this}save(e=!0){const t={controllers:{},folders:{}};return this.controllers.forEach(r=>{if(!(r instanceof ne)){if(r._name in t.controllers)throw new Error(`Cannot save GUI with duplicate property "${r._name}"`);t.controllers[r._name]=r.save()}}),e&&this.folders.forEach(r=>{if(r._title in t.folders)throw new Error(`Cannot save GUI with duplicate folder "${r._title}"`);t.folders[r._title]=r.save()}),t}open(e=!0){return this._setClosed(!e),this.$title.setAttribute("aria-expanded",!this._closed),this.domElement.classList.toggle("lil-closed",this._closed),this}close(){return this.open(!1)}_setClosed(e){this._closed!==e&&(this._closed=e,this._callOnOpenClose(this))}show(e=!0){return this._hidden=!e,this.domElement.style.display=this._hidden?"none":"",this}hide(){return this.show(!1)}openAnimated(e=!0){return this._setClosed(!e),this.$title.setAttribute("aria-expanded",!this._closed),requestAnimationFrame(()=>{const t=this.$children.clientHeight;this.$children.style.height=t+"px",this.domElement.classList.add("lil-transition");const r=l=>{l.target===this.$children&&(this.$children.style.height="",this.domElement.classList.remove("lil-transition"),this.$children.removeEventListener("transitionend",r))};this.$children.addEventListener("transitionend",r);const i=e?this.$children.scrollHeight:0;this.domElement.classList.toggle("lil-closed",!e),requestAnimationFrame(()=>{this.$children.style.height=i+"px"})}),this}title(e){return this._title=e,this.$title.textContent=e,this}reset(e=!0){return(e?this.controllersRecursive():this.controllers).forEach(r=>r.reset()),this}onChange(e){return this._onChange=e,this}_callOnChange(e){this.parent&&this.parent._callOnChange(e),this._onChange!==void 0&&this._onChange.call(this,{object:e.object,property:e.property,value:e.getValue(),controller:e})}onFinishChange(e){return this._onFinishChange=e,this}_callOnFinishChange(e){this.parent&&this.parent._callOnFinishChange(e),this._onFinishChange!==void 0&&this._onFinishChange.call(this,{object:e.object,property:e.property,value:e.getValue(),controller:e})}onOpenClose(e){return this._onOpenClose=e,this}_callOnOpenClose(e){this.parent&&this.parent._callOnOpenClose(e),this._onOpenClose!==void 0&&this._onOpenClose.call(this,e)}destroy(){this.parent&&(this.parent.children.splice(this.parent.children.indexOf(this),1),this.parent.folders.splice(this.parent.folders.indexOf(this),1)),this.domElement.parentElement&&this.domElement.parentElement.removeChild(this.domElement),Array.from(this.children).forEach(e=>e.destroy())}controllersRecursive(){let e=Array.from(this.controllers);return this.folders.forEach(t=>{e=e.concat(t.controllersRecursive())}),e}foldersRecursive(){let e=Array.from(this.folders);return this.folders.forEach(t=>{e=e.concat(t.foldersRecursive())}),e}}function Ln({cardLibrary:n,cards:e,initialCategory:t,initialCardId:r,onCardChange:i,onSelectionChange:l,webgpuRenderer:c}){var f;const h=new re({title:"Card Library"});h.close();const m={patternWidth:.2,patternHeight:.4};function s(o){o==="Radiant Holofoil"&&(c==null||c.setPatternParams(m.patternWidth,m.patternHeight))}const d={category:n.categoryNames.includes(t)?t:n.initialCategory,activeId:r},g=document.createElement("div");g.className="gui-description";const b=o=>Object.fromEntries(n.categories[o].map(a=>[a.name,a.id])),x=async(o,a)=>{d.category=a,d.activeId=o.id,g.textContent=n.descriptions[a],L.options(b(a)),L.updateDisplay(),s(a),l==null||l(o,a),await i(o,a)};(f=h.add(d,"category",n.categoryNames).name("Type").onChange(async o=>{const a=n.categories[o];a.length>0&&await x(a[0],o)}).domElement.parentElement)==null||f.appendChild(g),g.textContent=n.descriptions[d.category];const L=h.add(d,"activeId",b(d.category)).name("Select Card").onChange(async o=>{const a=e.find(v=>v.id===o);a&&await x(a,d.category)}),y=n.categories[d.category].find(o=>o.id===r)??n.categories[d.category][0];y&&(d.activeId=y.id,x(y,d.category))}const Rn="secret-rare-gold",Pn="swsh12pt5-160";function Le(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}function Un(n,e){return n.categoryNames.find(t=>t===e)??n.categoryNames.find(t=>Le(t)===e)}function Bn(n,e){const t=new URLSearchParams(window.location.search),r=t.get("type")??Rn,i=Un(n,r)??n.initialCategory,l=n.categories[i],c=t.get("card")??Pn,h=l.find(m=>m.id===c)??l[0]??e[0];return{category:i,card:h}}function An(n,e){const t=new URL(window.location.href);t.searchParams.set("type",Le(n)),t.searchParams.set("card",e.id),history.replaceState({},"",t)}const _n=`struct Uniforms {
-    resolution: vec2f,
-    pointer: vec2f,
-    rotation: vec2f,
-    time: f32,
-    dpr: f32,
-    perspective: f32,
-    opacity: f32,
-    _pad0: f32,
-    _pad1: f32,
-};
-
-@group(0) @binding(0) var<uniform> uniforms: Uniforms;
-@group(0) @binding(1) var textureSampler: sampler;
-@group(0) @binding(2) var textureData: texture_2d<f32>;
-
-struct VertexOutput {
-    @builtin(position) position: vec4f,
-    @location(0) uv: vec2f,
-    @location(1) localPos: vec2f,
-};
-
-fn rotateX(p: vec3f, angle: f32) -> vec3f {
-    let s = sin(angle);
-    let c = cos(angle);
-    return vec3f(
-        p.x,
-        p.y * c - p.z * s,
-        p.y * s + p.z * c
-    );
-}
-
-fn rotateY(p: vec3f, angle: f32) -> vec3f {
-    let s = sin(angle);
-    let c = cos(angle);
-    return vec3f(
-        p.x * c + p.z * s,
-        p.y,
-        -p.x * s + p.z * c
-    );
-}
-
-@vertex
-fn vertexMain(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
-    var output: VertexOutput;
-    
-    let canvasAspect = uniforms.resolution.x / uniforms.resolution.y;
-    
-    // pos comes in as [-1.5, 1.5] scale relative to card size
-    var p = vec3f(pos, 0.0);
-    p = rotateX(p, uniforms.rotation.y);
-    p = rotateY(p, uniforms.rotation.x);
-
-    let perspective = uniforms.perspective;
-    let w = perspective - p.z;
-    
-    let x = (p.x / canvasAspect) * perspective;
-    let y = p.y * perspective;
-    
-    output.position = vec4f(x, y, 0.0, w);
-    output.uv = uv;
-    output.localPos = pos;
-    return output;
-}
-
-// --- SDF Utilities ---
-
-fn sdRoundedRect(p: vec2f, b: vec2f, r: f32) -> f32 {
-    let q = abs(p) - b + r;
-    return min(max(q.x, q.y), 0.0) + length(max(q, vec2f(0.0))) - r;
-}
-
-fn getCardSize() -> vec2f {
-    let cardAspect = 0.718;
-    let canvasAspect = uniforms.resolution.x / uniforms.resolution.y;
-    let panePadding = 48.0 * uniforms.dpr;
-    let maxWidthFromHeight = 0.6;
-    let maxWidthFromPane = max((uniforms.resolution.x - panePadding) / uniforms.resolution.y, 0.0);
-    let cardWidth = min(maxWidthFromHeight, maxWidthFromPane);
-    return vec2f(cardWidth, cardWidth / cardAspect);
-}
-
-@fragment
-fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
-    let cardSize = getCardSize();
-    let cornerRadius = 0.04;
-    let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
-    
-    // Distance to card edge (for clipping and rounding)
-    let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
-
-    // Keep the shader shadow visually aligned with CSS box-shadow: 0 18px 34px -7px black.
-    let shadowOffset = 22.0 * pxToLocal;
-    let shadowBlur = 34.0 * pxToLocal;
-    let shadowSpread = -7.0 * pxToLocal;
-    let shadowPos = localPos - vec2f(0.0, -shadowOffset);
-    let shadowSize = cardSize + vec2f(shadowSpread);
-    let shadowRadius = max(cornerRadius + shadowSpread, 0.0);
-    let shadowDist = sdRoundedRect(shadowPos, shadowSize, shadowRadius);
-    let shadowAlpha = 1.0 - smoothstep(-shadowBlur, shadowBlur, shadowDist);
-    let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha);
-    
-    // Sample texture only if within card bounds
-    // Map localPos.y to UV.y inverting it for top-left origin
-    let cardUV = vec2f(
-        (localPos.x / (cardSize.x * 2.0)) + 0.5,
-        0.5 - (localPos.y / (cardSize.y * 2.0))
-    );
-    let textureColor = textureSample(textureData, textureSampler, cardUV);
-    
-    // Antialiased clipping for card edges
-    let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
-    let finalCard = vec4f(textureColor.rgb, textureColor.a * cardMask);
-
-    let finalColor = vec4f(
-        mix(shadowColor.rgb, finalCard.rgb, finalCard.a),
-        max(shadowColor.a, finalCard.a)
-    );
-
-    if (finalColor.a <= 0.0) { discard; }
-
-    return finalColor;
-}
-`,Tn=`struct Uniforms {
+	value:`,c)}addColor(e,t,r=1){return new xn(this,e,t,r)}addFolder(e){const t=new re({parent:this,title:e});return this.root._closeFolders&&t.close(),t}load(e,t=!0){return e.controllers&&this.controllers.forEach(r=>{r instanceof ne||r._name in e.controllers&&r.load(e.controllers[r._name])}),t&&e.folders&&this.folders.forEach(r=>{r._title in e.folders&&r.load(e.folders[r._title])}),this}save(e=!0){const t={controllers:{},folders:{}};return this.controllers.forEach(r=>{if(!(r instanceof ne)){if(r._name in t.controllers)throw new Error(`Cannot save GUI with duplicate property "${r._name}"`);t.controllers[r._name]=r.save()}}),e&&this.folders.forEach(r=>{if(r._title in t.folders)throw new Error(`Cannot save GUI with duplicate folder "${r._title}"`);t.folders[r._title]=r.save()}),t}open(e=!0){return this._setClosed(!e),this.$title.setAttribute("aria-expanded",!this._closed),this.domElement.classList.toggle("lil-closed",this._closed),this}close(){return this.open(!1)}_setClosed(e){this._closed!==e&&(this._closed=e,this._callOnOpenClose(this))}show(e=!0){return this._hidden=!e,this.domElement.style.display=this._hidden?"none":"",this}hide(){return this.show(!1)}openAnimated(e=!0){return this._setClosed(!e),this.$title.setAttribute("aria-expanded",!this._closed),requestAnimationFrame(()=>{const t=this.$children.clientHeight;this.$children.style.height=t+"px",this.domElement.classList.add("lil-transition");const r=i=>{i.target===this.$children&&(this.$children.style.height="",this.domElement.classList.remove("lil-transition"),this.$children.removeEventListener("transitionend",r))};this.$children.addEventListener("transitionend",r);const l=e?this.$children.scrollHeight:0;this.domElement.classList.toggle("lil-closed",!e),requestAnimationFrame(()=>{this.$children.style.height=l+"px"})}),this}title(e){return this._title=e,this.$title.textContent=e,this}reset(e=!0){return(e?this.controllersRecursive():this.controllers).forEach(r=>r.reset()),this}onChange(e){return this._onChange=e,this}_callOnChange(e){this.parent&&this.parent._callOnChange(e),this._onChange!==void 0&&this._onChange.call(this,{object:e.object,property:e.property,value:e.getValue(),controller:e})}onFinishChange(e){return this._onFinishChange=e,this}_callOnFinishChange(e){this.parent&&this.parent._callOnFinishChange(e),this._onFinishChange!==void 0&&this._onFinishChange.call(this,{object:e.object,property:e.property,value:e.getValue(),controller:e})}onOpenClose(e){return this._onOpenClose=e,this}_callOnOpenClose(e){this.parent&&this.parent._callOnOpenClose(e),this._onOpenClose!==void 0&&this._onOpenClose.call(this,e)}destroy(){this.parent&&(this.parent.children.splice(this.parent.children.indexOf(this),1),this.parent.folders.splice(this.parent.folders.indexOf(this),1)),this.domElement.parentElement&&this.domElement.parentElement.removeChild(this.domElement),Array.from(this.children).forEach(e=>e.destroy())}controllersRecursive(){let e=Array.from(this.controllers);return this.folders.forEach(t=>{e=e.concat(t.controllersRecursive())}),e}foldersRecursive(){let e=Array.from(this.folders);return this.folders.forEach(t=>{e=e.concat(t.foldersRecursive())}),e}}function Ln({cardLibrary:n,cards:e,initialCategory:t,initialCardId:r,onCardChange:l,onSelectionChange:i,webgpuRenderer:c}){var d;const h=new re({title:"Card Library"});h.close();const m={patternWidth:.2,patternHeight:.4};function s(o){o==="Radiant Holofoil"&&(c==null||c.setPatternParams(m.patternWidth,m.patternHeight))}const f={category:n.categoryNames.includes(t)?t:n.initialCategory,activeId:r},g=document.createElement("div");g.className="gui-description";const b=o=>Object.fromEntries(n.categories[o].map(a=>[a.name,a.id])),x=async(o,a)=>{f.category=a,f.activeId=o.id,g.textContent=n.descriptions[a],L.options(b(a)),L.updateDisplay(),s(a),i==null||i(o,a),await l(o,a)};(d=h.add(f,"category",n.categoryNames).name("Type").onChange(async o=>{const a=n.categories[o];a.length>0&&await x(a[0],o)}).domElement.parentElement)==null||d.appendChild(g),g.textContent=n.descriptions[f.category];const L=h.add(f,"activeId",b(f.category)).name("Select Card").onChange(async o=>{const a=e.find(v=>v.id===o);a&&await x(a,f.category)}),y=n.categories[f.category].find(o=>o.id===r)??n.categories[f.category][0];y&&(f.activeId=y.id,x(y,f.category))}const Rn="secret-rare-gold",Pn="swsh12pt5-160";function Le(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}function Un(n,e){return n.categoryNames.find(t=>t===e)??n.categoryNames.find(t=>Le(t)===e)}function Bn(n,e){const t=new URLSearchParams(window.location.search),r=t.get("type")??Rn,l=Un(n,r)??n.initialCategory,i=n.categories[l],c=t.get("card")??Pn,h=i.find(m=>m.id===c)??i[0]??e[0];return{category:l,card:h}}function An(n,e){const t=new URL(window.location.href);t.searchParams.set("type",Le(n)),t.searchParams.set("card",e.id),history.replaceState({},"",t)}const _n=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -700,7 +577,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Fn=`struct Uniforms {
+`,Tn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -1036,7 +913,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,zn=`struct Uniforms {
+`,Fn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -1379,7 +1256,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Mn=`struct Uniforms {
+`,zn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -1592,7 +1469,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Vn=`struct Uniforms {
+`,Mn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -2031,7 +1908,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,On=`struct Uniforms {
+`,Vn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -2411,7 +2288,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Dn=`struct Uniforms {
+`,On=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -2736,7 +2613,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,En=`struct Uniforms {
+`,Dn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -3270,7 +3147,1825 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,$n=`struct Uniforms {
+`,En=`struct Uniforms {
+    resolution: vec2f,
+    pointer: vec2f,
+    rotation: vec2f,
+    time: f32,
+    dpr: f32,
+    perspective: f32,
+    opacity: f32,
+    foilBrightness: f32,
+    patternScaleX: f32,
+    patternScaleY: f32,
+    cosmosOffsetX: f32,
+    cosmosOffsetY: f32,
+    clipMode: f32,
+    shinyKind: f32,
+    hasMask: f32,
+    _pad0: f32,
+    _pad1: f32,
+};
+
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+@group(0) @binding(1) var linearSampler: sampler;
+@group(0) @binding(2) var cardTexture: texture_2d<f32>;
+@group(0) @binding(3) var foilTexture: texture_2d<f32>;
+@group(0) @binding(4) var maskTexture: texture_2d<f32>;
+@group(0) @binding(5) var illusionTexture: texture_2d<f32>;
+
+struct VertexOutput {
+    @builtin(position) position: vec4f,
+    @location(0) uv: vec2f,
+    @location(1) localPos: vec2f,
+};
+
+fn rotateX(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x, p.y * c - p.z * s, p.y * s + p.z * c);
+}
+
+fn rotateY(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
+}
+
+@vertex
+fn vertexMain(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
+    var output: VertexOutput;
+    let canvasAspect = uniforms.resolution.x / uniforms.resolution.y;
+    var p = vec3f(pos, 0.0);
+    p = rotateX(p, uniforms.rotation.y);
+    p = rotateY(p, uniforms.rotation.x);
+    let w = uniforms.perspective - p.z;
+    output.position = vec4f((p.x / canvasAspect) * uniforms.perspective, p.y * uniforms.perspective, 0.0, w);
+    output.uv = uv;
+    output.localPos = pos;
+    return output;
+}
+
+fn sdRoundedRect(p: vec2f, b: vec2f, r: f32) -> f32 {
+    let q = abs(p) - b + r;
+    return min(max(q.x, q.y), 0.0) + length(max(q, vec2f(0.0))) - r;
+}
+
+fn getCardSize() -> vec2f {
+    let cardAspect = 0.718;
+    let panePadding = 48.0 * uniforms.dpr;
+    let maxWidthFromHeight = 0.6;
+    let maxWidthFromPane = max((uniforms.resolution.x - panePadding) / uniforms.resolution.y, 0.0);
+    let cardWidth = min(maxWidthFromHeight, maxWidthFromPane);
+    return vec2f(cardWidth, cardWidth / cardAspect);
+}
+
+fn farthestCornerDist(p: vec2f) -> f32 {
+    let d0 = distance(p, vec2f(0.0, 0.0));
+    let d1 = distance(p, vec2f(1.0, 0.0));
+    let d2 = distance(p, vec2f(0.0, 1.0));
+    let d3 = distance(p, vec2f(1.0, 1.0));
+    return max(max(d0, d1), max(d2, d3));
+}
+
+fn linearStep(edge0: f32, edge1: f32, x: f32) -> f32 {
+    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
+fn pointerFromCenter() -> f32 {
+    return clamp(length(uniforms.pointer - vec2f(0.5)) / 0.5, 0.0, 1.0);
+}
+
+fn cssBackgroundPosition() -> vec2f {
+    return vec2f(
+        mix(0.37, 0.63, uniforms.pointer.x),
+        mix(0.33, 0.67, uniforms.pointer.y)
+    );
+}
+
+fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
+    let origin = (vec2f(1.0) - size) * pos;
+    return (uv - origin) / size;
+}
+
+fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return mix(
+        2.0 * base * blend,
+        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
+        step(vec3f(0.5), blend)
+    );
+}
+
+fn softLightChannel(base: f32, blend: f32) -> f32 {
+    let low = base - (1.0 - 2.0 * blend) * base * (1.0 - base);
+    let d = select(((16.0 * base - 12.0) * base + 4.0) * base, sqrt(max(base, 0.0)), base > 0.25);
+    let high = base + (2.0 * blend - 1.0) * (d - base);
+    return mix(low, high, step(0.5, blend));
+}
+
+fn softLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return vec3f(
+        softLightChannel(base.r, blend.r),
+        softLightChannel(base.g, blend.g),
+        softLightChannel(base.b, blend.b)
+    );
+}
+
+fn exclusionBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return base + blend - 2.0 * base * blend;
+}
+
+fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
+    return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
+}
+
+fn rgb2hsl(c: vec3f) -> vec3f {
+    let maxC = max(max(c.r, c.g), c.b);
+    let minC = min(min(c.r, c.g), c.b);
+    let l = (maxC + minC) * 0.5;
+    if (maxC == minC) {
+        return vec3f(0.0, 0.0, l);
+    }
+    let d = maxC - minC;
+    let s = select(d / (2.0 - maxC - minC), d / (maxC + minC), l > 0.5);
+    var h: f32;
+    if (maxC == c.r) {
+        h = (c.g - c.b) / d + select(0.0, 6.0, c.g < c.b);
+    } else if (maxC == c.g) {
+        h = (c.b - c.r) / d + 2.0;
+    } else {
+        h = (c.r - c.g) / d + 4.0;
+    }
+    return vec3f(h / 6.0, s, l);
+}
+
+fn hue2rgb(p: f32, q: f32, t: f32) -> f32 {
+    var tt = t;
+    if (tt < 0.0) { tt += 1.0; }
+    if (tt > 1.0) { tt -= 1.0; }
+    if (tt < 1.0 / 6.0) { return p + (q - p) * 6.0 * tt; }
+    if (tt < 1.0 / 2.0) { return q; }
+    if (tt < 2.0 / 3.0) { return p + (q - p) * (2.0 / 3.0 - tt) * 6.0; }
+    return p;
+}
+
+fn hsl2rgb(hsl: vec3f) -> vec3f {
+    if (hsl.y == 0.0) {
+        return vec3f(hsl.z);
+    }
+    let q = select(hsl.z + hsl.y - hsl.z * hsl.y, hsl.z * (1.0 + hsl.y), hsl.z < 0.5);
+    let p = 2.0 * hsl.z - q;
+    return vec3f(
+        hue2rgb(p, q, hsl.x + 1.0 / 3.0),
+        hue2rgb(p, q, hsl.x),
+        hue2rgb(p, q, hsl.x - 1.0 / 3.0)
+    );
+}
+
+fn hueBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let baseHsl = rgb2hsl(base);
+    let blendHsl = rgb2hsl(blend);
+    return hsl2rgb(vec3f(blendHsl.x, baseHsl.y, baseHsl.z));
+}
+
+fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
+    var c = color * brightness;
+    c = (c - 0.5) * contrast + 0.5;
+    let gray = dot(c, vec3f(0.2126, 0.7152, 0.0722));
+    c = mix(vec3f(gray), c, saturate);
+    return clamp(c, vec3f(0.0), vec3f(1.0));
+}
+
+fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
+    let a = top.a + bottom.a * (1.0 - top.a);
+    let rgb = (top.rgb * top.a + bottom.rgb * bottom.a * (1.0 - top.a)) / max(a, 0.0001);
+    return vec4f(rgb, a);
+}
+
+const SUNPILLAR_1: vec3f = vec3f(0.973, 0.459, 0.459);
+const SUNPILLAR_2: vec3f = vec3f(0.969, 0.878, 0.376);
+const SUNPILLAR_3: vec3f = vec3f(0.608, 0.969, 0.376);
+const SUNPILLAR_4: vec3f = vec3f(0.518, 1.0, 0.835);
+const SUNPILLAR_5: vec3f = vec3f(0.478, 0.569, 0.969);
+const SUNPILLAR_6: vec3f = vec3f(0.780, 0.459, 0.973);
+
+fn sunpillarColor(index: i32, afterLayer: bool) -> vec3f {
+    let wrapped = ((index % 6) + 6) % 6;
+    let shifted = select(wrapped, (wrapped + 5) % 6, afterLayer);
+    switch shifted {
+        case 0: { return SUNPILLAR_1; }
+        case 1: { return SUNPILLAR_2; }
+        case 2: { return SUNPILLAR_3; }
+        case 3: { return SUNPILLAR_4; }
+        case 4: { return SUNPILLAR_5; }
+        default: { return SUNPILLAR_6; }
+    }
+}
+
+fn verticalSunpillar(layerUv: vec2f, afterLayer: bool) -> vec3f {
+    let t = fract((1.0 - layerUv.y) / 0.35) * 7.0;
+    let idx = i32(floor(t));
+    let f = fract(t);
+    return mix(sunpillarColor(idx, afterLayer), sunpillarColor(idx + 1, afterLayer), f);
+}
+
+fn diagonalStripePhase(layerUv: vec2f) -> f32 {
+    let angle = radians(115.0);
+    let dir = vec2f(sin(angle), -cos(angle));
+    return fract(dot(layerUv, dir) / 0.12);
+}
+
+fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
+    let cycle = diagonalStripePhase(layerUv);
+    let dark = vec3f(0.055, 0.082, 0.18);
+    let gray = vec3f(0.557, 0.612, 0.612);
+    let cyan = vec3f(0.525, 0.725, 0.725);
+    if (cycle < 0.317) { return mix(dark, gray, cycle / 0.317); }
+    if (cycle < 0.375) { return mix(gray, cyan, (cycle - 0.317) / 0.058); }
+    if (cycle < 0.433) { return mix(cyan, gray, (cycle - 0.375) / 0.058); }
+    if (cycle < 0.833) { return mix(gray, dark, (cycle - 0.433) / 0.4); }
+    return dark;
+}
+
+fn shineRadial(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    var alpha: f32;
+    if (t < 0.12) {
+        alpha = 0.1;
+    } else if (t < 0.20) {
+        alpha = mix(0.1, 0.15, linearStep(0.12, 0.20, t));
+    } else {
+        alpha = mix(0.15, 0.25, linearStep(0.20, 1.20, t));
+    }
+    return vec4f(0.0, 0.0, 0.0, alpha);
+}
+
+fn glareGradient(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let white = vec4f(1.0, 1.0, 1.0, 1.0);
+    let grayish = vec4f(0.533, 0.541, 0.549, 0.33);
+    let dark = vec4f(0.2, 0.2, 0.2, 0.9);
+    if (t < 0.45) {
+        return mix(white, grayish, linearStep(0.0, 0.45, t));
+    }
+    return mix(grayish, dark, linearStep(0.45, 1.30, t));
+}
+
+// CSS background-blend-mode compositing: the blend result only applies where
+// the backdrop has coverage; over transparent backdrop the source paints as-is.
+fn compositeBackgroundLayer(bottom: vec4f, top: vec4f, mode: i32) -> vec4f {
+    var blended: vec3f;
+    if (mode == 0) {
+        blended = softLightBlend(bottom.rgb, top.rgb);
+    } else if (mode == 1) {
+        blended = hueBlend(bottom.rgb, top.rgb);
+    } else if (mode == 2) {
+        blended = hardLightBlend(bottom.rgb, top.rgb);
+    } else {
+        blended = exclusionBlend(bottom.rgb, top.rgb);
+    }
+    let co = top.a * (1.0 - bottom.a) * top.rgb
+        + top.a * bottom.a * blended
+        + (1.0 - top.a) * bottom.a * bottom.rgb;
+    let ao = top.a + bottom.a * (1.0 - top.a);
+    return vec4f(co / max(ao, 0.00001), ao);
+}
+
+fn sampleFoilOrIllusion(uv: vec2f) -> vec4f {
+    if (uniforms.hasMask > 0.5) {
+        return textureSampleLevel(foilTexture, linearSampler, uv, 0.0);
+    }
+    return textureSampleLevel(illusionTexture, linearSampler, fract(uv / 0.33), 0.0);
+}
+
+// Raw (unfiltered) shine background stack:
+// foil (soft-light) over sunpillar (hue) over diagonal stripe (hard-light)
+// over a pointer-following radial. Filters are applied by the caller, because
+// in CSS the :after layer is filtered first, blended (exclusion) into the
+// shine element, and the element's own filter applies to that composite.
+fn shineLayer(uv: vec2f, afterLayer: bool) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let noMask = uniforms.hasMask < 0.5;
+    let diagonalPos = vec2f(bg.x + bg.y * 0.2, bg.y);
+    let layerDiagonalPos = select(diagonalPos, -diagonalPos, afterLayer);
+    let sunSize = select(vec2f(2.0, 7.0), vec2f(2.0, 4.0), afterLayer);
+    let diagonalSize = select(vec2f(3.0, 1.0), vec2f(1.95, 1.0), afterLayer);
+
+    var layer = shineRadial(backgroundSampleUv(uv, vec2f(2.0, 1.0), bg));
+    let diagonal = vec4f(diagonalStripeColor(backgroundSampleUv(uv, diagonalSize, layerDiagonalPos)), 1.0);
+    let sun = vec4f(verticalSunpillar(backgroundSampleUv(uv, sunSize, vec2f(0.0, bg.y)), afterLayer), 1.0);
+    let foil = sampleFoilOrIllusion(uv);
+
+    layer = compositeBackgroundLayer(layer, diagonal, 2);
+    layer = compositeBackgroundLayer(layer, sun, 1);
+    layer = compositeBackgroundLayer(layer, foil, select(0, 3, noMask));
+
+    return layer.rgb;
+}
+
+fn combinedShine(uv: vec2f) -> vec3f {
+    let noMask = uniforms.hasMask < 0.5;
+    let pfc = pointerFromCenter();
+    let front = shineLayer(uv, false);
+    let after = shineLayer(uv, true);
+
+    if (noMask) {
+        let afterFiltered = applyFilter(after, pfc * 0.5 + 0.8, 1.6, 1.4);
+        let combined = exclusionBlend(front, afterFiltered);
+        return applyFilter(combined, pfc * 0.3 + 0.35, 2.0, 1.5);
+    }
+    let afterFiltered = applyFilter(after, pfc * 0.4 + 0.8, 1.5, 1.25);
+    let combined = exclusionBlend(front, afterFiltered);
+    return applyFilter(combined, pfc * 0.4 + 0.4, 1.4, 2.25);
+}
+
+@fragment
+fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
+    let cardSize = getCardSize();
+    let cornerRadius = 0.04;
+    let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
+    let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
+
+    let shadowOffset = 22.0 * pxToLocal;
+    let shadowBlur = 34.0 * pxToLocal;
+    let shadowSpread = -7.0 * pxToLocal;
+    let shadowPos = localPos - vec2f(0.0, -shadowOffset);
+    let shadowSize = cardSize + vec2f(shadowSpread);
+    let shadowRadius = max(cornerRadius + shadowSpread, 0.0);
+    let shadowDist = sdRoundedRect(shadowPos, shadowSize, shadowRadius);
+    let shadowAlpha = 1.0 - smoothstep(-shadowBlur, shadowBlur, shadowDist);
+    let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha);
+
+    let cardUV = vec2f(
+        (localPos.x / (cardSize.x * 2.0)) + 0.5,
+        0.5 - (localPos.y / (cardSize.y * 2.0))
+    );
+
+    let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
+    let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
+    let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
+    let foilMask = select(1.0, maskColor.a, uniforms.hasMask > 0.5);
+    let shineMask = foilMask * cardMask;
+
+    var cardRgb = textureColor.rgb;
+
+    let shine = combinedShine(cardUV);
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shine), shineMask * uniforms.opacity);
+
+    let glare = glareGradient(cardUV);
+    let glareFiltered = applyFilter(glare.rgb, 0.9, 1.75, 1.0);
+    cardRgb = mix(
+        cardRgb,
+        hardLightBlend(cardRgb, glareFiltered),
+        glare.a * uniforms.opacity * 0.4 * cardMask
+    );
+
+    let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
+    let finalColor = alphaOver(shadowColor, finalCard);
+    if (finalColor.a <= 0.0) { discard; }
+    return finalColor;
+}
+`,In=`struct Uniforms {
+    resolution: vec2f,
+    pointer: vec2f,
+    rotation: vec2f,
+    time: f32,
+    dpr: f32,
+    perspective: f32,
+    opacity: f32,
+    foilBrightness: f32,
+    patternScaleX: f32,
+    patternScaleY: f32,
+    cosmosOffsetX: f32,
+    cosmosOffsetY: f32,
+    clipMode: f32,
+    shinyKind: f32,
+    hasMask: f32,
+    _pad0: f32,
+    _pad1: f32,
+};
+
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+@group(0) @binding(1) var linearSampler: sampler;
+@group(0) @binding(2) var cardTexture: texture_2d<f32>;
+@group(0) @binding(3) var foilTexture: texture_2d<f32>;
+@group(0) @binding(4) var maskTexture: texture_2d<f32>;
+@group(0) @binding(5) var glitterTexture: texture_2d<f32>;
+
+struct VertexOutput {
+    @builtin(position) position: vec4f,
+    @location(0) uv: vec2f,
+    @location(1) localPos: vec2f,
+};
+
+fn rotateX(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x, p.y * c - p.z * s, p.y * s + p.z * c);
+}
+
+fn rotateY(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
+}
+
+@vertex
+fn vertexMain(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
+    var output: VertexOutput;
+    let canvasAspect = uniforms.resolution.x / uniforms.resolution.y;
+    var p = vec3f(pos, 0.0);
+    p = rotateX(p, uniforms.rotation.y);
+    p = rotateY(p, uniforms.rotation.x);
+    let w = uniforms.perspective - p.z;
+    output.position = vec4f((p.x / canvasAspect) * uniforms.perspective, p.y * uniforms.perspective, 0.0, w);
+    output.uv = uv;
+    output.localPos = pos;
+    return output;
+}
+
+fn sdRoundedRect(p: vec2f, b: vec2f, r: f32) -> f32 {
+    let q = abs(p) - b + r;
+    return min(max(q.x, q.y), 0.0) + length(max(q, vec2f(0.0))) - r;
+}
+
+fn getCardSize() -> vec2f {
+    let cardAspect = 0.718;
+    let panePadding = 48.0 * uniforms.dpr;
+    let maxWidthFromHeight = 0.6;
+    let maxWidthFromPane = max((uniforms.resolution.x - panePadding) / uniforms.resolution.y, 0.0);
+    let cardWidth = min(maxWidthFromHeight, maxWidthFromPane);
+    return vec2f(cardWidth, cardWidth / cardAspect);
+}
+
+fn farthestCornerDist(p: vec2f) -> f32 {
+    let d0 = distance(p, vec2f(0.0, 0.0));
+    let d1 = distance(p, vec2f(1.0, 0.0));
+    let d2 = distance(p, vec2f(0.0, 1.0));
+    let d3 = distance(p, vec2f(1.0, 1.0));
+    return max(max(d0, d1), max(d2, d3));
+}
+
+fn linearStep(edge0: f32, edge1: f32, x: f32) -> f32 {
+    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
+fn pointerFromCenter() -> f32 {
+    return clamp(length(uniforms.pointer - vec2f(0.5)) / 0.5, 0.0, 1.0);
+}
+
+fn cssBackgroundPosition() -> vec2f {
+    return vec2f(
+        mix(0.37, 0.63, uniforms.pointer.x),
+        mix(0.33, 0.67, uniforms.pointer.y)
+    );
+}
+
+fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
+    let origin = (vec2f(1.0) - size) * pos;
+    return (uv - origin) / size;
+}
+
+fn overlayBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return mix(
+        2.0 * base * blend,
+        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
+        step(vec3f(0.5), base)
+    );
+}
+
+fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return mix(
+        2.0 * base * blend,
+        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
+        step(vec3f(0.5), blend)
+    );
+}
+
+fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
+    return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
+}
+
+fn luminosityBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let baseLum = dot(base, vec3f(0.299, 0.587, 0.114));
+    let blendLum = dot(blend, vec3f(0.299, 0.587, 0.114));
+    return clamp(base + (blendLum - baseLum), vec3f(0.0), vec3f(1.0));
+}
+
+fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
+    var c = color * brightness;
+    c = (c - 0.5) * contrast + 0.5;
+    let gray = dot(c, vec3f(0.2126, 0.7152, 0.0722));
+    c = mix(vec3f(gray), c, saturate);
+    return clamp(c, vec3f(0.0), vec3f(1.0));
+}
+
+fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
+    let a = top.a + bottom.a * (1.0 - top.a);
+    let rgb = (top.rgb * top.a + bottom.rgb * bottom.a * (1.0 - top.a)) / max(a, 0.0001);
+    return vec4f(rgb, a);
+}
+
+// CSS linear-gradient projection: angle in degrees (0 = to top, clockwise),
+// box is the background layer's dimensions (only the aspect matters).
+// Returns t in [0,1] across the gradient line for points inside the box.
+fn cssLinearGradientT(layerUv: vec2f, angleDeg: f32, box: vec2f) -> f32 {
+    let a = radians(angleDeg);
+    let dir = vec2f(sin(a), -cos(a));
+    let p = (layerUv - vec2f(0.5)) * box;
+    let lineLength = abs(dir.x) * box.x + abs(dir.y) * box.y;
+    return dot(p, dir) / lineLength + 0.5;
+}
+
+// linear-gradient(-30deg / -60deg, r-clr 1..7 repeated three times + r-clr-1):
+// 22 stops evenly spaced, i.e. 21 intervals cycling through 7 colors.
+fn rainbowColor(index: i32) -> vec3f {
+    switch (((index % 7) + 7) % 7) {
+        case 0: { return vec3f(0.581, 0.159, 0.159); }
+        case 1: { return vec3f(0.597, 0.459, 0.183); }
+        case 2: { return vec3f(0.350, 0.560, 0.140); }
+        case 3: { return vec3f(0.140, 0.560, 0.560); }
+        case 4: { return vec3f(0.140, 0.560, 0.560); }
+        case 5: { return vec3f(0.168, 0.390, 0.612); }
+        default: { return vec3f(0.367, 0.140, 0.480); }
+    }
+}
+
+fn rainbowGradient(t: f32) -> vec3f {
+    let tt = clamp(t, 0.0, 1.0) * 21.0;
+    let idx = i32(floor(min(tt, 20.0)));
+    let f = tt - floor(tt);
+    return mix(rainbowColor(idx), rainbowColor(idx + 1), f);
+}
+
+// repeating-linear-gradient(133deg, 7 hsla stops at 6% spacing):
+// tile spans 6%..42%, i.e. period 36% with 6 intervals.
+fn hueStripeColor(index: i32) -> vec3f {
+    switch (((index % 7) + 7) % 7) {
+        case 0: { return vec3f(0.685, 0.404, 0.796); }
+        case 1: { return vec3f(0.874, 0.306, 0.286); }
+        case 2: { return vec3f(0.845, 0.771, 0.215); }
+        case 3: { return vec3f(0.493, 0.789, 0.251); }
+        case 4: { return vec3f(0.310, 0.690, 0.665); }
+        case 5: { return vec3f(0.540, 0.632, 1.000); }
+        default: { return vec3f(0.693, 0.419, 0.801); }
+    }
+}
+
+fn hueStripeGradient(tRaw: f32) -> vec3f {
+    let phase = fract((tRaw - 0.06) / 0.36) * 6.0;
+    let idx = i32(floor(phase));
+    let f = phase - floor(phase);
+    return mix(hueStripeColor(idx), hueStripeColor(idx + 1), f);
+}
+
+// background-size: 25% 25% tiling with background-position: center.
+fn sampleGlitter(uv: vec2f) -> vec4f {
+    return textureSampleLevel(glitterTexture, linearSampler, fract((uv - vec2f(0.375)) / 0.25), 0.0);
+}
+
+// Shine element background: 0.75-alpha hue stripes (luminosity) over
+// glitter (overlay) over the -30deg rainbow gradient.
+fn shineBackground(uv: vec2f, cardBox: vec2f) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let rainbowUv = backgroundSampleUv(uv, vec2f(4.0, 4.0), bg * 1.5);
+    var layer = rainbowGradient(cssLinearGradientT(rainbowUv, -30.0, cardBox * 4.0));
+
+    let glitter = sampleGlitter(uv);
+    layer = mix(layer, overlayBlend(layer, glitter.rgb), glitter.a);
+
+    let hueUv = backgroundSampleUv(uv, vec2f(2.0, 4.0), vec2f(0.0, bg.y));
+    let hue = hueStripeGradient(cssLinearGradientT(hueUv, 133.0, cardBox * vec2f(2.0, 4.0)));
+    return mix(layer, luminosityBlend(layer, hue), 0.75);
+}
+
+// :after layer: glitter (overlay) over the -60deg rainbow, own filter.
+// mask-image is forced to none in CSS, so this covers the whole card.
+fn afterLayer(uv: vec2f, cardBox: vec2f) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let rainbowUv = backgroundSampleUv(uv, vec2f(4.0, 4.0), -bg * 1.5);
+    var layer = rainbowGradient(cssLinearGradientT(rainbowUv, -60.0, cardBox * 4.0));
+
+    let glitter = sampleGlitter(uv);
+    layer = mix(layer, overlayBlend(layer, glitter.rgb), glitter.a);
+
+    return applyFilter(layer, pointerFromCenter() * 0.5 + 0.6, 3.0, 1.0);
+}
+
+// Trainer-gallery VMAX glare: hard-light radial, opacity driven by pointer.
+fn glareGradient(uv: vec2f) -> vec3f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let light = vec3f(0.930, 0.920, 0.870);
+    let mid = vec3f(0.380, 0.420, 0.408);
+    let dark = vec3f(0.0, 0.0, 0.0);
+    if (t < 0.5) {
+        return mix(light, mid, linearStep(0.0, 0.5, t));
+    }
+    return mix(mid, dark, linearStep(0.5, 1.2, t));
+}
+
+@fragment
+fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
+    let cardSize = getCardSize();
+    let cornerRadius = 0.04;
+    let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
+    let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
+
+    let shadowOffset = 22.0 * pxToLocal;
+    let shadowBlur = 34.0 * pxToLocal;
+    let shadowSpread = -7.0 * pxToLocal;
+    let shadowPos = localPos - vec2f(0.0, -shadowOffset);
+    let shadowSize = cardSize + vec2f(shadowSpread);
+    let shadowRadius = max(cornerRadius + shadowSpread, 0.0);
+    let shadowDist = sdRoundedRect(shadowPos, shadowSize, shadowRadius);
+    let shadowAlpha = 1.0 - smoothstep(-shadowBlur, shadowBlur, shadowDist);
+    let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha);
+
+    let cardUV = vec2f(
+        (localPos.x / (cardSize.x * 2.0)) + 0.5,
+        0.5 - (localPos.y / (cardSize.y * 2.0))
+    );
+
+    let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
+    let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
+    let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
+    let hasMask = uniforms.hasMask > 0.5;
+    let foilMask = select(1.0, maskColor.a, hasMask);
+
+    let pfc = pointerFromCenter();
+    // Only the layer aspect matters for gradient geometry.
+    let cardBox = vec2f(0.718, 1.0);
+
+    var shine = shineBackground(cardUV, cardBox);
+
+    // :before — foil texture, color-dodge, confined to the mask.
+    if (hasMask) {
+        let foil = textureSampleLevel(foilTexture, linearSampler, cardUV, 0.0);
+        let foilFiltered = applyFilter(foil.rgb, 1.5, 1.5, 1.0);
+        let beforeOpacity = (pfc + 0.6) * 0.4;
+        shine = mix(shine, colorDodgeBlend(shine, foilFiltered), beforeOpacity * foilMask);
+    }
+
+    let after = afterLayer(cardUV, cardBox);
+    let afterOpacity = clamp(1.2 - pfc * 0.5, 0.0, 1.0);
+
+    // Inside the mask: full stack (background + before + after), parent filter on top.
+    let shineIn = applyFilter(
+        mix(shine, colorDodgeBlend(shine, after), afterOpacity),
+        pfc * 0.3 + 0.3, 3.0, 1.8
+    );
+    // Outside the mask: only the unmasked :after paints.
+    let shineOut = applyFilter(after, pfc * 0.3 + 0.3, 3.0, 1.8);
+
+    var cardRgb = textureColor.rgb;
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineIn), foilMask * uniforms.opacity * cardMask);
+    cardRgb = mix(
+        cardRgb,
+        colorDodgeBlend(cardRgb, shineOut),
+        (1.0 - foilMask) * afterOpacity * uniforms.opacity * cardMask
+    );
+
+    let glare = glareGradient(cardUV);
+    cardRgb = mix(
+        cardRgb,
+        hardLightBlend(cardRgb, glare),
+        pfc * 0.85 * uniforms.opacity * cardMask
+    );
+
+    let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
+    let finalColor = alphaOver(shadowColor, finalCard);
+    if (finalColor.a <= 0.0) { discard; }
+    return finalColor;
+}
+`,qn=`struct Uniforms {
+    resolution: vec2f,
+    pointer: vec2f,
+    rotation: vec2f,
+    time: f32,
+    dpr: f32,
+    perspective: f32,
+    opacity: f32,
+    foilBrightness: f32,
+    patternScaleX: f32,
+    patternScaleY: f32,
+    cosmosOffsetX: f32,
+    cosmosOffsetY: f32,
+    clipMode: f32,
+    shinyKind: f32,
+    hasMask: f32,
+    _pad0: f32,
+    _pad1: f32,
+};
+
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+@group(0) @binding(1) var linearSampler: sampler;
+@group(0) @binding(2) var cardTexture: texture_2d<f32>;
+@group(0) @binding(3) var foilTexture: texture_2d<f32>;
+@group(0) @binding(4) var maskTexture: texture_2d<f32>;
+@group(0) @binding(5) var trainerBgTexture: texture_2d<f32>;
+
+struct VertexOutput {
+    @builtin(position) position: vec4f,
+    @location(0) uv: vec2f,
+    @location(1) localPos: vec2f,
+};
+
+fn rotateX(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x, p.y * c - p.z * s, p.y * s + p.z * c);
+}
+
+fn rotateY(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
+}
+
+@vertex
+fn vertexMain(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
+    var output: VertexOutput;
+    let canvasAspect = uniforms.resolution.x / uniforms.resolution.y;
+    var p = vec3f(pos, 0.0);
+    p = rotateX(p, uniforms.rotation.y);
+    p = rotateY(p, uniforms.rotation.x);
+    let w = uniforms.perspective - p.z;
+    output.position = vec4f((p.x / canvasAspect) * uniforms.perspective, p.y * uniforms.perspective, 0.0, w);
+    output.uv = uv;
+    output.localPos = pos;
+    return output;
+}
+
+fn sdRoundedRect(p: vec2f, b: vec2f, r: f32) -> f32 {
+    let q = abs(p) - b + r;
+    return min(max(q.x, q.y), 0.0) + length(max(q, vec2f(0.0))) - r;
+}
+
+fn getCardSize() -> vec2f {
+    let cardAspect = 0.718;
+    let panePadding = 48.0 * uniforms.dpr;
+    let maxWidthFromHeight = 0.6;
+    let maxWidthFromPane = max((uniforms.resolution.x - panePadding) / uniforms.resolution.y, 0.0);
+    let cardWidth = min(maxWidthFromHeight, maxWidthFromPane);
+    return vec2f(cardWidth, cardWidth / cardAspect);
+}
+
+fn farthestCornerDist(p: vec2f) -> f32 {
+    let d0 = distance(p, vec2f(0.0, 0.0));
+    let d1 = distance(p, vec2f(1.0, 0.0));
+    let d2 = distance(p, vec2f(0.0, 1.0));
+    let d3 = distance(p, vec2f(1.0, 1.0));
+    return max(max(d0, d1), max(d2, d3));
+}
+
+fn linearStep(edge0: f32, edge1: f32, x: f32) -> f32 {
+    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
+fn pointerFromCenter() -> f32 {
+    return clamp(length(uniforms.pointer - vec2f(0.5)) / 0.5, 0.0, 1.0);
+}
+
+fn cssBackgroundPosition() -> vec2f {
+    return vec2f(
+        mix(0.37, 0.63, uniforms.pointer.x),
+        mix(0.33, 0.67, uniforms.pointer.y)
+    );
+}
+
+fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
+    let origin = (vec2f(1.0) - size) * pos;
+    return (uv - origin) / size;
+}
+
+fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return mix(
+        2.0 * base * blend,
+        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
+        step(vec3f(0.5), blend)
+    );
+}
+
+fn softLightChannel(base: f32, blend: f32) -> f32 {
+    let low = base - (1.0 - 2.0 * blend) * base * (1.0 - base);
+    let d = select(((16.0 * base - 12.0) * base + 4.0) * base, sqrt(max(base, 0.0)), base > 0.25);
+    let high = base + (2.0 * blend - 1.0) * (d - base);
+    return mix(low, high, step(0.5, blend));
+}
+
+fn softLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return vec3f(
+        softLightChannel(base.r, blend.r),
+        softLightChannel(base.g, blend.g),
+        softLightChannel(base.b, blend.b)
+    );
+}
+
+fn exclusionBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return base + blend - 2.0 * base * blend;
+}
+
+fn multiplyBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return base * blend;
+}
+
+fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
+    return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
+}
+
+fn colorBurnBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let burned = 1.0 - min((vec3f(1.0) - base) / max(blend, vec3f(0.0001)), vec3f(1.0));
+    return select(burned, vec3f(0.0), blend <= vec3f(0.0));
+}
+
+fn rgb2hsl(c: vec3f) -> vec3f {
+    let maxC = max(max(c.r, c.g), c.b);
+    let minC = min(min(c.r, c.g), c.b);
+    let l = (maxC + minC) * 0.5;
+    if (maxC == minC) {
+        return vec3f(0.0, 0.0, l);
+    }
+    let d = maxC - minC;
+    let s = select(d / (2.0 - maxC - minC), d / (maxC + minC), l > 0.5);
+    var h: f32;
+    if (maxC == c.r) {
+        h = (c.g - c.b) / d + select(0.0, 6.0, c.g < c.b);
+    } else if (maxC == c.g) {
+        h = (c.b - c.r) / d + 2.0;
+    } else {
+        h = (c.r - c.g) / d + 4.0;
+    }
+    return vec3f(h / 6.0, s, l);
+}
+
+fn hue2rgb(p: f32, q: f32, t: f32) -> f32 {
+    var tt = t;
+    if (tt < 0.0) { tt += 1.0; }
+    if (tt > 1.0) { tt -= 1.0; }
+    if (tt < 1.0 / 6.0) { return p + (q - p) * 6.0 * tt; }
+    if (tt < 1.0 / 2.0) { return q; }
+    if (tt < 2.0 / 3.0) { return p + (q - p) * (2.0 / 3.0 - tt) * 6.0; }
+    return p;
+}
+
+fn hsl2rgb(hsl: vec3f) -> vec3f {
+    if (hsl.y == 0.0) {
+        return vec3f(hsl.z);
+    }
+    let q = select(hsl.z + hsl.y - hsl.z * hsl.y, hsl.z * (1.0 + hsl.y), hsl.z < 0.5);
+    let p = 2.0 * hsl.z - q;
+    return vec3f(
+        hue2rgb(p, q, hsl.x + 1.0 / 3.0),
+        hue2rgb(p, q, hsl.x),
+        hue2rgb(p, q, hsl.x - 1.0 / 3.0)
+    );
+}
+
+fn hueBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let baseHsl = rgb2hsl(base);
+    let blendHsl = rgb2hsl(blend);
+    return hsl2rgb(vec3f(blendHsl.x, baseHsl.y, baseHsl.z));
+}
+
+fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
+    var c = color * brightness;
+    c = (c - 0.5) * contrast + 0.5;
+    let gray = dot(c, vec3f(0.2126, 0.7152, 0.0722));
+    c = mix(vec3f(gray), c, saturate);
+    return clamp(c, vec3f(0.0), vec3f(1.0));
+}
+
+fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
+    let a = top.a + bottom.a * (1.0 - top.a);
+    let rgb = (top.rgb * top.a + bottom.rgb * bottom.a * (1.0 - top.a)) / max(a, 0.0001);
+    return vec4f(rgb, a);
+}
+
+const SUNPILLAR_1: vec3f = vec3f(0.973, 0.459, 0.459);
+const SUNPILLAR_2: vec3f = vec3f(0.969, 0.878, 0.376);
+const SUNPILLAR_3: vec3f = vec3f(0.608, 0.969, 0.376);
+const SUNPILLAR_4: vec3f = vec3f(0.518, 1.0, 0.835);
+const SUNPILLAR_5: vec3f = vec3f(0.478, 0.569, 0.969);
+const SUNPILLAR_6: vec3f = vec3f(0.780, 0.459, 0.973);
+
+fn sunpillarColor(index: i32, afterLayer: bool) -> vec3f {
+    let wrapped = ((index % 6) + 6) % 6;
+    let shifted = select(wrapped, (wrapped + 5) % 6, afterLayer);
+    switch shifted {
+        case 0: { return SUNPILLAR_1; }
+        case 1: { return SUNPILLAR_2; }
+        case 2: { return SUNPILLAR_3; }
+        case 3: { return SUNPILLAR_4; }
+        case 4: { return SUNPILLAR_5; }
+        default: { return SUNPILLAR_6; }
+    }
+}
+
+fn verticalSunpillar(layerUv: vec2f, afterLayer: bool) -> vec3f {
+    let t = fract((1.0 - layerUv.y) / 0.35) * 7.0;
+    let idx = i32(floor(t));
+    let f = fract(t);
+    return mix(sunpillarColor(idx, afterLayer), sunpillarColor(idx + 1, afterLayer), f);
+}
+
+fn diagonalStripePhase(layerUv: vec2f) -> f32 {
+    let angle = radians(115.0);
+    let dir = vec2f(sin(angle), -cos(angle));
+    return fract(dot(layerUv, dir) / 0.12);
+}
+
+fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
+    let cycle = diagonalStripePhase(layerUv);
+    let dark = vec3f(0.055, 0.082, 0.18);
+    let gray = vec3f(0.557, 0.612, 0.612);
+    let cyan = vec3f(0.525, 0.725, 0.725);
+    if (cycle < 0.317) { return mix(dark, gray, cycle / 0.317); }
+    if (cycle < 0.375) { return mix(gray, cyan, (cycle - 0.317) / 0.058); }
+    if (cycle < 0.433) { return mix(cyan, gray, (cycle - 0.375) / 0.058); }
+    if (cycle < 0.833) { return mix(gray, dark, (cycle - 0.433) / 0.4); }
+    return dark;
+}
+
+fn shineRadial(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    var alpha: f32;
+    if (t < 0.12) {
+        alpha = 0.1;
+    } else if (t < 0.20) {
+        alpha = mix(0.1, 0.15, linearStep(0.12, 0.20, t));
+    } else {
+        alpha = mix(0.15, 0.25, linearStep(0.20, 1.20, t));
+    }
+    return vec4f(0.0, 0.0, 0.0, alpha);
+}
+
+// CSS background-blend-mode compositing: the blend result only applies where
+// the backdrop has coverage; over transparent backdrop the source paints as-is.
+fn compositeBackgroundLayer(bottom: vec4f, top: vec4f, mode: i32) -> vec4f {
+    var blended: vec3f;
+    if (mode == 0) {
+        blended = softLightBlend(bottom.rgb, top.rgb);
+    } else if (mode == 1) {
+        blended = hueBlend(bottom.rgb, top.rgb);
+    } else if (mode == 2) {
+        blended = hardLightBlend(bottom.rgb, top.rgb);
+    } else {
+        blended = colorBurnBlend(bottom.rgb, top.rgb);
+    }
+    let co = top.a * (1.0 - bottom.a) * top.rgb
+        + top.a * bottom.a * blended
+        + (1.0 - top.a) * bottom.a * bottom.rgb;
+    let ao = top.a + bottom.a * (1.0 - top.a);
+    return vec4f(co / max(ao, 0.00001), ao);
+}
+
+// Masked cards use the per-card foil; unmasked supporters fall back to the
+// trainerbg texture tiled at 20% with color-burn.
+fn sampleFoilOrTrainerBg(uv: vec2f) -> vec4f {
+    if (uniforms.hasMask > 0.5) {
+        return textureSampleLevel(foilTexture, linearSampler, uv, 0.0);
+    }
+    return textureSampleLevel(trainerBgTexture, linearSampler, fract(uv / 0.2), 0.0);
+}
+
+// Raw (unfiltered) v-full-art shine stack shared by the element and :after.
+fn shineLayer(uv: vec2f, afterLayer: bool) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let noMask = uniforms.hasMask < 0.5;
+    let diagonalPos = vec2f(bg.x + bg.y * 0.2, bg.y);
+    let layerDiagonalPos = select(diagonalPos, -diagonalPos, afterLayer);
+    let sunSize = select(vec2f(2.0, 7.0), vec2f(2.0, 4.0), afterLayer);
+    let diagonalSize = select(vec2f(3.0, 1.0), vec2f(1.95, 1.0), afterLayer);
+
+    var layer = shineRadial(backgroundSampleUv(uv, vec2f(2.0, 1.0), bg));
+    let diagonal = vec4f(diagonalStripeColor(backgroundSampleUv(uv, diagonalSize, layerDiagonalPos)), 1.0);
+    let sun = vec4f(verticalSunpillar(backgroundSampleUv(uv, sunSize, vec2f(0.0, bg.y)), afterLayer), 1.0);
+    let foil = sampleFoilOrTrainerBg(uv);
+
+    layer = compositeBackgroundLayer(layer, diagonal, 2);
+    layer = compositeBackgroundLayer(layer, sun, 1);
+    layer = compositeBackgroundLayer(layer, foil, select(0, 3, noMask));
+
+    return layer.rgb;
+}
+
+// :before — white radial glow (0% -> transparent at 80%), screen blend,
+// opacity 0.5, explicitly unmasked in the CSS.
+fn beforeGlowAlpha(uv: vec2f) -> f32 {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    return (1.0 - linearStep(0.0, 0.8, t)) * 0.5;
+}
+
+// Supporter glare: v-full-art radial colors in a 170% x 170% centered layer,
+// multiply blend with brightness(1.5) contrast(1.4).
+fn glareColor(uv: vec2f) -> vec3f {
+    let size = vec2f(1.7, 1.7);
+    let layerUv = backgroundSampleUv(uv, size, vec2f(0.5, 0.5));
+    let boxAspect = vec2f(0.718, 1.0) * size;
+    let d = length((layerUv - uniforms.pointer) * boxAspect);
+    let c0 = abs(vec2f(0.0, 0.0) - uniforms.pointer) * boxAspect;
+    let c1 = abs(vec2f(1.0, 0.0) - uniforms.pointer) * boxAspect;
+    let c2 = abs(vec2f(0.0, 1.0) - uniforms.pointer) * boxAspect;
+    let c3 = abs(vec2f(1.0, 1.0) - uniforms.pointer) * boxAspect;
+    let farthest = max(max(length(c0), length(c1)), max(length(c2), length(c3)));
+    let t = d / max(farthest, 0.001);
+
+    let light = vec3f(0.750, 0.750, 0.750);
+    let mid = vec3f(0.332, 0.356, 0.367);
+    let dark = vec3f(0.140, 0.060, 0.113);
+    if (t < 0.60) {
+        return mix(light, mid, linearStep(0.05, 0.60, t));
+    }
+    return mix(mid, dark, linearStep(0.60, 1.50, t));
+}
+
+@fragment
+fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
+    let cardSize = getCardSize();
+    let cornerRadius = 0.04;
+    let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
+    let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
+
+    let shadowOffset = 22.0 * pxToLocal;
+    let shadowBlur = 34.0 * pxToLocal;
+    let shadowSpread = -7.0 * pxToLocal;
+    let shadowPos = localPos - vec2f(0.0, -shadowOffset);
+    let shadowSize = cardSize + vec2f(shadowSpread);
+    let shadowRadius = max(cornerRadius + shadowSpread, 0.0);
+    let shadowDist = sdRoundedRect(shadowPos, shadowSize, shadowRadius);
+    let shadowAlpha = 1.0 - smoothstep(-shadowBlur, shadowBlur, shadowDist);
+    let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha);
+
+    let cardUV = vec2f(
+        (localPos.x / (cardSize.x * 2.0)) + 0.5,
+        0.5 - (localPos.y / (cardSize.y * 2.0))
+    );
+
+    let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
+    let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
+    let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
+    let hasMask = uniforms.hasMask > 0.5;
+    let foilMask = select(1.0, maskColor.a, hasMask);
+
+    let pfc = pointerFromCenter();
+    let front = shineLayer(cardUV, false);
+    let after = shineLayer(cardUV, true);
+    let beforeAlpha = beforeGlowAlpha(cardUV);
+
+    var shineIn: vec3f;
+    var shineOut: vec3f;
+    if (hasMask) {
+        let afterFiltered = applyFilter(after, pfc * 0.4 + 0.85, 2.0, 0.5);
+        var combined = mix(front, vec3f(1.0), beforeAlpha);
+        combined = exclusionBlend(combined, afterFiltered);
+        shineIn = applyFilter(combined, pfc * 0.05 + 0.8, 1.75, 1.2);
+        // Outside the mask only the unmasked white :before glow paints.
+        shineOut = applyFilter(vec3f(1.0), pfc * 0.05 + 0.8, 1.75, 1.2);
+    } else {
+        let afterFiltered = applyFilter(after, pfc * 0.05 + 0.6, 1.5, 1.2);
+        var combined = mix(front, vec3f(1.0), beforeAlpha);
+        combined = exclusionBlend(combined, afterFiltered);
+        shineIn = applyFilter(combined, pfc * 0.05 + 0.6, 1.5, 1.2);
+        shineOut = shineIn;
+    }
+
+    var cardRgb = textureColor.rgb;
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineIn), foilMask * uniforms.opacity * cardMask);
+    cardRgb = mix(
+        cardRgb,
+        colorDodgeBlend(cardRgb, shineOut),
+        (1.0 - foilMask) * beforeAlpha * uniforms.opacity * cardMask
+    );
+
+    let glare = applyFilter(glareColor(cardUV), 1.5, 1.4, 1.0);
+    cardRgb = mix(
+        cardRgb,
+        multiplyBlend(cardRgb, glare),
+        0.75 * uniforms.opacity * cardMask
+    );
+
+    let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
+    let finalColor = alphaOver(shadowColor, finalCard);
+    if (finalColor.a <= 0.0) { discard; }
+    return finalColor;
+}
+`,Wn=`struct Uniforms {
+    resolution: vec2f,
+    pointer: vec2f,
+    rotation: vec2f,
+    time: f32,
+    dpr: f32,
+    perspective: f32,
+    opacity: f32,
+    foilBrightness: f32,
+    patternScaleX: f32,
+    patternScaleY: f32,
+    cosmosOffsetX: f32,
+    cosmosOffsetY: f32,
+    clipMode: f32,
+    shinyKind: f32,
+    hasMask: f32,
+    _pad0: f32,
+    _pad1: f32,
+};
+
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+@group(0) @binding(1) var linearSampler: sampler;
+@group(0) @binding(2) var cardTexture: texture_2d<f32>;
+@group(0) @binding(3) var foilTexture: texture_2d<f32>;
+@group(0) @binding(4) var maskTexture: texture_2d<f32>;
+@group(0) @binding(5) var glitterTexture: texture_2d<f32>;
+
+struct VertexOutput {
+    @builtin(position) position: vec4f,
+    @location(0) uv: vec2f,
+    @location(1) localPos: vec2f,
+};
+
+fn rotateX(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x, p.y * c - p.z * s, p.y * s + p.z * c);
+}
+
+fn rotateY(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
+}
+
+@vertex
+fn vertexMain(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
+    var output: VertexOutput;
+    let canvasAspect = uniforms.resolution.x / uniforms.resolution.y;
+    var p = vec3f(pos, 0.0);
+    p = rotateX(p, uniforms.rotation.y);
+    p = rotateY(p, uniforms.rotation.x);
+    let w = uniforms.perspective - p.z;
+    output.position = vec4f((p.x / canvasAspect) * uniforms.perspective, p.y * uniforms.perspective, 0.0, w);
+    output.uv = uv;
+    output.localPos = pos;
+    return output;
+}
+
+fn sdRoundedRect(p: vec2f, b: vec2f, r: f32) -> f32 {
+    let q = abs(p) - b + r;
+    return min(max(q.x, q.y), 0.0) + length(max(q, vec2f(0.0))) - r;
+}
+
+fn getCardSize() -> vec2f {
+    let cardAspect = 0.718;
+    let panePadding = 48.0 * uniforms.dpr;
+    let maxWidthFromHeight = 0.6;
+    let maxWidthFromPane = max((uniforms.resolution.x - panePadding) / uniforms.resolution.y, 0.0);
+    let cardWidth = min(maxWidthFromHeight, maxWidthFromPane);
+    return vec2f(cardWidth, cardWidth / cardAspect);
+}
+
+fn farthestCornerDist(p: vec2f) -> f32 {
+    let d0 = distance(p, vec2f(0.0, 0.0));
+    let d1 = distance(p, vec2f(1.0, 0.0));
+    let d2 = distance(p, vec2f(0.0, 1.0));
+    let d3 = distance(p, vec2f(1.0, 1.0));
+    return max(max(d0, d1), max(d2, d3));
+}
+
+fn linearStep(edge0: f32, edge1: f32, x: f32) -> f32 {
+    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
+fn pointerFromCenter() -> f32 {
+    return clamp(length(uniforms.pointer - vec2f(0.5)) / 0.5, 0.0, 1.0);
+}
+
+fn cssBackgroundPosition() -> vec2f {
+    return vec2f(
+        mix(0.37, 0.63, uniforms.pointer.x),
+        mix(0.33, 0.67, uniforms.pointer.y)
+    );
+}
+
+fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
+    let origin = (vec2f(1.0) - size) * pos;
+    return (uv - origin) / size;
+}
+
+fn overlayBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return mix(
+        2.0 * base * blend,
+        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
+        step(vec3f(0.5), base)
+    );
+}
+
+fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return mix(
+        2.0 * base * blend,
+        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
+        step(vec3f(0.5), blend)
+    );
+}
+
+fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
+    return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
+}
+
+fn luminosityBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let baseLum = dot(base, vec3f(0.299, 0.587, 0.114));
+    let blendLum = dot(blend, vec3f(0.299, 0.587, 0.114));
+    return clamp(base + (blendLum - baseLum), vec3f(0.0), vec3f(1.0));
+}
+
+fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
+    var c = color * brightness;
+    c = (c - 0.5) * contrast + 0.5;
+    let gray = dot(c, vec3f(0.2126, 0.7152, 0.0722));
+    c = mix(vec3f(gray), c, saturate);
+    return clamp(c, vec3f(0.0), vec3f(1.0));
+}
+
+fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
+    let a = top.a + bottom.a * (1.0 - top.a);
+    let rgb = (top.rgb * top.a + bottom.rgb * bottom.a * (1.0 - top.a)) / max(a, 0.0001);
+    return vec4f(rgb, a);
+}
+
+// CSS linear-gradient projection: angle in degrees (0 = to top, clockwise),
+// box is the background layer's dimensions (only the aspect matters).
+// Returns t in [0,1] across the gradient line for points inside the box.
+fn cssLinearGradientT(layerUv: vec2f, angleDeg: f32, box: vec2f) -> f32 {
+    let a = radians(angleDeg);
+    let dir = vec2f(sin(a), -cos(a));
+    let p = (layerUv - vec2f(0.5)) * box;
+    let lineLength = abs(dir.x) * box.x + abs(dir.y) * box.y;
+    return dot(p, dir) / lineLength + 0.5;
+}
+
+// linear-gradient(-30deg / -60deg, r-clr 1..7 repeated three times + r-clr-1):
+// 22 stops evenly spaced, i.e. 21 intervals cycling through 7 colors.
+fn rainbowColor(index: i32) -> vec3f {
+    switch (((index % 7) + 7) % 7) {
+        case 0: { return vec3f(0.581, 0.159, 0.159); }
+        case 1: { return vec3f(0.597, 0.459, 0.183); }
+        case 2: { return vec3f(0.350, 0.560, 0.140); }
+        case 3: { return vec3f(0.140, 0.560, 0.560); }
+        case 4: { return vec3f(0.140, 0.560, 0.560); }
+        case 5: { return vec3f(0.168, 0.390, 0.612); }
+        default: { return vec3f(0.367, 0.140, 0.480); }
+    }
+}
+
+fn rainbowGradient(t: f32) -> vec3f {
+    let tt = clamp(t, 0.0, 1.0) * 21.0;
+    let idx = i32(floor(min(tt, 20.0)));
+    let f = tt - floor(tt);
+    return mix(rainbowColor(idx), rainbowColor(idx + 1), f);
+}
+
+// repeating-linear-gradient(133deg, 7 hsla stops at 6% spacing):
+// tile spans 5%..35%, i.e. period 30% with 6 intervals (base --space: 5%).
+fn hueStripeColor(index: i32) -> vec3f {
+    switch (((index % 7) + 7) % 7) {
+        case 0: { return vec3f(0.685, 0.404, 0.796); }
+        case 1: { return vec3f(0.874, 0.306, 0.286); }
+        case 2: { return vec3f(0.845, 0.771, 0.215); }
+        case 3: { return vec3f(0.493, 0.789, 0.251); }
+        case 4: { return vec3f(0.310, 0.690, 0.665); }
+        case 5: { return vec3f(0.540, 0.632, 1.000); }
+        default: { return vec3f(0.693, 0.419, 0.801); }
+    }
+}
+
+fn hueStripeGradient(tRaw: f32) -> vec3f {
+    let phase = fract((tRaw - 0.05) / 0.30) * 6.0;
+    let idx = i32(floor(phase));
+    let f = phase - floor(phase);
+    return mix(hueStripeColor(idx), hueStripeColor(idx + 1), f);
+}
+
+// background-size: 25% 25% tiling with background-position: center.
+fn sampleGlitter(uv: vec2f) -> vec4f {
+    return textureSampleLevel(glitterTexture, linearSampler, fract((uv - vec2f(0.375)) / 0.25), 0.0);
+}
+
+// Shine element background: 0.75-alpha hue stripes (luminosity) over
+// glitter (overlay) over the -30deg rainbow gradient.
+fn shineBackground(uv: vec2f, cardBox: vec2f) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let rainbowUv = backgroundSampleUv(uv, vec2f(4.0, 4.0), bg * 1.5);
+    var layer = rainbowGradient(cssLinearGradientT(rainbowUv, -30.0, cardBox * 4.0));
+
+    let glitter = sampleGlitter(uv);
+    layer = mix(layer, overlayBlend(layer, glitter.rgb), glitter.a);
+
+    let hueUv = backgroundSampleUv(uv, vec2f(2.0, 4.0), vec2f(0.0, bg.y));
+    let hue = hueStripeGradient(cssLinearGradientT(hueUv, 133.0, cardBox * vec2f(2.0, 4.0)));
+    return mix(layer, luminosityBlend(layer, hue), 0.75);
+}
+
+// :after layer: glitter (overlay) over the -60deg rainbow, own filter.
+// mask-image is forced to none in CSS, so this covers the whole card.
+fn afterLayer(uv: vec2f, cardBox: vec2f) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let rainbowUv = backgroundSampleUv(uv, vec2f(4.0, 4.0), -bg * 1.5);
+    var layer = rainbowGradient(cssLinearGradientT(rainbowUv, -60.0, cardBox * 4.0));
+
+    let glitter = sampleGlitter(uv);
+    layer = mix(layer, overlayBlend(layer, glitter.rgb), glitter.a);
+
+    return applyFilter(layer, pointerFromCenter() * 0.5 + 0.6, 3.0, 1.0);
+}
+
+// Rainbow-alt glare: radial with per-stop alpha (0.75 / 0.65 / 1.0),
+// overlay blend with brightness(0.9) contrast(2) at 0.75 opacity.
+fn glareGradient(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let light = vec4f(0.920, 0.913, 0.880, 0.75);
+    let mid = vec4f(0.240, 0.360, 0.300, 0.65);
+    let dark = vec4f(0.0, 0.0, 0.0, 1.0);
+    if (t < 0.45) {
+        return mix(light, mid, linearStep(0.0, 0.45, t));
+    }
+    return mix(mid, dark, linearStep(0.45, 1.0, t));
+}
+
+@fragment
+fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
+    let cardSize = getCardSize();
+    let cornerRadius = 0.04;
+    let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
+    let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
+
+    let shadowOffset = 22.0 * pxToLocal;
+    let shadowBlur = 34.0 * pxToLocal;
+    let shadowSpread = -7.0 * pxToLocal;
+    let shadowPos = localPos - vec2f(0.0, -shadowOffset);
+    let shadowSize = cardSize + vec2f(shadowSpread);
+    let shadowRadius = max(cornerRadius + shadowSpread, 0.0);
+    let shadowDist = sdRoundedRect(shadowPos, shadowSize, shadowRadius);
+    let shadowAlpha = 1.0 - smoothstep(-shadowBlur, shadowBlur, shadowDist);
+    let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha);
+
+    let cardUV = vec2f(
+        (localPos.x / (cardSize.x * 2.0)) + 0.5,
+        0.5 - (localPos.y / (cardSize.y * 2.0))
+    );
+
+    let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
+    let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
+    let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
+    let hasMask = uniforms.hasMask > 0.5;
+    let foilMask = select(1.0, maskColor.a, hasMask);
+
+    let pfc = pointerFromCenter();
+    // Only the layer aspect matters for gradient geometry.
+    let cardBox = vec2f(0.718, 1.0);
+
+    var shine = shineBackground(cardUV, cardBox);
+
+    // :before — foil texture, color-dodge, confined to the mask.
+    if (hasMask) {
+        let foil = textureSampleLevel(foilTexture, linearSampler, cardUV, 0.0);
+        let foilFiltered = applyFilter(foil.rgb, 1.5, 1.5, 1.0);
+        let beforeOpacity = (pfc + 0.6) * 0.4;
+        shine = mix(shine, colorDodgeBlend(shine, foilFiltered), beforeOpacity * foilMask);
+    }
+
+    let after = afterLayer(cardUV, cardBox);
+    let afterOpacity = clamp(1.2 - pfc * 0.5, 0.0, 1.0);
+
+    // Inside the mask: full stack (background + before + after), parent filter on top.
+    let shineIn = applyFilter(
+        mix(shine, colorDodgeBlend(shine, after), afterOpacity),
+        pfc * 0.3 + 0.3, 3.0, 1.8
+    );
+    // Outside the mask: only the unmasked :after paints.
+    let shineOut = applyFilter(after, pfc * 0.3 + 0.3, 3.0, 1.8);
+
+    var cardRgb = textureColor.rgb;
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineIn), foilMask * uniforms.opacity * cardMask);
+    cardRgb = mix(
+        cardRgb,
+        colorDodgeBlend(cardRgb, shineOut),
+        (1.0 - foilMask) * afterOpacity * uniforms.opacity * cardMask
+    );
+
+    let glare = glareGradient(cardUV);
+    let glareFiltered = applyFilter(glare.rgb, 0.9, 2.0, 1.0);
+    cardRgb = mix(
+        cardRgb,
+        overlayBlend(cardRgb, glareFiltered),
+        glare.a * 0.75 * uniforms.opacity * cardMask
+    );
+
+    let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
+    let finalColor = alphaOver(shadowColor, finalCard);
+    if (finalColor.a <= 0.0) { discard; }
+    return finalColor;
+}
+`,Nn=`struct Uniforms {
+    resolution: vec2f,
+    pointer: vec2f,
+    rotation: vec2f,
+    time: f32,
+    dpr: f32,
+    perspective: f32,
+    opacity: f32,
+    foilBrightness: f32,
+    patternScaleX: f32,
+    patternScaleY: f32,
+    cosmosOffsetX: f32,
+    cosmosOffsetY: f32,
+    clipMode: f32,
+    shinyKind: f32,
+    hasMask: f32,
+    _pad0: f32,
+    _pad1: f32,
+};
+
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+@group(0) @binding(1) var linearSampler: sampler;
+@group(0) @binding(2) var cardTexture: texture_2d<f32>;
+@group(0) @binding(3) var foilTexture: texture_2d<f32>;
+@group(0) @binding(4) var maskTexture: texture_2d<f32>;
+@group(0) @binding(5) var ancientTexture: texture_2d<f32>;
+
+struct VertexOutput {
+    @builtin(position) position: vec4f,
+    @location(0) uv: vec2f,
+    @location(1) localPos: vec2f,
+};
+
+fn rotateX(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x, p.y * c - p.z * s, p.y * s + p.z * c);
+}
+
+fn rotateY(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
+}
+
+@vertex
+fn vertexMain(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
+    var output: VertexOutput;
+    let canvasAspect = uniforms.resolution.x / uniforms.resolution.y;
+    var p = vec3f(pos, 0.0);
+    p = rotateX(p, uniforms.rotation.y);
+    p = rotateY(p, uniforms.rotation.x);
+    let w = uniforms.perspective - p.z;
+    output.position = vec4f((p.x / canvasAspect) * uniforms.perspective, p.y * uniforms.perspective, 0.0, w);
+    output.uv = uv;
+    output.localPos = pos;
+    return output;
+}
+
+fn sdRoundedRect(p: vec2f, b: vec2f, r: f32) -> f32 {
+    let q = abs(p) - b + r;
+    return min(max(q.x, q.y), 0.0) + length(max(q, vec2f(0.0))) - r;
+}
+
+fn getCardSize() -> vec2f {
+    let cardAspect = 0.718;
+    let panePadding = 48.0 * uniforms.dpr;
+    let maxWidthFromHeight = 0.6;
+    let maxWidthFromPane = max((uniforms.resolution.x - panePadding) / uniforms.resolution.y, 0.0);
+    let cardWidth = min(maxWidthFromHeight, maxWidthFromPane);
+    return vec2f(cardWidth, cardWidth / cardAspect);
+}
+
+fn farthestCornerDist(p: vec2f) -> f32 {
+    let d0 = distance(p, vec2f(0.0, 0.0));
+    let d1 = distance(p, vec2f(1.0, 0.0));
+    let d2 = distance(p, vec2f(0.0, 1.0));
+    let d3 = distance(p, vec2f(1.0, 1.0));
+    return max(max(d0, d1), max(d2, d3));
+}
+
+fn linearStep(edge0: f32, edge1: f32, x: f32) -> f32 {
+    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
+fn pointerFromCenter() -> f32 {
+    return clamp(length(uniforms.pointer - vec2f(0.5)) / 0.5, 0.0, 1.0);
+}
+
+fn cssBackgroundPosition() -> vec2f {
+    return vec2f(
+        mix(0.37, 0.63, uniforms.pointer.x),
+        mix(0.33, 0.67, uniforms.pointer.y)
+    );
+}
+
+fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
+    let origin = (vec2f(1.0) - size) * pos;
+    return (uv - origin) / size;
+}
+
+fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return mix(
+        2.0 * base * blend,
+        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
+        step(vec3f(0.5), blend)
+    );
+}
+
+fn softLightChannel(base: f32, blend: f32) -> f32 {
+    let low = base - (1.0 - 2.0 * blend) * base * (1.0 - base);
+    let d = select(((16.0 * base - 12.0) * base + 4.0) * base, sqrt(max(base, 0.0)), base > 0.25);
+    let high = base + (2.0 * blend - 1.0) * (d - base);
+    return mix(low, high, step(0.5, blend));
+}
+
+fn softLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return vec3f(
+        softLightChannel(base.r, blend.r),
+        softLightChannel(base.g, blend.g),
+        softLightChannel(base.b, blend.b)
+    );
+}
+
+fn exclusionBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return base + blend - 2.0 * base * blend;
+}
+
+fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
+    return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
+}
+
+fn rgb2hsl(c: vec3f) -> vec3f {
+    let maxC = max(max(c.r, c.g), c.b);
+    let minC = min(min(c.r, c.g), c.b);
+    let l = (maxC + minC) * 0.5;
+    if (maxC == minC) {
+        return vec3f(0.0, 0.0, l);
+    }
+    let d = maxC - minC;
+    let s = select(d / (2.0 - maxC - minC), d / (maxC + minC), l > 0.5);
+    var h: f32;
+    if (maxC == c.r) {
+        h = (c.g - c.b) / d + select(0.0, 6.0, c.g < c.b);
+    } else if (maxC == c.g) {
+        h = (c.b - c.r) / d + 2.0;
+    } else {
+        h = (c.r - c.g) / d + 4.0;
+    }
+    return vec3f(h / 6.0, s, l);
+}
+
+fn hue2rgb(p: f32, q: f32, t: f32) -> f32 {
+    var tt = t;
+    if (tt < 0.0) { tt += 1.0; }
+    if (tt > 1.0) { tt -= 1.0; }
+    if (tt < 1.0 / 6.0) { return p + (q - p) * 6.0 * tt; }
+    if (tt < 1.0 / 2.0) { return q; }
+    if (tt < 2.0 / 3.0) { return p + (q - p) * (2.0 / 3.0 - tt) * 6.0; }
+    return p;
+}
+
+fn hsl2rgb(hsl: vec3f) -> vec3f {
+    if (hsl.y == 0.0) {
+        return vec3f(hsl.z);
+    }
+    let q = select(hsl.z + hsl.y - hsl.z * hsl.y, hsl.z * (1.0 + hsl.y), hsl.z < 0.5);
+    let p = 2.0 * hsl.z - q;
+    return vec3f(
+        hue2rgb(p, q, hsl.x + 1.0 / 3.0),
+        hue2rgb(p, q, hsl.x),
+        hue2rgb(p, q, hsl.x - 1.0 / 3.0)
+    );
+}
+
+fn hueBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let baseHsl = rgb2hsl(base);
+    let blendHsl = rgb2hsl(blend);
+    return hsl2rgb(vec3f(blendHsl.x, baseHsl.y, baseHsl.z));
+}
+
+fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
+    var c = color * brightness;
+    c = (c - 0.5) * contrast + 0.5;
+    let gray = dot(c, vec3f(0.2126, 0.7152, 0.0722));
+    c = mix(vec3f(gray), c, saturate);
+    return clamp(c, vec3f(0.0), vec3f(1.0));
+}
+
+fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
+    let a = top.a + bottom.a * (1.0 - top.a);
+    let rgb = (top.rgb * top.a + bottom.rgb * bottom.a * (1.0 - top.a)) / max(a, 0.0001);
+    return vec4f(rgb, a);
+}
+
+const SUNPILLAR_1: vec3f = vec3f(0.973, 0.459, 0.459);
+const SUNPILLAR_2: vec3f = vec3f(0.969, 0.878, 0.376);
+const SUNPILLAR_3: vec3f = vec3f(0.608, 0.969, 0.376);
+const SUNPILLAR_4: vec3f = vec3f(0.518, 1.0, 0.835);
+const SUNPILLAR_5: vec3f = vec3f(0.478, 0.569, 0.969);
+const SUNPILLAR_6: vec3f = vec3f(0.780, 0.459, 0.973);
+
+fn sunpillarColor(index: i32, afterLayer: bool) -> vec3f {
+    let wrapped = ((index % 6) + 6) % 6;
+    let shifted = select(wrapped, (wrapped + 5) % 6, afterLayer);
+    switch shifted {
+        case 0: { return SUNPILLAR_1; }
+        case 1: { return SUNPILLAR_2; }
+        case 2: { return SUNPILLAR_3; }
+        case 3: { return SUNPILLAR_4; }
+        case 4: { return SUNPILLAR_5; }
+        default: { return SUNPILLAR_6; }
+    }
+}
+
+fn verticalSunpillar(layerUv: vec2f, afterLayer: bool) -> vec3f {
+    let t = fract((1.0 - layerUv.y) / 0.35) * 7.0;
+    let idx = i32(floor(t));
+    let f = fract(t);
+    return mix(sunpillarColor(idx, afterLayer), sunpillarColor(idx + 1, afterLayer), f);
+}
+
+fn diagonalStripePhase(layerUv: vec2f) -> f32 {
+    let angle = radians(115.0);
+    let dir = vec2f(sin(angle), -cos(angle));
+    return fract(dot(layerUv, dir) / 0.12);
+}
+
+fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
+    let cycle = diagonalStripePhase(layerUv);
+    let dark = vec3f(0.055, 0.082, 0.18);
+    let gray = vec3f(0.557, 0.612, 0.612);
+    let cyan = vec3f(0.525, 0.725, 0.725);
+    if (cycle < 0.317) { return mix(dark, gray, cycle / 0.317); }
+    if (cycle < 0.375) { return mix(gray, cyan, (cycle - 0.317) / 0.058); }
+    if (cycle < 0.433) { return mix(cyan, gray, (cycle - 0.375) / 0.058); }
+    if (cycle < 0.833) { return mix(gray, dark, (cycle - 0.433) / 0.4); }
+    return dark;
+}
+
+fn shineRadial(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    var alpha: f32;
+    if (t < 0.12) {
+        alpha = 0.1;
+    } else if (t < 0.20) {
+        alpha = mix(0.1, 0.15, linearStep(0.12, 0.20, t));
+    } else {
+        alpha = mix(0.15, 0.25, linearStep(0.20, 1.20, t));
+    }
+    return vec4f(0.0, 0.0, 0.0, alpha);
+}
+
+// CSS background-blend-mode compositing: the blend result only applies where
+// the backdrop has coverage; over transparent backdrop the source paints as-is.
+fn compositeBackgroundLayer(bottom: vec4f, top: vec4f, mode: i32) -> vec4f {
+    var blended: vec3f;
+    if (mode == 0) {
+        blended = softLightBlend(bottom.rgb, top.rgb);
+    } else if (mode == 1) {
+        blended = hueBlend(bottom.rgb, top.rgb);
+    } else if (mode == 2) {
+        blended = hardLightBlend(bottom.rgb, top.rgb);
+    } else {
+        blended = exclusionBlend(bottom.rgb, top.rgb);
+    }
+    let co = top.a * (1.0 - bottom.a) * top.rgb
+        + top.a * bottom.a * blended
+        + (1.0 - top.a) * bottom.a * bottom.rgb;
+    let ao = top.a + bottom.a * (1.0 - top.a);
+    return vec4f(co / max(ao, 0.00001), ao);
+}
+
+// Masked cards use the per-card foil; unmasked ones fall back to the ancient
+// texture tiled at 18% x 15% with exclusion.
+fn sampleFoilOrAncient(uv: vec2f) -> vec4f {
+    if (uniforms.hasMask > 0.5) {
+        return textureSampleLevel(foilTexture, linearSampler, uv, 0.0);
+    }
+    return textureSampleLevel(ancientTexture, linearSampler, fract(uv / vec2f(0.18, 0.15)), 0.0);
+}
+
+// Raw (unfiltered) VStar shine stack. Unlike v-full-art, the diagonal stripe
+// position has no bgY skew: front at (bgX, bgY), :after at (-bgX, -bgY).
+fn shineLayer(uv: vec2f, afterLayer: bool) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let noMask = uniforms.hasMask < 0.5;
+    let layerDiagonalPos = select(bg, -bg, afterLayer);
+    let sunSize = select(vec2f(2.0, 7.0), vec2f(2.0, 4.0), afterLayer);
+    let diagonalSize = select(vec2f(3.0, 1.0), vec2f(1.95, 1.0), afterLayer);
+
+    var layer = shineRadial(backgroundSampleUv(uv, vec2f(2.0, 1.0), bg));
+    let diagonal = vec4f(diagonalStripeColor(backgroundSampleUv(uv, diagonalSize, layerDiagonalPos)), 1.0);
+    let sun = vec4f(verticalSunpillar(backgroundSampleUv(uv, sunSize, vec2f(0.0, bg.y)), afterLayer), 1.0);
+    let foil = sampleFoilOrAncient(uv);
+
+    layer = compositeBackgroundLayer(layer, diagonal, 2);
+    layer = compositeBackgroundLayer(layer, sun, 1);
+    layer = compositeBackgroundLayer(layer, foil, select(0, 3, noMask));
+
+    return layer.rgb;
+}
+
+// :before — pastel radial, hard-light at 0.8 opacity, painted above :after.
+fn beforeRadial(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let light = vec4f(0.786, 0.809, 0.814, 0.75);
+    let mid = vec4f(0.488, 0.465, 0.535, 0.25);
+    let dark = vec4f(0.535, 0.465, 0.523, 1.0);
+    if (t < 0.45) {
+        return mix(light, mid, linearStep(0.0, 0.45, t));
+    }
+    return mix(mid, dark, linearStep(0.45, 1.20, t));
+}
+
+fn combinedShine(uv: vec2f) -> vec3f {
+    let noMask = uniforms.hasMask < 0.5;
+    let pfc = pointerFromCenter();
+    let front = shineLayer(uv, false);
+    let after = shineLayer(uv, true);
+
+    let afterFiltered = applyFilter(after, pfc * 0.75 + 0.5, 1.5, 1.5);
+    var combined = exclusionBlend(front, afterFiltered);
+
+    let before = beforeRadial(uv);
+    combined = mix(combined, hardLightBlend(combined, before.rgb), before.a * 0.8);
+
+    if (noMask) {
+        return applyFilter(combined, pfc * 0.25 + 0.35, 1.8, 1.75);
+    }
+    return applyFilter(combined, pfc * 0.75 + 0.25, 2.0, 1.25);
+}
+
+// VStar glare: hard-light radial, opacity scales with pointer-from-center.
+fn glareGradient(uv: vec2f) -> vec3f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let light = vec3f(0.810, 0.945, 0.990);
+    let mid = vec3f(0.612, 0.588, 0.612);
+    let dark = vec3f(0.150, 0.150, 0.150);
+    if (t < 0.60) {
+        return mix(light, mid, linearStep(0.05, 0.60, t));
+    }
+    return mix(mid, dark, linearStep(0.60, 1.50, t));
+}
+
+@fragment
+fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
+    let cardSize = getCardSize();
+    let cornerRadius = 0.04;
+    let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
+    let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
+
+    let shadowOffset = 22.0 * pxToLocal;
+    let shadowBlur = 34.0 * pxToLocal;
+    let shadowSpread = -7.0 * pxToLocal;
+    let shadowPos = localPos - vec2f(0.0, -shadowOffset);
+    let shadowSize = cardSize + vec2f(shadowSpread);
+    let shadowRadius = max(cornerRadius + shadowSpread, 0.0);
+    let shadowDist = sdRoundedRect(shadowPos, shadowSize, shadowRadius);
+    let shadowAlpha = 1.0 - smoothstep(-shadowBlur, shadowBlur, shadowDist);
+    let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha);
+
+    let cardUV = vec2f(
+        (localPos.x / (cardSize.x * 2.0)) + 0.5,
+        0.5 - (localPos.y / (cardSize.y * 2.0))
+    );
+
+    let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
+    let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
+    let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
+    let hasMask = uniforms.hasMask > 0.5;
+    let pfc = pointerFromCenter();
+
+    // VStar mask = etch mask ADDED to a radial (0 at pointer -> 0.5 at 120%),
+    // so the shine shows softly everywhere and fully in the etched areas.
+    let radialT = distance(cardUV, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let radialMask = 0.5 * linearStep(0.0, 1.2, radialT);
+    let foilMask = select(1.0, min(maskColor.a + radialMask, 1.0), hasMask);
+
+    var cardRgb = textureColor.rgb;
+
+    let shine = combinedShine(cardUV);
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shine), foilMask * uniforms.opacity * cardMask);
+
+    let glareBrightness = select(0.55, 0.7, hasMask);
+    let glare = applyFilter(glareGradient(cardUV), glareBrightness, 2.0, 1.0);
+    cardRgb = mix(
+        cardRgb,
+        hardLightBlend(cardRgb, glare),
+        pfc * 0.75 * uniforms.opacity * cardMask
+    );
+
+    let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
+    let finalColor = alphaOver(shadowColor, finalCard);
+    if (finalColor.a <= 0.0) { discard; }
+    return finalColor;
+}
+`,Hn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -3741,7 +5436,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,In=`struct Uniforms {
+`,$n=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -4179,7 +5874,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Wn=`struct Uniforms {
+`,Yn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -4617,7 +6312,447 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Hn=`struct Uniforms {
+`,Xn=`struct Uniforms {
+    resolution: vec2f,
+    pointer: vec2f,
+    rotation: vec2f,
+    time: f32,
+    dpr: f32,
+    perspective: f32,
+    opacity: f32,
+    foilBrightness: f32,
+    patternScaleX: f32,
+    patternScaleY: f32,
+    cosmosOffsetX: f32,
+    cosmosOffsetY: f32,
+    clipMode: f32,
+    shinyKind: f32,
+    hasMask: f32,
+    _pad0: f32,
+    _pad1: f32,
+};
+
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+@group(0) @binding(1) var linearSampler: sampler;
+@group(0) @binding(2) var cardTexture: texture_2d<f32>;
+@group(0) @binding(3) var foilTexture: texture_2d<f32>;
+@group(0) @binding(4) var maskTexture: texture_2d<f32>;
+@group(0) @binding(5) var vmaxBgTexture: texture_2d<f32>;
+
+struct VertexOutput {
+    @builtin(position) position: vec4f,
+    @location(0) uv: vec2f,
+    @location(1) localPos: vec2f,
+};
+
+fn rotateX(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x, p.y * c - p.z * s, p.y * s + p.z * c);
+}
+
+fn rotateY(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
+}
+
+@vertex
+fn vertexMain(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
+    var output: VertexOutput;
+    let canvasAspect = uniforms.resolution.x / uniforms.resolution.y;
+    var p = vec3f(pos, 0.0);
+    p = rotateX(p, uniforms.rotation.y);
+    p = rotateY(p, uniforms.rotation.x);
+    let w = uniforms.perspective - p.z;
+    output.position = vec4f((p.x / canvasAspect) * uniforms.perspective, p.y * uniforms.perspective, 0.0, w);
+    output.uv = uv;
+    output.localPos = pos;
+    return output;
+}
+
+fn sdRoundedRect(p: vec2f, b: vec2f, r: f32) -> f32 {
+    let q = abs(p) - b + r;
+    return min(max(q.x, q.y), 0.0) + length(max(q, vec2f(0.0))) - r;
+}
+
+fn getCardSize() -> vec2f {
+    let cardAspect = 0.718;
+    let panePadding = 48.0 * uniforms.dpr;
+    let maxWidthFromHeight = 0.6;
+    let maxWidthFromPane = max((uniforms.resolution.x - panePadding) / uniforms.resolution.y, 0.0);
+    let cardWidth = min(maxWidthFromHeight, maxWidthFromPane);
+    return vec2f(cardWidth, cardWidth / cardAspect);
+}
+
+fn farthestCornerDist(p: vec2f) -> f32 {
+    let d0 = distance(p, vec2f(0.0, 0.0));
+    let d1 = distance(p, vec2f(1.0, 0.0));
+    let d2 = distance(p, vec2f(0.0, 1.0));
+    let d3 = distance(p, vec2f(1.0, 1.0));
+    return max(max(d0, d1), max(d2, d3));
+}
+
+fn linearStep(edge0: f32, edge1: f32, x: f32) -> f32 {
+    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
+fn pointerFromCenter() -> f32 {
+    return clamp(length(uniforms.pointer - vec2f(0.5)) / 0.5, 0.0, 1.0);
+}
+
+fn cssBackgroundPosition() -> vec2f {
+    return vec2f(
+        mix(0.37, 0.63, uniforms.pointer.x),
+        mix(0.33, 0.67, uniforms.pointer.y)
+    );
+}
+
+fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
+    let origin = (vec2f(1.0) - size) * pos;
+    return (uv - origin) / size;
+}
+
+// CSS linear-gradient projection: angle in degrees (0 = to top, clockwise),
+// box is the background layer's dimensions (only the aspect matters).
+fn cssLinearGradientT(layerUv: vec2f, angleDeg: f32, box: vec2f) -> f32 {
+    let a = radians(angleDeg);
+    let dir = vec2f(sin(a), -cos(a));
+    let p = (layerUv - vec2f(0.5)) * box;
+    let lineLength = abs(dir.x) * box.x + abs(dir.y) * box.y;
+    return dot(p, dir) / lineLength + 0.5;
+}
+
+fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return mix(
+        2.0 * base * blend,
+        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
+        step(vec3f(0.5), blend)
+    );
+}
+
+fn softLightChannel(base: f32, blend: f32) -> f32 {
+    let low = base - (1.0 - 2.0 * blend) * base * (1.0 - base);
+    let d = select(((16.0 * base - 12.0) * base + 4.0) * base, sqrt(max(base, 0.0)), base > 0.25);
+    let high = base + (2.0 * blend - 1.0) * (d - base);
+    return mix(low, high, step(0.5, blend));
+}
+
+fn softLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return vec3f(
+        softLightChannel(base.r, blend.r),
+        softLightChannel(base.g, blend.g),
+        softLightChannel(base.b, blend.b)
+    );
+}
+
+fn differenceBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return abs(base - blend);
+}
+
+fn lightenBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return max(base, blend);
+}
+
+fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
+    return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
+}
+
+fn luminosityBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let baseLum = dot(base, vec3f(0.299, 0.587, 0.114));
+    let blendLum = dot(blend, vec3f(0.299, 0.587, 0.114));
+    return clamp(base + (blendLum - baseLum), vec3f(0.0), vec3f(1.0));
+}
+
+fn rgb2hsl(c: vec3f) -> vec3f {
+    let maxC = max(max(c.r, c.g), c.b);
+    let minC = min(min(c.r, c.g), c.b);
+    let l = (maxC + minC) * 0.5;
+    if (maxC == minC) {
+        return vec3f(0.0, 0.0, l);
+    }
+    let d = maxC - minC;
+    let s = select(d / (2.0 - maxC - minC), d / (maxC + minC), l > 0.5);
+    var h: f32;
+    if (maxC == c.r) {
+        h = (c.g - c.b) / d + select(0.0, 6.0, c.g < c.b);
+    } else if (maxC == c.g) {
+        h = (c.b - c.r) / d + 2.0;
+    } else {
+        h = (c.r - c.g) / d + 4.0;
+    }
+    return vec3f(h / 6.0, s, l);
+}
+
+fn hue2rgb(p: f32, q: f32, t: f32) -> f32 {
+    var tt = t;
+    if (tt < 0.0) { tt += 1.0; }
+    if (tt > 1.0) { tt -= 1.0; }
+    if (tt < 1.0 / 6.0) { return p + (q - p) * 6.0 * tt; }
+    if (tt < 1.0 / 2.0) { return q; }
+    if (tt < 2.0 / 3.0) { return p + (q - p) * (2.0 / 3.0 - tt) * 6.0; }
+    return p;
+}
+
+fn hsl2rgb(hsl: vec3f) -> vec3f {
+    if (hsl.y == 0.0) {
+        return vec3f(hsl.z);
+    }
+    let q = select(hsl.z + hsl.y - hsl.z * hsl.y, hsl.z * (1.0 + hsl.y), hsl.z < 0.5);
+    let p = 2.0 * hsl.z - q;
+    return vec3f(
+        hue2rgb(p, q, hsl.x + 1.0 / 3.0),
+        hue2rgb(p, q, hsl.x),
+        hue2rgb(p, q, hsl.x - 1.0 / 3.0)
+    );
+}
+
+fn hueBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let baseHsl = rgb2hsl(base);
+    let blendHsl = rgb2hsl(blend);
+    return hsl2rgb(vec3f(blendHsl.x, baseHsl.y, baseHsl.z));
+}
+
+fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
+    var c = color * brightness;
+    c = (c - 0.5) * contrast + 0.5;
+    let gray = dot(c, vec3f(0.2126, 0.7152, 0.0722));
+    c = mix(vec3f(gray), c, saturate);
+    return clamp(c, vec3f(0.0), vec3f(1.0));
+}
+
+fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
+    let a = top.a + bottom.a * (1.0 - top.a);
+    let rgb = (top.rgb * top.a + bottom.rgb * bottom.a * (1.0 - top.a)) / max(a, 0.0001);
+    return vec4f(rgb, a);
+}
+
+// CSS background-blend-mode compositing: the blend result only applies where
+// the backdrop has coverage; over transparent backdrop the source paints as-is.
+// mode: 0 soft-light, 1 hue, 2 hard-light, 3 difference, 4 luminosity
+fn compositeBackgroundLayer(bottom: vec4f, top: vec4f, mode: i32) -> vec4f {
+    var blended: vec3f;
+    if (mode == 0) {
+        blended = softLightBlend(bottom.rgb, top.rgb);
+    } else if (mode == 1) {
+        blended = hueBlend(bottom.rgb, top.rgb);
+    } else if (mode == 2) {
+        blended = hardLightBlend(bottom.rgb, top.rgb);
+    } else if (mode == 3) {
+        blended = differenceBlend(bottom.rgb, top.rgb);
+    } else {
+        blended = luminosityBlend(bottom.rgb, top.rgb);
+    }
+    let co = top.a * (1.0 - bottom.a) * top.rgb
+        + top.a * bottom.a * blended
+        + (1.0 - top.a) * bottom.a * bottom.rgb;
+    let ao = top.a + bottom.a * (1.0 - top.a);
+    return vec4f(co / max(ao, 0.00001), ao);
+}
+
+const SUNPILLAR_1: vec3f = vec3f(0.973, 0.459, 0.459);
+const SUNPILLAR_2: vec3f = vec3f(0.969, 0.878, 0.376);
+const SUNPILLAR_3: vec3f = vec3f(0.608, 0.969, 0.376);
+const SUNPILLAR_4: vec3f = vec3f(0.518, 1.0, 0.835);
+const SUNPILLAR_5: vec3f = vec3f(0.478, 0.569, 0.969);
+const SUNPILLAR_6: vec3f = vec3f(0.780, 0.459, 0.973);
+
+// The :after box uses the base.css :after custom-property rotation (+5).
+fn sunpillarColor(index: i32) -> vec3f {
+    let shifted = ((((index % 6) + 6) % 6) + 5) % 6;
+    switch shifted {
+        case 0: { return SUNPILLAR_1; }
+        case 1: { return SUNPILLAR_2; }
+        case 2: { return SUNPILLAR_3; }
+        case 3: { return SUNPILLAR_4; }
+        case 4: { return SUNPILLAR_5; }
+        default: { return SUNPILLAR_6; }
+    }
+}
+
+fn verticalSunpillar(layerUv: vec2f) -> vec3f {
+    let t = fract((1.0 - layerUv.y) / 0.35) * 7.0;
+    let idx = i32(floor(t));
+    let f = fract(t);
+    return mix(sunpillarColor(idx), sunpillarColor(idx + 1), f);
+}
+
+// Element layer 4 (bottom): pastel radial, four stops all at alpha 0.6.
+fn pastelRadial(layerUv: vec2f) -> vec3f {
+    let t = distance(layerUv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let cyan = vec3f(0.595, 0.892, 0.945);
+    let mint = vec3f(0.634, 0.906, 0.756);
+    let lavender = vec3f(0.696, 0.519, 0.861);
+    let pink = vec3f(0.877, 0.563, 0.589);
+    if (t < 0.25) { return mix(cyan, mint, linearStep(0.0, 0.25, t)); }
+    if (t < 0.50) { return mix(mint, lavender, linearStep(0.25, 0.50, t)); }
+    return mix(lavender, pink, linearStep(0.50, 0.75, t));
+}
+
+// Element layer 3: repeating-linear-gradient(133deg, navy(0.5) 0%, gray 2.5%,
+// green 5%, gray 7.5%, navy(0.5) 10%, navy(0.5) 15%) — color + alpha.
+fn stripe133(tRaw: f32) -> vec4f {
+    let navy = vec3f(0.056, 0.084, 0.184);
+    let gray = vec3f(0.450, 0.550, 0.550);
+    let green = vec3f(0.391, 0.525, 0.175);
+    let ph = fract(tRaw / 0.15) * 0.15;
+    if (ph < 0.025) {
+        let f = linearStep(0.0, 0.025, ph);
+        return vec4f(mix(navy, gray, f), mix(0.5, 1.0, f));
+    }
+    if (ph < 0.05) {
+        return vec4f(mix(gray, green, linearStep(0.025, 0.05, ph)), 1.0);
+    }
+    if (ph < 0.075) {
+        return vec4f(mix(green, gray, linearStep(0.05, 0.075, ph)), 1.0);
+    }
+    if (ph < 0.10) {
+        let f = linearStep(0.075, 0.10, ph);
+        return vec4f(mix(gray, navy, f), mix(1.0, 0.5, f));
+    }
+    return vec4f(navy, 0.5);
+}
+
+// Element layer 2: repeating-linear-gradient(-33deg, 5 colors at 6% spacing),
+// tile spans 6%..36% of the gradient line.
+fn rainbowColor(index: i32) -> vec3f {
+    switch (((index % 5) + 5) % 5) {
+        case 0: { return vec3f(0.799, 0.163, 0.141); }
+        case 1: { return vec3f(0.424, 0.510, 0.856); }
+        case 2: { return vec3f(0.175, 0.605, 0.576); }
+        case 3: { return vec3f(0.112, 0.588, 0.136); }
+        default: { return vec3f(0.710, 0.248, 0.892); }
+    }
+}
+
+fn rainbow33(tRaw: f32) -> vec3f {
+    let phase = fract((tRaw - 0.06) / 0.30) * 5.0;
+    let idx = i32(floor(phase));
+    let f = phase - floor(phase);
+    return mix(rainbowColor(idx), rainbowColor(idx + 1), f);
+}
+
+// :after bottom layer: the v-full-art 133deg stripe (12% cycle).
+fn afterStripeColor(layerUv: vec2f, box: vec2f) -> vec3f {
+    let cycle = fract(cssLinearGradientT(layerUv, 133.0, box) / 0.12);
+    let dark = vec3f(0.055, 0.082, 0.18);
+    let gray = vec3f(0.557, 0.612, 0.612);
+    let cyan = vec3f(0.525, 0.725, 0.725);
+    if (cycle < 0.317) { return mix(dark, gray, cycle / 0.317); }
+    if (cycle < 0.375) { return mix(gray, cyan, (cycle - 0.317) / 0.058); }
+    if (cycle < 0.433) { return mix(cyan, gray, (cycle - 0.375) / 0.058); }
+    if (cycle < 0.833) { return mix(gray, dark, (cycle - 0.433) / 0.4); }
+    return dark;
+}
+
+fn sampleFoil(uv: vec2f) -> vec4f {
+    if (uniforms.hasMask > 0.5) {
+        return textureSampleLevel(foilTexture, linearSampler, uv, 0.0);
+    }
+    // No-mask fallback: vmaxbg tiled at 60% x 30%.
+    return textureSampleLevel(vmaxBgTexture, linearSampler, fract(uv / vec2f(0.6, 0.3)), 0.0);
+}
+
+// Shine element background: foil (difference) over rainbow (luminosity) over
+// 133deg stripe (soft-light) over the pastel radial (alpha 0.6).
+fn shineBackground(uv: vec2f, cardBox: vec2f) -> vec4f {
+    let bg = cssBackgroundPosition();
+
+    let radialUv = backgroundSampleUv(uv, vec2f(2.0, 2.0), bg);
+    var layer = vec4f(pastelRadial(radialUv), 0.6);
+
+    let stripeUv = backgroundSampleUv(uv, vec2f(6.0, 6.0), bg);
+    let stripe = stripe133(cssLinearGradientT(stripeUv, 133.0, cardBox * 6.0));
+    layer = compositeBackgroundLayer(layer, stripe, 0);
+
+    let rainbowUv = backgroundSampleUv(uv, vec2f(11.0, 11.0), bg);
+    let rainbow = rainbow33(cssLinearGradientT(rainbowUv, -33.0, cardBox * 11.0));
+    layer = compositeBackgroundLayer(layer, vec4f(rainbow, 1.0), 4);
+
+    // Foil luma boosted so the etched marks read as strongly as the CSS pane.
+    let foil = sampleFoil(uv);
+    let boostedFoil = vec4f(min(foil.rgb * 1.5, vec3f(1.0)), foil.a);
+    layer = compositeBackgroundLayer(layer, boostedFoil, 3);
+    return layer;
+}
+
+// :after — shifted sunpillar (hue) over the v-full-art stripe, saturate(1.5),
+// blended lighten into the shine element at 0.3 + 0.5 * pointer-from-center.
+fn afterLayer(uv: vec2f, cardBox: vec2f) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let stripeUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), bg);
+    var layer = vec4f(afterStripeColor(stripeUv, cardBox * vec2f(3.0, 1.0)), 1.0);
+    let sunUv = backgroundSampleUv(uv, vec2f(2.0, 7.0), vec2f(0.0, bg.y));
+    layer = compositeBackgroundLayer(layer, vec4f(verticalSunpillar(sunUv), 1.0), 1);
+    return applyFilter(layer.rgb, 1.0, 1.0, 1.5);
+}
+
+// VMAX glare: radial white(0.75) 0% -> black(1.0) 120%, hard-light,
+// opacity 0.2 + 0.8 * pointer-from-center.
+fn glareLayer(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let f = linearStep(0.0, 1.2, t);
+    return vec4f(vec3f(1.0 - f), mix(0.75, 1.0, f));
+}
+
+@fragment
+fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
+    let cardSize = getCardSize();
+    let cornerRadius = 0.04;
+    let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
+    let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
+
+    let shadowOffset = 22.0 * pxToLocal;
+    let shadowBlur = 34.0 * pxToLocal;
+    let shadowSpread = -7.0 * pxToLocal;
+    let shadowPos = localPos - vec2f(0.0, -shadowOffset);
+    let shadowSize = cardSize + vec2f(shadowSpread);
+    let shadowRadius = max(cornerRadius + shadowSpread, 0.0);
+    let shadowDist = sdRoundedRect(shadowPos, shadowSize, shadowRadius);
+    let shadowAlpha = 1.0 - smoothstep(-shadowBlur, shadowBlur, shadowDist);
+    let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha);
+
+    let cardUV = vec2f(
+        (localPos.x / (cardSize.x * 2.0)) + 0.5,
+        0.5 - (localPos.y / (cardSize.y * 2.0))
+    );
+
+    let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
+    let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
+    let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
+    let foilMask = select(1.0, maskColor.a, uniforms.hasMask > 0.5);
+
+    let pfc = pointerFromCenter();
+    let cardBox = vec2f(0.718, 1.0);
+
+    let shine = shineBackground(cardUV, cardBox);
+    let after = afterLayer(cardUV, cardBox);
+    let afterOpacity = 0.3 + pfc * 0.5;
+
+    let combined = mix(shine.rgb, lightenBlend(shine.rgb, after), afterOpacity);
+    let shineFiltered = applyFilter(combined, pfc * 0.4 + 0.4, 2.0, 1.0);
+
+    var cardRgb = textureColor.rgb;
+    cardRgb = mix(
+        cardRgb,
+        colorDodgeBlend(cardRgb, shineFiltered),
+        foilMask * uniforms.opacity * cardMask
+    );
+
+    let glare = glareLayer(cardUV);
+    cardRgb = mix(
+        cardRgb,
+        hardLightBlend(cardRgb, glare.rgb),
+        glare.a * (0.2 + pfc * 0.8) * uniforms.opacity * cardMask
+    );
+
+    let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
+    let finalColor = alphaOver(shadowColor, finalCard);
+    if (finalColor.a <= 0.0) { discard; }
+    return finalColor;
+}
+`,jn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -5351,9 +7486,9 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Nn={id:"glare",shaderCode:Tn},qn={id:"plain",shaderCode:_n},Yn={id:"reverse-holo",shaderCode:Mn},Xn={id:"amazing-rare",shaderCode:Vn},jn={id:"galaxy-cosmos-holo",shaderCode:Fn,auxiliaryTextureUrls:["img/cosmos-bottom.png","img/cosmos-middle-trans.png","img/cosmos-top-trans.png"]},Kn={id:"holofoil-rare",shaderCode:zn},Zn={id:"radiant-holo",shaderCode:On},Jn={id:"rainbow-rare",shaderCode:Dn},Qn={id:"secret-rare",shaderCode:En},et={id:"trainer-gallery-holo",shaderCode:Gn},nt={id:"pokemon-v",shaderCode:$n,auxiliaryTextureUrl:"img/grain.webp"},tt={id:"pokemon-v-alternate-art",shaderCode:In},rt={id:"pokemon-v-full-art",shaderCode:Wn},at={id:"shiny-vault",shaderCode:Hn,auxiliaryTextureUrls:["img/glitter.png","img/illusion.png","img/grain.webp"]},it={"Reverse Holo non-rares":Yn,"Holofoil Rare":Kn,"Trainer Gallery (V)":qn,"Holofoil Amazing Rare":Xn,"Galaxy/Cosmos Holofoil":jn,"Trainer Gallery Holofoil":et,"Radiant Holofoil":Zn,"Rainbow Rare":Jn,"Secret Rare (Gold)":Qn,"Pokemon V":nt,"Pokemon V (Alternate Art)":tt,"Pokemon V (Full Art)":rt,"Shiny Vault":at};function we(n){return it[n]??Nn}function lt(n){const e=new Set((n.types??[]).map(t=>t.toLowerCase()));return e.has("lightning")?.7:e.has("darkness")?.8:e.has("metal")?.6:.55}function ot(n){const e=(n.subtypes??[]).map(t=>t.toLowerCase());return n.supertype.toLowerCase()==="trainer"?2:e.some(t=>t.startsWith("stage"))?1:0}function st(n,e){if(n!=="Shiny Vault"||!e.number.toLowerCase().startsWith("sv"))return 0;const t=new Set((e.subtypes??[]).map(r=>r.toLowerCase()));return t.has("vmax")?2:t.has("v")?1:0}async function ct({canvas:n,webgpuPane:e}){if(!navigator.gpu)throw alert("WebGPU not supported on this browser."),new Error("WebGPU not supported");const t=await navigator.gpu.requestAdapter();if(!t)throw alert("No appropriate GPUAdapter found."),new Error("No appropriate GPUAdapter found");const r=await t.requestDevice(),i=n.getContext("webgpu");if(!i)throw new Error("Unable to acquire WebGPU context");let l=window.devicePixelRatio||1;const c=navigator.gpu.getPreferredCanvasFormat(),h={device:r,format:c,alphaMode:"premultiplied"};i.configure(h);const m=r.createSampler({magFilter:"linear",minFilter:"linear"}),s=.718,d=1.2,g=new Float32Array([-1*d,-1/s*d,0,1,1*d,-1/s*d,1,1,1*d,1/s*d,1,0,-1*d,1/s*d,0,0]),b=new Uint16Array([0,1,2,0,2,3]),x=r.createBuffer({size:g.byteLength,usage:GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST});r.queue.writeBuffer(x,0,g);const P=r.createBuffer({size:b.byteLength,usage:GPUBufferUsage.INDEX|GPUBufferUsage.COPY_DST});r.queue.writeBuffer(P,0,b);const L=r.createBuffer({size:80,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST}),y=r.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.VERTEX|GPUShaderStage.FRAGMENT,buffer:{}},{binding:1,visibility:GPUShaderStage.FRAGMENT,sampler:{}},{binding:2,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:3,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:4,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:5,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:6,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:7,visibility:GPUShaderStage.FRAGMENT,texture:{}}]}),f=r.createPipelineLayout({bindGroupLayouts:[y]}),o=new Map;function a(p){const u=r.createShaderModule({code:p.shaderCode});return r.createRenderPipeline({layout:f,vertex:{module:u,entryPoint:"vertexMain",buffers:[{arrayStride:16,attributes:[{shaderLocation:0,offset:0,format:"float32x2"},{shaderLocation:1,offset:8,format:"float32x2"}]}]},fragment:{module:u,entryPoint:"fragmentMain",targets:[{format:c,blend:{color:{srcFactor:"one",dstFactor:"one-minus-src-alpha",operation:"add"},alpha:{srcFactor:"one",dstFactor:"one-minus-src-alpha",operation:"add"}}}]},primitive:{topology:"triangle-list"}})}function v(p){let u=o.get(p.id);return u||(u=a(p),o.set(p.id,u)),u}const C=new Map;async function U(p){let u=C.get(p);return u||(u=await H(R(p)),C.set(p,u)),u}async function A(p){const u=p.auxiliaryTextureUrls??[p.auxiliaryTextureUrl??"img/glitter.png"],S=[u[0]??"img/glitter.png",u[1]??"img/glitter.png",u[2]??"img/glitter.png"];return Promise.all(S.map(U))}function F(p,u,S,k){return r.createBindGroup({layout:y,entries:[{binding:0,resource:{buffer:L}},{binding:1,resource:m},{binding:2,resource:p.createView()},{binding:3,resource:u.createView()},{binding:4,resource:S.createView()},{binding:5,resource:k[0].createView()},{binding:6,resource:k[1].createView()},{binding:7,resource:k[2].createView()}]})}let z=V([255,255,255,255]),D=V([0,0,0,255]),E=V([0,0,0,0]);const ae=we("");let ie=v(ae),q=await A(ae),le=F(z,D,E,q),G=.5,$=.5,Y=0,X=0,j=0,K=0,Z=0,J=0,oe=.55,se=.476,ce=.476,de=0,fe=0,ue=0,pe=0,ve=0;const Re=performance.now();let I=1,M=1,W;function he(){window.clearTimeout(W),G=.5,$=.5,Y=0,X=0,Z=0}function Pe(p=500){window.clearTimeout(W),W=window.setTimeout(he,p)}function Ue(){const p=n.getBoundingClientRect(),u=Math.min(p.height*.6,p.width-48),S=u/s,k=p.left+(p.width-u)/2,_=p.top+(p.height-S)/2;return{width:u,height:S,cardLeft:k,cardTop:_}}function me(p){window.clearTimeout(W),G=Math.min(Math.max(p.x,0),1),$=Math.min(Math.max(p.y,0),1);const u=G-.5,S=$-.5;Y=-(u*100)/3.5*(Math.PI/180),X=-(S*100)/3.5*(Math.PI/180),Z=1}function Be(p){const u=Ue(),S={x:(p.clientX-u.cardLeft)/u.width,y:(p.clientY-u.cardTop)/u.height};return me(S),S}function Ae(){Pe()}function Q(){l=window.devicePixelRatio||1;const p=e.getBoundingClientRect();I=Math.max(1,Math.round(p.width*l)),M=Math.max(1,Math.round(p.height*l)),(n.width!==I||n.height!==M)&&(n.width=I,n.height=M,i.configure(h))}new ResizeObserver(Q).observe(e),window.addEventListener("resize",Q),Q();function V(p){const u=r.createTexture({size:[1,1,1],format:"rgba8unorm",usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});return r.queue.writeTexture({texture:u},new Uint8Array(p),{bytesPerRow:4},[1,1]),u}async function H(p){const u=await fetch(p);if(!u.ok)throw new Error(`Unable to load texture: ${p}`);const S=await u.blob(),k=await createImageBitmap(S),_=r.createTexture({size:[k.width,k.height,1],format:"rgba8unorm",usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST|GPUTextureUsage.RENDER_ATTACHMENT});return r.queue.copyExternalImageToTexture({source:k},{texture:_},[k.width,k.height]),k.close(),_}async function _e(p,u,S,k){const _=we(u),T=v(_),ge=N(S,"foils",u,k),ee=N(S,"masks",u,k),[ze,Me,Ve]=await Promise.all([H(p),ge?H(ge):Promise.resolve(V([0,0,0,255])),ee?H(ee):Promise.resolve(V([0,0,0,0]))]),Oe=z,De=D,Ee=E;z=ze,D=Me,E=Ve,ie=T,q=await A(_),oe=lt(S);const be=ke(S);de=be.cosmosPixels.x,fe=be.cosmosPixels.y,ue=ot(S),pe=st(u,S),ve=ee?1:0,le=F(z,D,E,q),Oe.destroy(),De.destroy(),Ee.destroy()}function Te(){j+=(Y-j)*.15,K+=(X-K)*.15,J+=(Z-J)*.15;const p=(performance.now()-Re)/1e3,u=600*(2*l/M),S=new Float32Array([I,M,G,$,j,K,p,l,u,J,oe,se,ce,de,fe,ue,pe,ve,0,0]);r.queue.writeBuffer(L,0,S);const k=r.createCommandEncoder(),_=i.getCurrentTexture().createView(),T=k.beginRenderPass({colorAttachments:[{view:_,clearValue:{r:.2235,g:.2314,b:.2706,a:1},loadOp:"clear",storeOp:"store"}]});T.setPipeline(ie),T.setBindGroup(0,le),T.setVertexBuffer(0,x),T.setIndexBuffer(P,"uint16"),T.drawIndexed(b.length),T.end(),r.queue.submit([k.finish()])}function Fe(p,u){se=p,ce=u}return{updateTexture:_e,setPointer:me,handlePointerMove:Be,handlePointerLeave:Ae,resetPointer:he,render:Te,setPatternParams:Fe}}async function dt(){Ge();const n=document.createElement("a");n.className="github-link",n.href="https://github.com/jeantimex/pokemon-cards-webgpu",n.target="_blank",n.rel="noreferrer noopener",n.setAttribute("aria-label","GitHub profile for jeantimex"),n.innerHTML=`
+`,Kn={id:"glare",shaderCode:_n},Zn={id:"reverse-holo",shaderCode:zn},Jn={id:"amazing-rare",shaderCode:Mn},Qn={id:"galaxy-cosmos-holo",shaderCode:Tn,auxiliaryTextureUrls:["img/cosmos-bottom.png","img/cosmos-middle-trans.png","img/cosmos-top-trans.png"]},et={id:"holofoil-rare",shaderCode:Fn},nt={id:"radiant-holo",shaderCode:Vn},tt={id:"rainbow-rare",shaderCode:On},rt={id:"secret-rare",shaderCode:Dn},at={id:"trainer-gallery-holo",shaderCode:Gn},lt={id:"trainer-gallery-v",shaderCode:En,auxiliaryTextureUrl:"img/illusion.png"},it={id:"trainer-gallery-v-max",shaderCode:In},ot={id:"trainer-holo",shaderCode:qn,auxiliaryTextureUrl:"img/trainerbg.png"},st={id:"pokemon-v",shaderCode:Hn,auxiliaryTextureUrl:"img/grain.webp"},ct={id:"pokemon-v-alternate-art",shaderCode:$n},ft={id:"pokemon-v-full-art",shaderCode:Yn},dt={id:"v-star",shaderCode:Nn,auxiliaryTextureUrl:"img/ancient.png"},ut={id:"v-max-alt",shaderCode:Wn},pt={id:"v-max",shaderCode:Xn,auxiliaryTextureUrl:"img/vmaxbg.jpg"},vt={id:"shiny-vault",shaderCode:jn,auxiliaryTextureUrls:["img/glitter.png","img/illusion.png","img/grain.webp"]},ht={"Reverse Holo non-rares":Zn,"Holofoil Rare":et,"Trainer Gallery (V)":lt,"Trainer Gallery (VMax)":it,"Trainer Holo":ot,"Holofoil Amazing Rare":Jn,"Galaxy/Cosmos Holofoil":Qn,"Trainer Gallery Holofoil":at,"Radiant Holofoil":nt,"Rainbow Rare":tt,"Secret Rare (Gold)":rt,"Pokemon V":st,"Pokemon V (Alternate Art)":ct,"Pokemon V (Full Art)":ft,VMax:pt,"VMax (Alternate/Rainbow)":ut,VStar:dt,"Shiny Vault":vt};function we(n){return ht[n]??Kn}function mt(n){const e=new Set((n.types??[]).map(t=>t.toLowerCase()));return e.has("lightning")?.7:e.has("darkness")?.8:e.has("metal")?.6:.55}function gt(n){const e=(n.subtypes??[]).map(t=>t.toLowerCase());return n.supertype.toLowerCase()==="trainer"?2:e.some(t=>t.startsWith("stage"))?1:0}function bt(n,e){if(n!=="Shiny Vault"||!e.number.toLowerCase().startsWith("sv"))return 0;const t=new Set((e.subtypes??[]).map(r=>r.toLowerCase()));return t.has("vmax")?2:t.has("v")?1:0}async function xt({canvas:n,webgpuPane:e}){if(!navigator.gpu)throw alert("WebGPU not supported on this browser."),new Error("WebGPU not supported");const t=await navigator.gpu.requestAdapter();if(!t)throw alert("No appropriate GPUAdapter found."),new Error("No appropriate GPUAdapter found");const r=await t.requestDevice(),l=n.getContext("webgpu");if(!l)throw new Error("Unable to acquire WebGPU context");let i=window.devicePixelRatio||1;const c=navigator.gpu.getPreferredCanvasFormat(),h={device:r,format:c,alphaMode:"premultiplied"};l.configure(h);const m=r.createSampler({magFilter:"linear",minFilter:"linear"}),s=.718,f=1.2,g=new Float32Array([-1*f,-1/s*f,0,1,1*f,-1/s*f,1,1,1*f,1/s*f,1,0,-1*f,1/s*f,0,0]),b=new Uint16Array([0,1,2,0,2,3]),x=r.createBuffer({size:g.byteLength,usage:GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST});r.queue.writeBuffer(x,0,g);const P=r.createBuffer({size:b.byteLength,usage:GPUBufferUsage.INDEX|GPUBufferUsage.COPY_DST});r.queue.writeBuffer(P,0,b);const L=r.createBuffer({size:80,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST}),y=r.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.VERTEX|GPUShaderStage.FRAGMENT,buffer:{}},{binding:1,visibility:GPUShaderStage.FRAGMENT,sampler:{}},{binding:2,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:3,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:4,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:5,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:6,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:7,visibility:GPUShaderStage.FRAGMENT,texture:{}}]}),d=r.createPipelineLayout({bindGroupLayouts:[y]}),o=new Map;function a(p){const u=r.createShaderModule({code:p.shaderCode});return r.createRenderPipeline({layout:d,vertex:{module:u,entryPoint:"vertexMain",buffers:[{arrayStride:16,attributes:[{shaderLocation:0,offset:0,format:"float32x2"},{shaderLocation:1,offset:8,format:"float32x2"}]}]},fragment:{module:u,entryPoint:"fragmentMain",targets:[{format:c,blend:{color:{srcFactor:"one",dstFactor:"one-minus-src-alpha",operation:"add"},alpha:{srcFactor:"one",dstFactor:"one-minus-src-alpha",operation:"add"}}}]},primitive:{topology:"triangle-list"}})}function v(p){let u=o.get(p.id);return u||(u=a(p),o.set(p.id,u)),u}const k=new Map;async function U(p){let u=k.get(p);return u||(u=await N(R(p)),k.set(p,u)),u}async function A(p){const u=p.auxiliaryTextureUrls??[p.auxiliaryTextureUrl??"img/glitter.png"],S=[u[0]??"img/glitter.png",u[1]??"img/glitter.png",u[2]??"img/glitter.png"];return Promise.all(S.map(U))}function F(p,u,S,C){return r.createBindGroup({layout:y,entries:[{binding:0,resource:{buffer:L}},{binding:1,resource:m},{binding:2,resource:p.createView()},{binding:3,resource:u.createView()},{binding:4,resource:S.createView()},{binding:5,resource:C[0].createView()},{binding:6,resource:C[1].createView()},{binding:7,resource:C[2].createView()}]})}let z=V([255,255,255,255]),D=V([0,0,0,255]),G=V([0,0,0,0]);const ae=we("");let le=v(ae),$=await A(ae),ie=F(z,D,G,$),E=.5,I=.5,Y=0,X=0,j=0,K=0,Z=0,J=0,oe=.55,se=.476,ce=.476,fe=0,de=0,ue=0,pe=0,ve=0;const Re=performance.now();let q=1,M=1,W;function he(){window.clearTimeout(W),E=.5,I=.5,Y=0,X=0,Z=0}function Pe(p=500){window.clearTimeout(W),W=window.setTimeout(he,p)}function Ue(){const p=n.getBoundingClientRect(),u=Math.min(p.height*.6,p.width-48),S=u/s,C=p.left+(p.width-u)/2,_=p.top+(p.height-S)/2;return{width:u,height:S,cardLeft:C,cardTop:_}}function me(p){window.clearTimeout(W),E=Math.min(Math.max(p.x,0),1),I=Math.min(Math.max(p.y,0),1);const u=E-.5,S=I-.5;Y=-(u*100)/3.5*(Math.PI/180),X=-(S*100)/3.5*(Math.PI/180),Z=1}function Be(p){const u=Ue(),S={x:(p.clientX-u.cardLeft)/u.width,y:(p.clientY-u.cardTop)/u.height};return me(S),S}function Ae(){Pe()}function Q(){i=window.devicePixelRatio||1;const p=e.getBoundingClientRect();q=Math.max(1,Math.round(p.width*i)),M=Math.max(1,Math.round(p.height*i)),(n.width!==q||n.height!==M)&&(n.width=q,n.height=M,l.configure(h))}new ResizeObserver(Q).observe(e),window.addEventListener("resize",Q),Q();function V(p){const u=r.createTexture({size:[1,1,1],format:"rgba8unorm",usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});return r.queue.writeTexture({texture:u},new Uint8Array(p),{bytesPerRow:4},[1,1]),u}async function N(p){const u=await fetch(p);if(!u.ok)throw new Error(`Unable to load texture: ${p}`);const S=await u.blob(),C=await createImageBitmap(S),_=r.createTexture({size:[C.width,C.height,1],format:"rgba8unorm",usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST|GPUTextureUsage.RENDER_ATTACHMENT});return r.queue.copyExternalImageToTexture({source:C},{texture:_},[C.width,C.height]),C.close(),_}async function _e(p,u,S,C){const _=we(u),T=v(_),ge=H(S,"foils",u,C),ee=H(S,"masks",u,C),[ze,Me,Ve]=await Promise.all([N(p),ge?N(ge):Promise.resolve(V([0,0,0,255])),ee?N(ee):Promise.resolve(V([0,0,0,0]))]),Oe=z,De=D,Ge=G;z=ze,D=Me,G=Ve,le=T,$=await A(_),oe=mt(S);const be=Ce(S);fe=be.cosmosPixels.x,de=be.cosmosPixels.y,ue=gt(S),pe=bt(u,S),ve=ee?1:0,ie=F(z,D,G,$),Oe.destroy(),De.destroy(),Ge.destroy()}function Te(){j+=(Y-j)*.15,K+=(X-K)*.15,J+=(Z-J)*.15;const p=(performance.now()-Re)/1e3,u=600*(2*i/M),S=new Float32Array([q,M,E,I,j,K,p,i,u,J,oe,se,ce,fe,de,ue,pe,ve,0,0]);r.queue.writeBuffer(L,0,S);const C=r.createCommandEncoder(),_=l.getCurrentTexture().createView(),T=C.beginRenderPass({colorAttachments:[{view:_,clearValue:{r:.2235,g:.2314,b:.2706,a:1},loadOp:"clear",storeOp:"store"}]});T.setPipeline(le),T.setBindGroup(0,ie),T.setVertexBuffer(0,x),T.setIndexBuffer(P,"uint16"),T.drawIndexed(b.length),T.end(),r.queue.submit([C.finish()])}function Fe(p,u){se=p,ce=u}return{updateTexture:_e,setPointer:me,handlePointerMove:Be,handlePointerLeave:Ae,resetPointer:he,render:Te,setPatternParams:Fe}}async function yt(){Ee();const n=document.createElement("a");n.className="github-link",n.href="https://github.com/jeantimex/pokemon-cards-webgpu",n.target="_blank",n.rel="noreferrer noopener",n.setAttribute("aria-label","GitHub profile for jeantimex"),n.innerHTML=`
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path d="M12 2a10 10 0 0 0-3.16 19.48c.5.09.68-.22.68-.48v-1.68c-2.78.61-3.37-1.17-3.37-1.17-.46-1.18-1.11-1.49-1.11-1.49-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.36 1.09 2.94.83.09-.66.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.93 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.03a9.5 9.5 0 0 1 5 0c1.91-1.3 2.75-1.03 2.75-1.03.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.83-2.34 4.68-4.57 4.93.36.31.69.92.69 1.86v2.76c0 .26.18.58.69.48A10 10 0 0 0 12 2Z"/>
     </svg>
     <span>jeantimex</span>
-  `,document.body.appendChild(n);const e=document.querySelector("#webgpu-canvas"),t=document.querySelector("#css-card"),r=document.querySelector("#css-card-image"),i=document.querySelector(".pane-css .card__front"),l=document.querySelector(".pane-css .card__rotator"),c=document.querySelector(".pane-webgpu"),m=await(await fetch(R("cards.json"))).json(),d=fn(m,new Set),g=Bn(d,m),b=un({cssCard:t,cssCardImage:r,cssCardFront:i,cssCardRotator:l}),x=await ct({canvas:e,webgpuPane:c}),P=async(y,f)=>{const o=$e(y.images.large);b.updateCard(y,o,f,d.variants[f]),await x.updateTexture(o,f,y,d.variants[f])};Ln({cardLibrary:d,cards:m,initialCategory:g.category,initialCardId:g.card.id,onCardChange:P,onSelectionChange:(y,f)=>{An(f,y)},webgpuRenderer:x}),l.addEventListener("pointermove",y=>{const f=b.handlePointerMove(y);x.setPointer(f)}),l.addEventListener("pointerleave",()=>{b.handlePointerLeave(),x.handlePointerLeave()}),l.addEventListener("blur",()=>{b.handleBlur(),x.resetPointer()}),c.addEventListener("pointermove",y=>{const f=x.handlePointerMove(y);b.setPointer(f)}),c.addEventListener("pointerleave",()=>{x.handlePointerLeave(),b.handlePointerLeave()}),window.addEventListener("blur",()=>{x.resetPointer(),b.handleBlur()});function L(){b.tick(),x.render(),requestAnimationFrame(L)}requestAnimationFrame(L)}dt();
+  `,document.body.appendChild(n);const e=document.querySelector("#webgpu-canvas"),t=document.querySelector("#css-card"),r=document.querySelector("#css-card-image"),l=document.querySelector(".pane-css .card__front"),i=document.querySelector(".pane-css .card__rotator"),c=document.querySelector(".pane-webgpu"),m=await(await fetch(R("cards.json"))).json(),f=dn(m,new Set),g=Bn(f,m),b=un({cssCard:t,cssCardImage:r,cssCardFront:l,cssCardRotator:i}),x=await xt({canvas:e,webgpuPane:c}),P=async(y,d)=>{const o=Ie(y.images.large);b.updateCard(y,o,d,f.variants[d]),await x.updateTexture(o,d,y,f.variants[d])};Ln({cardLibrary:f,cards:m,initialCategory:g.category,initialCardId:g.card.id,onCardChange:P,onSelectionChange:(y,d)=>{An(d,y)},webgpuRenderer:x}),i.addEventListener("pointermove",y=>{const d=b.handlePointerMove(y);x.setPointer(d)}),i.addEventListener("pointerleave",()=>{b.handlePointerLeave(),x.handlePointerLeave()}),i.addEventListener("blur",()=>{b.handleBlur(),x.resetPointer()}),c.addEventListener("pointermove",y=>{const d=x.handlePointerMove(y);b.setPointer(d)}),c.addEventListener("pointerleave",()=>{x.handlePointerLeave(),b.handlePointerLeave()}),window.addEventListener("blur",()=>{x.resetPointer(),b.handleBlur()});function L(){b.tick(),x.render(),requestAnimationFrame(L)}requestAnimationFrame(L)}yt();
