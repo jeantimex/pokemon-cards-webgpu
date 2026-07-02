@@ -626,7 +626,7 @@ fn artworkClip(uv: vec2f) -> f32 {
         let right = uv.x >= 0.57 && uv.x <= 0.915 && uv.y >= 0.0985 && uv.y <= 0.4715;
         return select(0.0, 1.0, base || topLeft || topMid || topRight || right);
     }
-    return select(0.0, 1.0, uv.x >= 0.085 && uv.x <= 0.915 && uv.y >= 0.145 && uv.y <= 0.482);
+    return select(0.0, 1.0, uv.x >= 0.085 && uv.x <= 0.915 && uv.y >= 0.145 && uv.y <= 0.518);
 }
 
 fn shinyRareGlare(uv: vec2f) -> vec4f {
