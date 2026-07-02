@@ -27,7 +27,8 @@ function getArtworkClipMode(card: Card) {
   return 0;
 }
 
-function getShinyVaultKind(categoryName: string, card: Card) {
+function getEffectKind(categoryName: string, card: Card) {
+  if (categoryName === 'Secret Rare (Gold)' && card.number.match(/^[tg]g/i)) return 1;
   if (categoryName !== 'Shiny Vault' || !card.number.toLowerCase().startsWith('sv')) return 0;
   const subtypes = new Set((card.subtypes ?? []).map((subtype) => subtype.toLowerCase()));
   if (subtypes.has('vmax')) return 2;
@@ -374,7 +375,7 @@ export async function createWebGpuCardRenderer({
     cosmosOffsetX = patternSeed.cosmosPixels.x;
     cosmosOffsetY = patternSeed.cosmosPixels.y;
     artworkClipMode = getArtworkClipMode(card);
-    shinyKind = getShinyVaultKind(categoryName, card);
+    shinyKind = getEffectKind(categoryName, card);
     activeHasMask = maskUrl ? 1 : 0;
     bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture, activeAuxiliaryTextures);
     previousCardTexture.destroy();

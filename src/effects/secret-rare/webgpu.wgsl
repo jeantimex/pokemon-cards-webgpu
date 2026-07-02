@@ -9,9 +9,13 @@ struct Uniforms {
     foilBrightness: f32,
     patternScaleX: f32,
     patternScaleY: f32,
+    cosmosOffsetX: f32,
+    cosmosOffsetY: f32,
+    clipMode: f32,
+    shinyKind: f32,
+    hasMask: f32,
     _pad0: f32,
     _pad1: f32,
-    _pad2: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -114,9 +118,17 @@ fn lightenBlend(base: vec3f, blend: vec3f) -> vec3f {
     return max(base, blend);
 }
 
+fn screenBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return 1.0 - (1.0 - base) * (1.0 - blend);
+}
+
 fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
     let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
     return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
+}
+
+fn luminosity(color: vec3f) -> f32 {
+    return dot(color, vec3f(0.299, 0.587, 0.114));
 }
 
 fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
@@ -138,6 +150,8 @@ fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
 }
 
 const SUNPILLAR_1: vec3f = vec3f(0.973, 0.459, 0.459);
+const SUNPILLAR_2: vec3f = vec3f(1.000, 0.927, 0.380);
+const SUNPILLAR_3: vec3f = vec3f(0.721, 1.000, 0.380);
 const SUNPILLAR_4: vec3f = vec3f(0.518, 1.0, 0.835);
 const SUNPILLAR_5: vec3f = vec3f(0.478, 0.569, 0.969);
 const SUNPILLAR_6: vec3f = vec3f(0.780, 0.459, 0.973);
@@ -157,6 +171,30 @@ fn secretConicGradient(uv: vec2f) -> vec3f {
         return mix(SUNPILLAR_6, SUNPILLAR_1, (t - 0.5) * 4.0);
     }
     return mix(SUNPILLAR_1, SUNPILLAR_4, (t - 0.75) * 4.0);
+}
+
+fn trainerGalleryConicGradient(uv: vec2f) -> vec3f {
+    // CSS conic-gradient starts at 12 o'clock and advances clockwise in
+    // top-left-origin image coordinates.
+    let delta = uv - vec2f(0.5);
+    let t = fract(atan2(delta.x, -delta.y) / 6.28318531);
+
+    if (t < 0.16666667) {
+        return mix(SUNPILLAR_4, SUNPILLAR_5, t * 6.0);
+    }
+    if (t < 0.33333334) {
+        return mix(SUNPILLAR_5, SUNPILLAR_6, (t - 0.16666667) * 6.0);
+    }
+    if (t < 0.5) {
+        return mix(SUNPILLAR_6, SUNPILLAR_1, (t - 0.33333334) * 6.0);
+    }
+    if (t < 0.66666669) {
+        return mix(SUNPILLAR_1, SUNPILLAR_2, (t - 0.5) * 6.0);
+    }
+    if (t < 0.83333331) {
+        return mix(SUNPILLAR_2, SUNPILLAR_3, (t - 0.66666669) * 6.0);
+    }
+    return mix(SUNPILLAR_3, SUNPILLAR_4, (t - 0.83333331) * 6.0);
 }
 
 // CSS radial-gradient uses LINEAR interpolation between color stops
@@ -202,6 +240,21 @@ fn sampleGlitter(uv: vec2f, offset: vec2f) -> vec3f {
     let luma = dot(raw, vec3f(0.2126, 0.7152, 0.0722));
     let sparkle = smoothstep(0.70, 1.0, luma);
     return mix(vec3f(0.5), raw, sparkle * 0.45);
+}
+
+fn cssBackgroundImageUv(uv: vec2f, size: vec2f, position: vec2f) -> vec2f {
+    let origin = (vec2f(1.0) - size) * position;
+    return fract((uv - origin) / size);
+}
+
+fn sampleSecretGlitterField(uv: vec2f, positionA: vec2f, positionB: vec2f) -> vec4f {
+    let tileSize = vec2f(0.25);
+    let rawA = textureSampleLevel(glitterTexture, linearSampler, cssBackgroundImageUv(uv, tileSize, positionA), 0.0).rgb;
+    let rawB = textureSampleLevel(glitterTexture, linearSampler, cssBackgroundImageUv(uv, tileSize, positionB), 0.0).rgb;
+    let luma = max(dot(rawA, vec3f(0.2126, 0.7152, 0.0722)), dot(rawB, vec3f(0.2126, 0.7152, 0.0722)));
+    let sparkle = pow(smoothstep(0.62, 0.97, luma), 2.05);
+    let hue = trainerGalleryConicGradient(uv);
+    return vec4f(hue, sparkle);
 }
 
 @fragment
@@ -274,6 +327,43 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let glareFiltered = applyFilter(glare.rgb, 1.3, 1.5, 1.0);
     let glareBlended = hardLightBlend(cardRgb, glareFiltered);
     cardRgb = mix(cardRgb, glareBlended, glare.a * uniforms.opacity * cardMask * 0.3);
+
+    if (uniforms.shinyKind > 0.5) {
+        let glareT = distance(cardUV, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+        let localGlare = 1.0 - linearStep(0.04, 0.42, glareT);
+        let blackArea = 1.0 - smoothstep(0.05, 0.24, luminosity(textureColor.rgb));
+
+        let ambientGlitter = sampleSecretGlitterField(cardUV, vec2f(0.40, 0.45), vec2f(0.55, 0.55));
+        let ambientGlitterBlend = screenBlend(cardRgb, ambientGlitter.rgb);
+        cardRgb = mix(
+            cardRgb,
+            ambientGlitterBlend,
+            ambientGlitter.a * blackArea * uniforms.opacity * cardMask * 0.14
+        );
+
+        let movingGlitter = sampleSecretGlitterField(
+            cardUV + (vec2f(0.5) - uniforms.pointer) * 0.018,
+            vec2f(0.42, 0.46),
+            vec2f(0.57, 0.53)
+        );
+        let sparkle = movingGlitter.a;
+
+        let warmGlitter = mix(vec3f(0.95, 0.58, 0.14), vec3f(1.0, 0.92, 0.55), sparkle);
+        let glitterGlow = screenBlend(cardRgb, warmGlitter);
+        cardRgb = mix(
+            cardRgb,
+            glitterGlow,
+            localGlare * sparkle * blackArea * uniforms.opacity * cardMask * 0.26
+        );
+
+        let localGlareColor = vec3f(0.82, 0.66, 0.40);
+        let localGlareBlend = screenBlend(cardRgb, localGlareColor);
+        cardRgb = mix(
+            cardRgb,
+            localGlareBlend,
+            localGlare * blackArea * uniforms.opacity * cardMask * 0.10
+        );
+    }
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
     let finalColor = alphaOver(shadowColor, finalCard);
