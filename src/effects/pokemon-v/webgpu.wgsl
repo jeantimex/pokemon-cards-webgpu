@@ -9,9 +9,13 @@ struct Uniforms {
     foilBrightness: f32,
     patternScaleX: f32,
     patternScaleY: f32,
+    cosmosOffsetX: f32,
+    cosmosOffsetY: f32,
+    clipMode: f32,
+    shinyKind: f32,
+    hasMask: f32,
     _pad0: f32,
     _pad1: f32,
-    _pad2: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -19,7 +23,7 @@ struct Uniforms {
 @group(0) @binding(2) var cardTexture: texture_2d<f32>;
 @group(0) @binding(3) var foilTexture: texture_2d<f32>;
 @group(0) @binding(4) var maskTexture: texture_2d<f32>;
-@group(0) @binding(5) var glitterTexture: texture_2d<f32>;
+@group(0) @binding(5) var grainTexture: texture_2d<f32>;
 
 struct VertexOutput {
     @builtin(position) position: vec4f,
@@ -79,10 +83,16 @@ fn linearStep(edge0: f32, edge1: f32, x: f32) -> f32 {
     return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
 
-// --- Blend Modes ---
+fn cssBackgroundPosition() -> vec2f {
+    return vec2f(
+        mix(0.37, 0.63, uniforms.pointer.x),
+        mix(0.33, 0.67, uniforms.pointer.y)
+    );
+}
 
-fn screenBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return 1.0 - (1.0 - base) * (1.0 - blend);
+fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
+    let origin = (vec2f(1.0) - size) * pos;
+    return (uv - origin) / size;
 }
 
 fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
@@ -93,29 +103,39 @@ fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
     );
 }
 
-fn softLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+fn softLightChannel(base: f32, blend: f32) -> f32 {
     let low = base - (1.0 - 2.0 * blend) * base * (1.0 - base);
-    let d = select(((16.0 * base - 12.0) * base + 4.0) * base, sqrt(max(base, vec3f(0.0))), base > vec3f(0.25));
+    let d = select(((16.0 * base - 12.0) * base + 4.0) * base, sqrt(max(base, 0.0)), base > 0.25);
     let high = base + (2.0 * blend - 1.0) * (d - base);
-    return mix(low, high, step(vec3f(0.5), blend));
+    return mix(low, high, step(0.5, blend));
+}
+
+fn softLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return vec3f(
+        softLightChannel(base.r, blend.r),
+        softLightChannel(base.g, blend.g),
+        softLightChannel(base.b, blend.b)
+    );
+}
+
+fn screenBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return 1.0 - (1.0 - base) * (1.0 - blend);
 }
 
 fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
+    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
+    return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
 }
 
 fn rgb2hsl(c: vec3f) -> vec3f {
     let maxC = max(max(c.r, c.g), c.b);
     let minC = min(min(c.r, c.g), c.b);
     let l = (maxC + minC) * 0.5;
-
     if (maxC == minC) {
         return vec3f(0.0, 0.0, l);
     }
-
     let d = maxC - minC;
     let s = select(d / (2.0 - maxC - minC), d / (maxC + minC), l > 0.5);
-
     var h: f32;
     if (maxC == c.r) {
         h = (c.g - c.b) / d + select(0.0, 6.0, c.g < c.b);
@@ -124,18 +144,16 @@ fn rgb2hsl(c: vec3f) -> vec3f {
     } else {
         h = (c.r - c.g) / d + 4.0;
     }
-    h /= 6.0;
-
-    return vec3f(h, s, l);
+    return vec3f(h / 6.0, s, l);
 }
 
 fn hue2rgb(p: f32, q: f32, t: f32) -> f32 {
     var tt = t;
     if (tt < 0.0) { tt += 1.0; }
     if (tt > 1.0) { tt -= 1.0; }
-    if (tt < 1.0/6.0) { return p + (q - p) * 6.0 * tt; }
-    if (tt < 1.0/2.0) { return q; }
-    if (tt < 2.0/3.0) { return p + (q - p) * (2.0/3.0 - tt) * 6.0; }
+    if (tt < 1.0 / 6.0) { return p + (q - p) * 6.0 * tt; }
+    if (tt < 1.0 / 2.0) { return q; }
+    if (tt < 2.0 / 3.0) { return p + (q - p) * (2.0 / 3.0 - tt) * 6.0; }
     return p;
 }
 
@@ -146,16 +164,16 @@ fn hsl2rgb(hsl: vec3f) -> vec3f {
     let q = select(hsl.z + hsl.y - hsl.z * hsl.y, hsl.z * (1.0 + hsl.y), hsl.z < 0.5);
     let p = 2.0 * hsl.z - q;
     return vec3f(
-        hue2rgb(p, q, hsl.x + 1.0/3.0),
+        hue2rgb(p, q, hsl.x + 1.0 / 3.0),
         hue2rgb(p, q, hsl.x),
-        hue2rgb(p, q, hsl.x - 1.0/3.0)
+        hue2rgb(p, q, hsl.x - 1.0 / 3.0)
     );
 }
 
 fn hueBlend(base: vec3f, blend: vec3f) -> vec3f {
-    let baseHSL = rgb2hsl(base);
-    let blendHSL = rgb2hsl(blend);
-    return hsl2rgb(vec3f(blendHSL.x, baseHSL.y, baseHSL.z));
+    let baseHsl = rgb2hsl(base);
+    let blendHsl = rgb2hsl(blend);
+    return hsl2rgb(vec3f(blendHsl.x, baseHsl.y, baseHsl.z));
 }
 
 fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
@@ -172,239 +190,131 @@ fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
     return vec4f(rgb, a);
 }
 
-// --- Sunpillar Colors ---
-const SUNPILLAR_1: vec3f = vec3f(0.973, 0.459, 0.459); // hsl(2, 100%, 73%) - red
-const SUNPILLAR_2: vec3f = vec3f(0.969, 0.878, 0.376); // hsl(53, 100%, 69%) - yellow
-const SUNPILLAR_3: vec3f = vec3f(0.608, 0.969, 0.376); // hsl(93, 100%, 69%) - green
-const SUNPILLAR_4: vec3f = vec3f(0.518, 1.0, 0.835);   // hsl(176, 100%, 76%) - cyan
-const SUNPILLAR_5: vec3f = vec3f(0.478, 0.569, 0.969); // hsl(228, 100%, 74%) - blue
-const SUNPILLAR_6: vec3f = vec3f(0.780, 0.459, 0.973); // hsl(283, 100%, 73%) - purple
+const SUNPILLAR_1: vec3f = vec3f(0.973, 0.459, 0.459);
+const SUNPILLAR_2: vec3f = vec3f(0.969, 0.878, 0.376);
+const SUNPILLAR_3: vec3f = vec3f(0.608, 0.969, 0.376);
+const SUNPILLAR_4: vec3f = vec3f(0.518, 1.0, 0.835);
+const SUNPILLAR_5: vec3f = vec3f(0.478, 0.569, 0.969);
+const SUNPILLAR_6: vec3f = vec3f(0.780, 0.459, 0.973);
 
-fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
-    let origin = (vec2f(1.0) - size) * pos;
-    return (uv - origin) / size;
+fn sunpillarColor(index: i32, afterLayer: bool) -> vec3f {
+    let wrapped = ((index % 6) + 6) % 6;
+    let shifted = select(wrapped, (wrapped + 5) % 6, afterLayer);
+    switch shifted {
+        case 0: { return SUNPILLAR_1; }
+        case 1: { return SUNPILLAR_2; }
+        case 2: { return SUNPILLAR_3; }
+        case 3: { return SUNPILLAR_4; }
+        case 4: { return SUNPILLAR_5; }
+        default: { return SUNPILLAR_6; }
+    }
 }
 
-fn cssBackgroundPosition() -> vec2f {
-    return vec2f(
-        mix(0.37, 0.63, uniforms.pointer.x),
-        mix(0.33, 0.67, uniforms.pointer.y)
-    );
-}
-
-// CSS repeating-linear-gradient(0deg, ...), with 5% stops over a 35% cycle.
-fn verticalSunpillar(layerUv: vec2f) -> vec3f {
-    let t = fract((1.0 - layerUv.y) / 0.35);
-
-    if (t < 0.143) { return mix(SUNPILLAR_1, SUNPILLAR_2, t / 0.143); }
-    if (t < 0.286) { return mix(SUNPILLAR_2, SUNPILLAR_3, (t - 0.143) / 0.143); }
-    if (t < 0.429) { return mix(SUNPILLAR_3, SUNPILLAR_4, (t - 0.286) / 0.143); }
-    if (t < 0.571) { return mix(SUNPILLAR_4, SUNPILLAR_5, (t - 0.429) / 0.143); }
-    if (t < 0.714) { return mix(SUNPILLAR_5, SUNPILLAR_6, (t - 0.571) / 0.143); }
-    return mix(SUNPILLAR_6, SUNPILLAR_1, (t - 0.714) / 0.286);
-}
-
-fn diagonalStripePhaseWithRepeat(layerUv: vec2f, repeatSize: f32) -> f32 {
-    let angle = radians(115.0);
-    let dir = vec2f(sin(angle), -cos(angle));
-    let t = dot(layerUv, dir);
-    return fract(t / repeatSize);
+fn verticalSunpillar(layerUv: vec2f, afterLayer: bool) -> vec3f {
+    let t = fract((1.0 - layerUv.y) / 0.35) * 7.0;
+    let idx = i32(floor(t));
+    let f = fract(t);
+    return mix(sunpillarColor(idx, afterLayer), sunpillarColor(idx + 1, afterLayer), f);
 }
 
 fn diagonalStripePhase(layerUv: vec2f) -> f32 {
-    return diagonalStripePhaseWithRepeat(layerUv, 0.12);
+    let angle = radians(115.0);
+    let dir = vec2f(sin(angle), -cos(angle));
+    return fract(dot(layerUv, dir) / 0.12);
 }
 
-// CSS repeating-linear-gradient(133deg, ... 12%).
 fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
     let cycle = diagonalStripePhase(layerUv);
-
-    let dark = vec3f(0.055, 0.082, 0.18);      // #0e152e - dark blue
-    let gray = vec3f(0.557, 0.612, 0.612);     // hsl(180, 10%, 60%) - desaturated cyan
-    let cyan = vec3f(0.525, 0.725, 0.725);     // hsl(180, 29%, 66%) - cyan
-
-    let s1 = 0.317;  // 3.8/12
-    let s2 = 0.375;  // 4.5/12
-    let s3 = 0.433;  // 5.2/12
-    let s4 = 0.833;  // 10/12
-
-    if (cycle < s1) { return mix(dark, gray, cycle / s1); }
-    if (cycle < s2) { return mix(gray, cyan, (cycle - s1) / (s2 - s1)); }
-    if (cycle < s3) { return mix(cyan, gray, (cycle - s2) / (s3 - s2)); }
-    if (cycle < s4) { return mix(gray, dark, (cycle - s3) / (s4 - s3)); }
+    let dark = vec3f(0.055, 0.082, 0.18);
+    let gray = vec3f(0.557, 0.612, 0.612);
+    let cyan = vec3f(0.525, 0.725, 0.725);
+    if (cycle < 0.317) { return mix(dark, gray, cycle / 0.317); }
+    if (cycle < 0.375) { return mix(gray, cyan, (cycle - 0.317) / 0.058); }
+    if (cycle < 0.433) { return mix(cyan, gray, (cycle - 0.375) / 0.058); }
+    if (cycle < 0.833) { return mix(gray, dark, (cycle - 0.433) / 0.4); }
     return dark;
 }
 
-fn diagonalBeamMask(layerUv: vec2f) -> f32 {
-    let cycle = diagonalStripePhase(layerUv);
-    let distToPeak = abs(cycle - 0.375);
-    let core = 1.0 - smoothstep(0.0, 0.12, distToPeak);
-    let halo = 1.0 - smoothstep(0.06, 0.34, distToPeak);
-    return clamp(core * 0.65 + halo * 0.5, 0.0, 1.0);
-}
-
-fn diagonalBeamHalo(layerUv: vec2f) -> f32 {
-    let cycle = diagonalStripePhase(layerUv);
-    let distToPeak = abs(cycle - 0.375);
-    let broad = 1.0 - smoothstep(0.08, 0.43, distToPeak);
-    let edge = smoothstep(0.035, 0.18, distToPeak);
-    return broad * edge;
-}
-
-fn diagonalBackBeamMask(layerUv: vec2f) -> f32 {
-    let cycle = diagonalStripePhaseWithRepeat(layerUv, 0.24);
-    let distToPeak = abs(cycle - 0.375);
-    let core = 1.0 - smoothstep(0.0, 0.033, distToPeak);
-    let halo = 1.0 - smoothstep(0.02, 0.075, distToPeak);
-    return clamp(core * 1.2 + halo * 0.16, 0.0, 1.0);
-}
-
-fn diagonalBackBeamHalo(layerUv: vec2f) -> f32 {
-    let cycle = diagonalStripePhaseWithRepeat(layerUv, 0.24);
-    let distToPeak = abs(cycle - 0.375);
-    let broad = 1.0 - smoothstep(0.03, 0.18, distToPeak);
-    let edge = smoothstep(0.015, 0.075, distToPeak);
-    return broad * edge;
-}
-
-fn pokemonVBeamOverlap(uv: vec2f) -> vec3f {
-    let bg = cssBackgroundPosition();
-    let frontUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), bg);
-    let backUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), -bg);
-    let frontBeam = diagonalBeamMask(frontUv);
-    let backBeam = diagonalBackBeamMask(backUv);
-    let overlap = pow(clamp(frontBeam * backBeam, 0.0, 1.0), 0.72);
-
-    let cardSize = getCardSize();
-    let cardWidthPx = max(cardSize.x * uniforms.resolution.y / uniforms.dpr, 1.0);
-    let grainWidth = 500.0 / cardWidthPx;
-    let grainUv = backgroundSampleUv(uv, vec2f(grainWidth, 1.0), vec2f(0.5, 0.5));
-    let grain = textureSampleLevel(glitterTexture, linearSampler, fract(grainUv), 0.0);
-    let fineGrain = textureSampleLevel(
-        glitterTexture,
-        linearSampler,
-        fract(grainUv * vec2f(1.85, 1.35) + vec2f(0.17, 0.39)),
-        0.0
-    );
-    let grainLuma = dot(grain.rgb, vec3f(0.299, 0.587, 0.114));
-    let fineGrainLuma = dot(fineGrain.rgb, vec3f(0.299, 0.587, 0.114));
-    let particle = 0.34 + smoothstep(0.08, 0.3, grainLuma) * 0.9 +
-        smoothstep(0.12, 0.34, fineGrainLuma) * 1.55;
-
-    let sunColor = verticalSunpillar(backgroundSampleUv(uv, vec2f(2.0, 7.0), vec2f(0.0, bg.y)));
-    let mergeTint = mix(sunColor * 1.35, vec3f(1.0, 0.94, 0.7), overlap * 0.45);
-    return mergeTint * overlap * particle * 1.25;
-}
-
-// Base radial gradient - subtle darkening at pointer
-fn baseRadialGradient(uv: vec2f) -> vec4f {
+fn shineRadial(uv: vec2f) -> vec4f {
     let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
-    // CSS: hsla(0,0%,0%,0.1) 12%, hsla(0,0%,0%,0.15) 20%, hsla(0,0%,0%,0.25) 120%
-    let a1 = 0.1;
-    let a2 = 0.15;
-    let a3 = 0.25;
-
     var alpha: f32;
     if (t < 0.12) {
-        alpha = a1;
+        alpha = 0.1;
     } else if (t < 0.20) {
-        alpha = mix(a1, a2, linearStep(0.12, 0.20, t));
+        alpha = mix(0.1, 0.15, linearStep(0.12, 0.20, t));
     } else {
-        alpha = mix(a2, a3, linearStep(0.20, 1.20, t));
+        alpha = mix(0.15, 0.25, linearStep(0.20, 1.20, t));
     }
-
     return vec4f(0.0, 0.0, 0.0, alpha);
 }
 
-fn compositeBackgroundLayer(bottom: vec4f, top: vec4f, blendMode: i32) -> vec4f {
+// CSS background-blend-mode compositing: the blend result only applies where
+// the backdrop has coverage; over transparent backdrop the source paints as-is.
+// mode: 1 hue, 2 hard-light, 3 screen
+fn compositeBackgroundLayer(bottom: vec4f, top: vec4f, mode: i32) -> vec4f {
     var blended: vec3f;
-    if (blendMode == 0) {
-        blended = screenBlend(bottom.rgb, top.rgb);
-    } else if (blendMode == 1) {
+    if (mode == 1) {
         blended = hueBlend(bottom.rgb, top.rgb);
-    } else {
+    } else if (mode == 2) {
         blended = hardLightBlend(bottom.rgb, top.rgb);
+    } else {
+        blended = screenBlend(bottom.rgb, top.rgb);
     }
-    let rgb = mix(bottom.rgb, blended, top.a);
-    let alpha = top.a + bottom.a * (1.0 - top.a);
-    return vec4f(rgb, alpha);
+    let co = top.a * (1.0 - bottom.a) * top.rgb
+        + top.a * bottom.a * blended
+        + (1.0 - top.a) * bottom.a * bottom.rgb;
+    let ao = top.a + bottom.a * (1.0 - top.a);
+    return vec4f(co / max(ao, 0.00001), ao);
 }
 
-fn pokemonVShineLayer(uv: vec2f, afterLayer: bool) -> vec4f {
-    let bg = cssBackgroundPosition();
-    let diagonalPos = select(bg, -bg, afterLayer);
-    let sunSize = select(vec2f(2.0, 7.0), vec2f(2.0, 4.0), afterLayer);
-    let diagonalSize = select(vec2f(3.0, 1.0), vec2f(1.95, 1.0), afterLayer);
-
+// Grain layer: 500px wide (CSS layout px), full height, centered, tiled.
+fn sampleGrain(uv: vec2f) -> vec4f {
     let cardSize = getCardSize();
     let cardWidthPx = max(cardSize.x * uniforms.resolution.y / uniforms.dpr, 1.0);
     let grainWidth = 500.0 / cardWidthPx;
     let grainUv = backgroundSampleUv(uv, vec2f(grainWidth, 1.0), vec2f(0.5, 0.5));
-    let grain = textureSampleLevel(glitterTexture, linearSampler, fract(grainUv), 0.0);
-    let fineGrain = textureSampleLevel(
-        glitterTexture,
-        linearSampler,
-        fract(grainUv * vec2f(1.85, 1.35) + vec2f(0.17, 0.39)),
-        0.0
-    );
-    let sunUv = backgroundSampleUv(uv, sunSize, vec2f(0.0, bg.y));
-    let diagonalUv = backgroundSampleUv(uv, diagonalSize, diagonalPos);
-    let frontRotationDiagonalUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), diagonalPos);
-    let boostedBeamUv = select(diagonalUv, frontRotationDiagonalUv, afterLayer);
-    let sunColor = verticalSunpillar(sunUv);
-    let sun = vec4f(sunColor, 1.0);
-    let diagonal = vec4f(diagonalStripeColor(diagonalUv), 1.0);
-    let radial = baseRadialGradient(backgroundSampleUv(uv, vec2f(2.0, 1.0), bg));
-
-    // CSS paints background images from bottom to top:
-    // radial-gradient, diagonal gradient, sunpillar gradient, then grain.
-    // The blend-mode list applies to each top layer over the already-composited
-    // layers beneath it: grain=screen, sunpillar=hue, diagonal=hard-light.
-    var layer = radial;
-    layer = compositeBackgroundLayer(layer, diagonal, 2);
-    layer = compositeBackgroundLayer(layer, sun, 1);
-    layer = compositeBackgroundLayer(layer, grain, 0);
-
-    var filtered = select(
-        applyFilter(layer.rgb, 0.8, 2.95, 0.65),
-        applyFilter(layer.rgb, 1.0, 2.5, 1.75),
-        afterLayer
-    );
-    let beam = select(diagonalBeamMask(boostedBeamUv), diagonalBackBeamMask(boostedBeamUv), afterLayer);
-    let beamHalo = select(diagonalBeamHalo(boostedBeamUv), diagonalBackBeamHalo(boostedBeamUv), afterLayer);
-    let grainLuma = dot(grain.rgb, vec3f(0.299, 0.587, 0.114));
-    let fineGrainLuma = dot(fineGrain.rgb, vec3f(0.299, 0.587, 0.114));
-    let particleGrain = smoothstep(0.06, 0.26, grainLuma);
-    let particleGrainFine = smoothstep(0.05, 0.21, fineGrainLuma);
-    let particleFlecks = smoothstep(0.12, 0.36, max(grainLuma, fineGrainLuma));
-    let edgeFlecks = pow(smoothstep(0.1, 0.34, fineGrainLuma), 1.65);
-    let frontParticleMask = 0.32 + particleGrain * 1.12 + particleFlecks * 2.85;
-    let backParticleMask = 0.07 + particleGrain * 0.92 + particleGrainFine * 1.18 + particleFlecks * 3.55;
-    let particleMask = select(frontParticleMask, backParticleMask, afterLayer);
-    let visibleBeam = select(beam, beam, afterLayer);
-    let beamStrength = select(1.38, 1.45, afterLayer);
-    let frontTint = mix(sunColor * 1.35, vec3f(1.0, 0.95, 0.76), particleFlecks * 0.38);
-    let backTint = mix(sunColor * 1.15, vec3f(0.65, 0.86, 1.0), 0.32 + particleFlecks * 0.22);
-    let beamTint = select(frontTint, backTint, afterLayer);
-    filtered = screenBlend(filtered, beamTint * visibleBeam * particleMask * beamStrength);
-    let fleckStrength = select(1.52, 1.175, afterLayer);
-    let frontFleckTint = mix(sunColor * 1.45, vec3f(1.0, 0.86, 0.45), edgeFlecks * 0.55);
-    let backFleckTint = mix(sunColor * 1.2, vec3f(0.7, 0.9, 1.0), 0.4);
-    let fleckTint = select(frontFleckTint, backFleckTint, afterLayer);
-    let backFleckDensity = particleGrainFine * 1.12 + edgeFlecks * 1.25;
-    let fleckBeam = select(beamHalo + beam * 0.35, beam * (0.28 + edgeFlecks * 0.78 + backFleckDensity), afterLayer);
-    filtered = screenBlend(filtered, fleckTint * fleckBeam * edgeFlecks * fleckStrength);
-    return vec4f(filtered, layer.a);
+    return textureSampleLevel(grainTexture, linearSampler, fract(grainUv), 0.0);
 }
 
-// Glare gradient
+// Raw (unfiltered) v-regular shine stack: grain (screen) over sunpillar (hue)
+// over 133deg diagonal stripe (hard-light) over a pointer radial.
+fn shineLayer(uv: vec2f, afterLayer: bool) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let layerDiagonalPos = select(bg, -bg, afterLayer);
+    let sunSize = select(vec2f(2.0, 7.0), vec2f(2.0, 4.0), afterLayer);
+    let diagonalSize = select(vec2f(3.0, 1.0), vec2f(1.95, 1.0), afterLayer);
+
+    var layer = shineRadial(backgroundSampleUv(uv, vec2f(2.0, 1.0), bg));
+    let diagonal = vec4f(diagonalStripeColor(backgroundSampleUv(uv, diagonalSize, layerDiagonalPos)), 1.0);
+    let sun = vec4f(verticalSunpillar(backgroundSampleUv(uv, sunSize, vec2f(0.0, bg.y)), afterLayer), 1.0);
+    let grain = sampleGrain(uv);
+
+    layer = compositeBackgroundLayer(layer, diagonal, 2);
+    layer = compositeBackgroundLayer(layer, sun, 1);
+    layer = compositeBackgroundLayer(layer, grain, 3);
+
+    return layer.rgb;
+}
+
+// :after (soft-light) composites into the shine element, then the element's
+// own filter applies to the whole group.
+fn combinedShine(uv: vec2f) -> vec3f {
+    let front = shineLayer(uv, false);
+    let after = shineLayer(uv, true);
+    let afterFiltered = applyFilter(after, 1.0, 2.5, 1.75);
+    let combined = softLightBlend(front, afterFiltered);
+    if (uniforms.hasMask < 0.5) {
+        return applyFilter(combined, 0.7, 2.0, 0.5);
+    }
+    return applyFilter(combined, 0.8, 2.95, 0.65);
+}
+
+// V glare: white -> gray(0.33) 45% -> dark(0.9) 130%, hard-light at 0.5.
 fn glareGradient(uv: vec2f) -> vec4f {
     let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
-    // CSS: white 0%, hsla(210,3%,54%,0.33) 45%, hsla(0,0%,20%,0.9) 130%
     let white = vec4f(1.0, 1.0, 1.0, 1.0);
     let grayish = vec4f(0.533, 0.541, 0.549, 0.33);
     let dark = vec4f(0.2, 0.2, 0.2, 0.9);
-
     if (t < 0.45) {
         return mix(white, grayish, linearStep(0.0, 0.45, t));
     }
@@ -416,10 +326,8 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let cardSize = getCardSize();
     let cornerRadius = 0.04;
     let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
-
     let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
 
-    // Shadow
     let shadowOffset = 22.0 * pxToLocal;
     let shadowBlur = 34.0 * pxToLocal;
     let shadowSpread = -7.0 * pxToLocal;
@@ -430,7 +338,6 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let shadowAlpha = 1.0 - smoothstep(-shadowBlur, shadowBlur, shadowDist);
     let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha);
 
-    // Card UV
     let cardUV = vec2f(
         (localPos.x / (cardSize.x * 2.0)) + 0.5,
         0.5 - (localPos.y / (cardSize.y * 2.0))
@@ -439,33 +346,23 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
     let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
     let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
-    let foilMask = maskColor.a;
+    let foilMask = select(1.0, maskColor.a, uniforms.hasMask > 0.5);
 
     var cardRgb = textureColor.rgb;
 
-    // === .card__shine layer ===
-    let shine = pokemonVShineLayer(cardUV, false);
-    let shineBlended = colorDodgeBlend(cardRgb, shine.rgb);
-    cardRgb = mix(cardRgb, shineBlended, shine.a * foilMask * uniforms.opacity * cardMask);
+    let shine = combinedShine(cardUV);
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shine), foilMask * uniforms.opacity * cardMask);
 
-    // === .card__shine:after layer ===
-    let afterShine = pokemonVShineLayer(cardUV, true);
-    let afterBlended = softLightBlend(cardRgb, afterShine.rgb);
-    cardRgb = mix(cardRgb, afterBlended, afterShine.a * foilMask * uniforms.opacity * cardMask);
-
-    let beamMerge = pokemonVBeamOverlap(cardUV);
-    cardRgb = screenBlend(cardRgb, beamMerge * foilMask * uniforms.opacity * cardMask);
-
-    // === GLARE LAYER ===
     let glare = glareGradient(cardUV);
     let glareFiltered = applyFilter(glare.rgb, 0.9, 1.75, 1.0);
-    let glareBlended = hardLightBlend(cardRgb, glareFiltered);
-    // CSS: opacity: calc(var(--card-opacity) * 0.5), mix-blend-mode: hard-light
-    cardRgb = mix(cardRgb, glareBlended, glare.a * uniforms.opacity * 0.5 * cardMask);
+    cardRgb = mix(
+        cardRgb,
+        hardLightBlend(cardRgb, glareFiltered),
+        glare.a * 0.5 * uniforms.opacity * cardMask
+    );
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
     let finalColor = alphaOver(shadowColor, finalCard);
-
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
