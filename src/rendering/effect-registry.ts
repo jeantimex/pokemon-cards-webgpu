@@ -103,6 +103,7 @@ const POKEMON_V_FULL_ART_EFFECT: CardEffect = {
 const V_MAX_EFFECT: CardEffect = {
   id: 'v-max',
   shaderCode: vMaxShaderCode,
+  auxiliaryTextureUrl: 'img/vmaxbg.jpg',
 };
 
 const SHINY_VAULT_EFFECT: CardEffect = {
