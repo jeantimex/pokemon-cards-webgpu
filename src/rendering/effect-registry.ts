@@ -1,4 +1,3 @@
-import plainShaderCode from '../shaders.wgsl?raw';
 import glareShaderCode from '../effects/common-and-uncommon/webgpu.wgsl?raw';
 import galaxyCosmosHoloShaderCode from '../effects/galaxy-cosmos-holofoil/webgpu.wgsl?raw';
 import holofoilRareShaderCode from '../effects/holofoil-rare/webgpu.wgsl?raw';
@@ -8,6 +7,7 @@ import radiantHoloShaderCode from '../effects/radiant-holofoil/webgpu.wgsl?raw';
 import rainbowRareShaderCode from '../effects/rainbow-rare/webgpu.wgsl?raw';
 import secretRareShaderCode from '../effects/secret-rare/webgpu.wgsl?raw';
 import trainerGalleryHoloShaderCode from '../effects/trainer-gallery-holo/webgpu.wgsl?raw';
+import trainerGalleryVShaderCode from '../effects/trainer-gallery-v/webgpu.wgsl?raw';
 import pokemonVShaderCode from '../effects/pokemon-v/webgpu.wgsl?raw';
 import pokemonVAlternateArtShaderCode from '../effects/pokemon-v-alternate-art/webgpu.wgsl?raw';
 import pokemonVFullArtShaderCode from '../effects/pokemon-v-full-art/webgpu.wgsl?raw';
@@ -18,11 +18,6 @@ import type { CardEffect } from './card-effect';
 const GLARE_EFFECT: CardEffect = {
   id: 'glare',
   shaderCode: glareShaderCode,
-};
-
-const PLAIN_EFFECT: CardEffect = {
-  id: 'plain',
-  shaderCode: plainShaderCode,
 };
 
 const REVERSE_HOLO_EFFECT: CardEffect = {
@@ -70,6 +65,12 @@ const TRAINER_GALLERY_HOLO_EFFECT: CardEffect = {
   shaderCode: trainerGalleryHoloShaderCode,
 };
 
+const TRAINER_GALLERY_V_EFFECT: CardEffect = {
+  id: 'trainer-gallery-v',
+  shaderCode: trainerGalleryVShaderCode,
+  auxiliaryTextureUrl: 'img/illusion.png',
+};
+
 const POKEMON_V_EFFECT: CardEffect = {
   id: 'pokemon-v',
   shaderCode: pokemonVShaderCode,
@@ -104,7 +105,7 @@ const SHINY_VAULT_EFFECT: CardEffect = {
 const REGISTRY: Record<string, CardEffect> = {
   'Reverse Holo non-rares': REVERSE_HOLO_EFFECT,
   'Holofoil Rare': HOLOFOIL_RARE_EFFECT,
-  'Trainer Gallery (V)': PLAIN_EFFECT,
+  'Trainer Gallery (V)': TRAINER_GALLERY_V_EFFECT,
   'Holofoil Amazing Rare': AMAZING_RARE_EFFECT,
   'Galaxy/Cosmos Holofoil': GALAXY_COSMOS_HOLO_EFFECT,
   'Trainer Gallery Holofoil': TRAINER_GALLERY_HOLO_EFFECT,
