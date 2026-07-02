@@ -1,10 +1,10 @@
-(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const l of document.querySelectorAll('link[rel="modulepreload"]'))r(l);new MutationObserver(l=>{for(const i of l)if(i.type==="childList")for(const c of i.addedNodes)c.tagName==="LINK"&&c.rel==="modulepreload"&&r(c)}).observe(document,{childList:!0,subtree:!0});function t(l){const i={};return l.integrity&&(i.integrity=l.integrity),l.referrerPolicy&&(i.referrerPolicy=l.referrerPolicy),l.crossOrigin==="use-credentials"?i.credentials="include":l.crossOrigin==="anonymous"?i.credentials="omit":i.credentials="same-origin",i}function r(l){if(l.ep)return;l.ep=!0;const i=t(l);fetch(l.href,i)}})();function R(n){const e=n.startsWith("/")?n.slice(1):n;return new URL(e,document.baseURI).href}function Ee(){const n=document.documentElement.style;n.setProperty("--asset-grain",`url(${R("img/grain.webp")})`),n.setProperty("--asset-glitter",`url(${R("img/glitter.png")})`),n.setProperty("--asset-cosmos-bottom",`url(${R("img/cosmos-bottom.png")})`),n.setProperty("--asset-cosmos-middle-trans",`url(${R("img/cosmos-middle-trans.png")})`),n.setProperty("--asset-cosmos-top-trans",`url(${R("img/cosmos-top-trans.png")})`),n.setProperty("--asset-illusion",`url(${R("img/illusion.png")})`),n.setProperty("--asset-illusion-mask",`url(${R("img/illusion-mask.png")})`),n.setProperty("--asset-geometric",`url(${R("img/geometric.png")})`),n.setProperty("--asset-trainerbg",`url(${R("img/trainerbg.png")})`),n.setProperty("--asset-vmaxbg",`url(${R("img/vmaxbg.jpg")})`),n.setProperty("--asset-ancient",`url(${R("img/ancient.png")})`)}function Ie(n){const e=new URL(n);return R(`cards${e.pathname}`)}function ke(n,e,t){var i,c;const r=n.rarity.toLowerCase(),l=n.number.toLowerCase().startsWith("sv");return t==="reverse-holo"?`${r} reverse holo`:e==="Shiny Vault"&&l?r==="rare holo vmax"||(i=n.subtypes)!=null&&i.includes("VMAX")?"rare shiny vmax":r==="rare holo v"||(c=n.subtypes)!=null&&c.includes("V")?"rare shiny v":"rare shiny":e==="VMax (Alternate/Rainbow)"?"rare rainbow alt":r}const qe={"amazing rare":{etch:"etched",style:"swsecret"},"rare holo cosmos":{etch:"holo",style:"cosmos"},"rare holo":{etch:"holo",style:"swholo"},"rare holo v":{etch:"holo",style:"sunpillar"},"rare holo vmax":{etch:"etched",style:"sunpillar"},"rare holo vstar":{etch:"etched",style:"sunpillar"},"rare ultra":{etch:"etched",style:"sunpillar"},"rare secret":{etch:"etched",style:"swsecret"},"rare rainbow":{etch:"etched",style:"swsecret"},"rare shiny":{etch:"etched",style:"sunpillar"},"rare shiny v":{etch:"etched",style:"sunpillar"},"rare shiny vmax":{etch:"etched",style:"swsecret"}};function Ne(n,e){var t;return e.endsWith("reverse holo")?{etch:"holo",style:"reverse"}:e==="trainer gallery rare holo"?{etch:"holo",style:"rainbow"}:e==="rare holo v"?{etch:n.number.match(/^[tg]g/i)?"etched":"holo",style:"sunpillar"}:e==="rare rainbow alt"?{etch:"etched",style:(t=n.subtypes)!=null&&t.includes("VMAX")?"swsecret":"sunpillar"}:qe[e]??null}function H(n,e,t,r){const l=ke(n,t,r),i=l==="trainer gallery rare holo"?"rare holo":l,h=i==="rare holo"&&(l==="trainer gallery rare holo"||n.number.match(/^[tg]g/i))?{etch:"holo",style:"rainbow"}:Ne(n,i);if(!h)return"";const g=n.number.toString().toLowerCase().replace("swsh","").padStart(3,"0"),s=n.set.toString().toLowerCase().replace(/(tg|gg|sv)/,""),f=(h==null?void 0:h.etch)??"holo",m=(h==null?void 0:h.style)??"cosmos";return R(`foils/${s}/${e}/upscaled/${g}_foil_${f}_${m}_2x.webp`)}function w(n,e,t,r="standard"){return{name:n,description:e,cards:t,variant:r}}function We(n){return w("Common & Uncommon","All cards get a 3d rotation with CSS based on the cursor position. The default basic non-holo cards simply apply a flare/glare effect.",n.slice(1,4))}function He(n){return w("Galaxy/Cosmos Holofoil","Special image background of a galaxy effect with a gradient rainbow set to color-dodge & color-burn on top.",n.slice(13,16))}function $e(n){return w("Holofoil Amazing Rare","Unique shiny foil that extends past the frame and is much shinier than a regular holo effect, and textured.",n.slice(76,85))}function Ye(n){return w("Holofoil Rare","Holo cards have an additional vertical beam holo effect. This uses a combintation of repeating gradients and filters.",n.slice(7,13))}function Xe(n){return w("Trainer Gallery Holofoil","Kind of metallic effect with iridescent shine. Achieved with a large color dodge linear gradient.",n.filter(e=>e.rarity.toLowerCase()==="trainer gallery rare holo").sort((e,t)=>e.name.localeCompare(t.name)))}function je(n){const e=n.find(t=>t.id==="swsh12pt5-160");return w("Secret Rare (Gold)","GOLD! Here we apply two glitter layers on top of each other with a overlay effect and slide the two layers in opposite directions.",[n[58],n[59],n[60],n[61],n[62],n[63],e].filter(t=>!!t))}function Ke(n){return w("Shiny Vault","Foil background is a shiny silver color. Applied with radial gradients to darken the foil over the background.",n.slice(85,91))}function Ze(n){return w("Pokemon V (Alternate Art)","Practically the same holo effect as the Ultra Rare (Full Art) cards. The only difference is the pattern texture.",n.slice(28,34))}function Je(n){return w("Pokemon V","Diagonal holographic effect which that appears to travel in opposite directions when you tilt the card.",n.slice(22,25))}function Qe(n){return w("Pokemon V (Full Art)","Similar to the Pokemon V effect, but they have additional texture when looked at from certain angles.",n.slice(25,28))}function en(n){return w("Radiant Holofoil","The newest holofoil added to the series! Uses a criss-cross linear gradient pattern that moves across the card.",n.slice(16,19))}function nn(n){return w("Rainbow Rare","Super glittery effect on top of pastel gradients. Achieved with background glitter and color-burn/hard-light blends.",n.slice(52,58))}function tn(n){return w("Reverse Holo non-rares","Reverse holo cards come in many shapes and sizes. The background uses a foil and a mask layer along with a glare.",[...n.slice(4,7),...n.slice(70,76)],"reverse-holo")}function rn(n){return w("VMax (Alternate/Rainbow)","Vibrant and glittery overlay. Achieved with a background image of glitter/sparkles sandwiching linear gradients.",n.slice(40,43).filter(e=>e.rarity.toLowerCase()==="rare rainbow").sort((e,t)=>e.name.localeCompare(t.name)))}function an(n){return w("VMax","The gradient effect of Pokemon VMax is more subtle, using a larger background gradient which moves more slowly.",n.slice(37,40).filter(e=>e.rarity.toLowerCase()==="rare holo vmax").sort((e,t)=>e.name.localeCompare(t.name)))}function ln(n){return w("VStar","Diagonal gradients overlaying a texture. Brighter with a pastel hue, making the gradient and texture more subtle.",n.slice(43,46).filter(e=>e.rarity.toLowerCase()==="rare holo vstar").sort((e,t)=>e.name.localeCompare(t.name)))}function on(n){return w("Trainer Gallery (VMax)","Generally quite similar to the normal V and VMax cards, with a different background texture.",n.slice(64,70).filter(e=>e.rarity.toLowerCase()==="rare holo vmax").sort((e,t)=>e.name.localeCompare(t.name)))}function sn(n){return w("Trainer Gallery (V)","Generally quite similar to the normal V and VMax cards, with a different background texture.",n.slice(64,70).filter(e=>e.rarity.toLowerCase()==="rare holo v").sort((e,t)=>e.name.localeCompare(t.name)))}function cn(n){return w("Trainer Holo","Diagonal gradients overlaying a texture, quite similar to the Ultra Rare cards but generally brighter.",n.filter(e=>{var t;return e.rarity.toLowerCase()==="rare ultra"&&((t=e.subtypes)==null?void 0:t.includes("Supporter"))}).sort((e,t)=>e.name.localeCompare(t.name)))}function fn(n){return[]}function dn(n,e){const t=[je(n),We(n),tn(n),Ye(n),Xe(n),He(n),$e(n),en(n),Je(n),Qe(n),Ze(n),nn(n),Ke(n),an(n),rn(n),ln(n),sn(n),on(n),cn(n),...fn()].map(s=>({...s,cards:s.cards.filter(f=>!e.has(f.id)).sort((f,m)=>f.name.localeCompare(m.name))})).filter(s=>s.cards.length>0).sort((s,f)=>s.name.localeCompare(f.name)),r=Object.fromEntries(t.map(s=>[s.name,s.cards])),l=Object.fromEntries(t.map(s=>[s.name,s.description])),i=Object.fromEntries(t.map(s=>[s.name,s.variant])),c=t.map(s=>s.name),h=c[0],g=r[h][0];return{categories:r,descriptions:l,variants:i,categoryNames:c,initialCategory:h,initialCard:g}}function xe(n,e){let t=e;for(let r=0;r<n.length;r+=1)t^=n.charCodeAt(r),t=Math.imul(t,16777619);return t>>>0}function ye(n){return n/4294967295}function Ce(n){const e=`${n.id}:${n.set}:${n.number}`,t=ye(xe(e,2166136261)),r=ye(xe(e,709607)),l={x:Math.floor(t*734),y:Math.floor(r*1280)};return{x:t,y:r,cosmosPixels:l}}function un({cssCard:n,cssCardImage:e,cssCardFront:t,cssCardRotator:r}){function l(a,v=0,k=100){return Math.min(Math.max(a,v),k)}function i(a,v=3){return parseFloat(a.toFixed(v))}function c(a,v,k,U,A){return i(U+(A-U)*(a-v)/(k-v))}function h(a){return["card","interactive",...(a.types??[]).map(v=>v.toLowerCase())].join(" ")}let g={pointerX:50,pointerY:50,rotateX:0,rotateY:0,backgroundX:50,backgroundY:50,opacity:0},s={...g},f;function m(a){const v=l(Math.sqrt((a.pointerY-50)*(a.pointerY-50)+(a.pointerX-50)*(a.pointerX-50))/50,0,1);n.style.setProperty("--pointer-x",`${a.pointerX}%`),n.style.setProperty("--pointer-y",`${a.pointerY}%`),n.style.setProperty("--pointer-from-center",String(v)),n.style.setProperty("--pointer-from-top",String(a.pointerY/100)),n.style.setProperty("--pointer-from-left",String(a.pointerX/100)),n.style.setProperty("--card-opacity",String(a.opacity)),n.style.setProperty("--rotate-x",`${a.rotateX}deg`),n.style.setProperty("--rotate-y",`${a.rotateY}deg`),n.style.setProperty("--background-x",`${a.backgroundX}%`),n.style.setProperty("--background-y",`${a.backgroundY}%`),n.style.setProperty("--card-scale","1"),n.style.setProperty("--translate-x","0px"),n.style.setProperty("--translate-y","0px")}function b(a=500){window.clearTimeout(f),f=window.setTimeout(()=>{n.classList.remove("interacting"),g={pointerX:50,pointerY:50,rotateX:0,rotateY:0,backgroundX:50,backgroundY:50,opacity:0}},a)}function x(a,v,k,U){const A=Ce(a);n.className=`${h(a)} loading`;const F=H(a,"masks",k,U),z=H(a,"foils",k,U);n.classList.toggle("masked",!!F),n.dataset.number=a.number.toLowerCase(),n.dataset.set=a.set,n.dataset.subtypes=(a.subtypes??[]).join(" ").toLowerCase(),n.dataset.supertype=a.supertype.toLowerCase(),n.dataset.rarity=ke(a,k,U),n.dataset.trainerGallery=String(!!a.number.match(/^[tg]g/i)),r.setAttribute("aria-label",`Expand the Pokemon Card; ${a.name}.`),e.alt=`Front design of the ${a.name} Pokemon Card, with the stats and info around the edge`,t.style.setProperty("--seedx",String(A.x)),t.style.setProperty("--seedy",String(A.y)),t.style.setProperty("--cosmosbg",`${A.cosmosPixels.x}px ${A.cosmosPixels.y}px`),F?(t.style.setProperty("--mask",`url(${F})`),t.style.setProperty("--foil",`url(${z})`)):(t.style.removeProperty("--mask"),t.style.removeProperty("--foil")),e.onload=()=>{n.classList.remove("loading")},e.src=v}function B(a){window.clearTimeout(f),n.classList.add("interacting");const v={x:l(i(a.x*100)),y:l(i(a.y*100))},k={x:v.x-50,y:v.y-50};g={backgroundX:c(v.x,0,100,37,63),backgroundY:c(v.y,0,100,33,67),rotateX:i(-(k.x/3.5)),rotateY:i(k.y/3.5),pointerX:i(v.x),pointerY:i(v.y),opacity:1}}function L(a){const v=r.getBoundingClientRect(),k={x:a.clientX-v.left,y:a.clientY-v.top},U={x:l(k.x/v.width,0,1),y:l(k.y/v.height,0,1)};return B(U),U}function y(){b()}function d(){b(0)}function o(){s={pointerX:s.pointerX+(g.pointerX-s.pointerX)*.15,pointerY:s.pointerY+(g.pointerY-s.pointerY)*.15,rotateX:s.rotateX+(g.rotateX-s.rotateX)*.15,rotateY:s.rotateY+(g.rotateY-s.rotateY)*.15,backgroundX:s.backgroundX+(g.backgroundX-s.backgroundX)*.15,backgroundY:s.backgroundY+(g.backgroundY-s.backgroundY)*.15,opacity:s.opacity+(g.opacity-s.opacity)*.15},m(s)}return{updateCard:x,setPointer:B,handlePointerMove:L,handlePointerLeave:y,handleBlur:d,tick:o}}/**
+(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const i of document.querySelectorAll('link[rel="modulepreload"]'))r(i);new MutationObserver(i=>{for(const l of i)if(l.type==="childList")for(const c of l.addedNodes)c.tagName==="LINK"&&c.rel==="modulepreload"&&r(c)}).observe(document,{childList:!0,subtree:!0});function t(i){const l={};return i.integrity&&(l.integrity=i.integrity),i.referrerPolicy&&(l.referrerPolicy=i.referrerPolicy),i.crossOrigin==="use-credentials"?l.credentials="include":i.crossOrigin==="anonymous"?l.credentials="omit":l.credentials="same-origin",l}function r(i){if(i.ep)return;i.ep=!0;const l=t(i);fetch(i.href,l)}})();function R(n){const e=n.startsWith("/")?n.slice(1):n;return new URL(e,document.baseURI).href}function Ge(){const n=document.documentElement.style;n.setProperty("--asset-grain",`url(${R("img/grain.webp")})`),n.setProperty("--asset-glitter",`url(${R("img/glitter.png")})`),n.setProperty("--asset-cosmos-bottom",`url(${R("img/cosmos-bottom.png")})`),n.setProperty("--asset-cosmos-middle-trans",`url(${R("img/cosmos-middle-trans.png")})`),n.setProperty("--asset-cosmos-top-trans",`url(${R("img/cosmos-top-trans.png")})`),n.setProperty("--asset-illusion",`url(${R("img/illusion.png")})`),n.setProperty("--asset-illusion-mask",`url(${R("img/illusion-mask.png")})`),n.setProperty("--asset-geometric",`url(${R("img/geometric.png")})`),n.setProperty("--asset-trainerbg",`url(${R("img/trainerbg.png")})`),n.setProperty("--asset-vmaxbg",`url(${R("img/vmaxbg.jpg")})`),n.setProperty("--asset-ancient",`url(${R("img/ancient.png")})`)}function Ie(n){const e=new URL(n);return R(`cards${e.pathname}`)}function Ce(n,e,t){var l,c;const r=n.rarity.toLowerCase(),i=n.number.toLowerCase().startsWith("sv");return t==="reverse-holo"?`${r} reverse holo`:e==="Shiny Vault"&&i?r==="rare holo vmax"||(l=n.subtypes)!=null&&l.includes("VMAX")?"rare shiny vmax":r==="rare holo v"||(c=n.subtypes)!=null&&c.includes("V")?"rare shiny v":"rare shiny":e==="VMax (Alternate/Rainbow)"?"rare rainbow alt":r}const qe={"amazing rare":{etch:"etched",style:"swsecret"},"rare holo cosmos":{etch:"holo",style:"cosmos"},"rare holo":{etch:"holo",style:"swholo"},"rare holo v":{etch:"holo",style:"sunpillar"},"rare holo vmax":{etch:"etched",style:"sunpillar"},"rare holo vstar":{etch:"etched",style:"sunpillar"},"rare ultra":{etch:"etched",style:"sunpillar"},"rare secret":{etch:"etched",style:"swsecret"},"rare rainbow":{etch:"etched",style:"swsecret"},"rare shiny":{etch:"etched",style:"sunpillar"},"rare shiny v":{etch:"etched",style:"sunpillar"},"rare shiny vmax":{etch:"etched",style:"swsecret"}};function Ne(n,e){var t;return e.endsWith("reverse holo")?{etch:"holo",style:"reverse"}:e==="trainer gallery rare holo"?{etch:"holo",style:"rainbow"}:e==="rare holo v"?{etch:n.number.match(/^[tg]g/i)?"etched":"holo",style:"sunpillar"}:e==="rare rainbow alt"?{etch:"etched",style:(t=n.subtypes)!=null&&t.includes("VMAX")?"swsecret":"sunpillar"}:qe[e]??null}function W(n,e,t,r){const i=Ce(n,t,r),l=i==="trainer gallery rare holo"?"rare holo":i,h=l==="rare holo"&&(i==="trainer gallery rare holo"||n.number.match(/^[tg]g/i))?{etch:"holo",style:"rainbow"}:Ne(n,l);if(!h)return"";const g=n.number.toString().toLowerCase().replace("swsh","").padStart(3,"0"),s=n.set.toString().toLowerCase().replace(/(tg|gg|sv)/,""),f=(h==null?void 0:h.etch)??"holo",m=(h==null?void 0:h.style)??"cosmos";return R(`foils/${s}/${e}/upscaled/${g}_foil_${f}_${m}_2x.webp`)}function w(n,e,t,r="standard"){return{name:n,description:e,cards:t,variant:r}}function $e(n){return w("Common & Uncommon","All cards get a 3d rotation with CSS based on the cursor position. The default basic non-holo cards simply apply a flare/glare effect.",n.slice(1,4))}function We(n){return w("Galaxy/Cosmos Holofoil","Special image background of a galaxy effect with a gradient rainbow set to color-dodge & color-burn on top.",n.slice(13,16))}function He(n){return w("Holofoil Amazing Rare","Unique shiny foil that extends past the frame and is much shinier than a regular holo effect, and textured.",n.slice(76,85))}function Xe(n){return w("Holofoil Rare","Holo cards have an additional vertical beam holo effect. This uses a combintation of repeating gradients and filters.",n.slice(7,13))}function Ye(n){return w("Trainer Gallery Holofoil","Kind of metallic effect with iridescent shine. Achieved with a large color dodge linear gradient.",n.filter(e=>e.rarity.toLowerCase()==="trainer gallery rare holo").sort((e,t)=>e.name.localeCompare(t.name)))}function je(n){const e=n.find(t=>t.id==="swsh12pt5-160");return w("Secret Rare (Gold)","GOLD! Here we apply two glitter layers on top of each other with a overlay effect and slide the two layers in opposite directions.",[n[58],n[59],n[60],n[61],n[62],n[63],e].filter(t=>!!t))}function Ke(n){return w("Shiny Vault","Foil background is a shiny silver color. Applied with radial gradients to darken the foil over the background.",n.slice(85,91))}function Ze(n){return w("Pokemon V (Alternate Art)","Practically the same holo effect as the Ultra Rare (Full Art) cards. The only difference is the pattern texture.",n.slice(28,34))}function Je(n){return w("Pokemon V","Diagonal holographic effect which that appears to travel in opposite directions when you tilt the card.",n.slice(22,25))}function Qe(n){return w("Pokemon V (Full Art)","Similar to the Pokemon V effect, but they have additional texture when looked at from certain angles.",n.slice(25,28))}function en(n){return w("Radiant Holofoil","The newest holofoil added to the series! Uses a criss-cross linear gradient pattern that moves across the card.",n.slice(16,19))}function nn(n){return w("Rainbow Rare","Super glittery effect on top of pastel gradients. Achieved with background glitter and color-burn/hard-light blends.",n.slice(52,58))}function tn(n){return w("Reverse Holo non-rares","Reverse holo cards come in many shapes and sizes. The background uses a foil and a mask layer along with a glare.",[...n.slice(4,7),...n.slice(70,76)],"reverse-holo")}function rn(n){return w("VMax (Alternate/Rainbow)","Vibrant and glittery overlay. Achieved with a background image of glitter/sparkles sandwiching linear gradients.",n.slice(40,43).filter(e=>e.rarity.toLowerCase()==="rare rainbow").sort((e,t)=>e.name.localeCompare(t.name)))}function an(n){return w("VMax","The gradient effect of Pokemon VMax is more subtle, using a larger background gradient which moves more slowly.",n.slice(37,40).filter(e=>e.rarity.toLowerCase()==="rare holo vmax").sort((e,t)=>e.name.localeCompare(t.name)))}function ln(n){return w("VStar","Diagonal gradients overlaying a texture. Brighter with a pastel hue, making the gradient and texture more subtle.",n.slice(43,46).filter(e=>e.rarity.toLowerCase()==="rare holo vstar").sort((e,t)=>e.name.localeCompare(t.name)))}function on(n){return w("Trainer Gallery (VMax)","Generally quite similar to the normal V and VMax cards, with a different background texture.",n.slice(64,70).filter(e=>e.rarity.toLowerCase()==="rare holo vmax").sort((e,t)=>e.name.localeCompare(t.name)))}function sn(n){return w("Trainer Gallery (V)","Generally quite similar to the normal V and VMax cards, with a different background texture.",n.slice(64,70).filter(e=>e.rarity.toLowerCase()==="rare holo v").sort((e,t)=>e.name.localeCompare(t.name)))}function cn(n){return w("Trainer Holo","Diagonal gradients overlaying a texture, quite similar to the Ultra Rare cards but generally brighter.",n.filter(e=>{var t;return e.rarity.toLowerCase()==="rare ultra"&&((t=e.subtypes)==null?void 0:t.includes("Supporter"))}).sort((e,t)=>e.name.localeCompare(t.name)))}function fn(n){return[]}function dn(n,e){const t=[je(n),$e(n),tn(n),Xe(n),Ye(n),We(n),He(n),en(n),Je(n),Qe(n),Ze(n),nn(n),Ke(n),an(n),rn(n),ln(n),sn(n),on(n),cn(n),...fn()].map(s=>({...s,cards:s.cards.filter(f=>!e.has(f.id)).sort((f,m)=>f.name.localeCompare(m.name))})).filter(s=>s.cards.length>0).sort((s,f)=>s.name.localeCompare(f.name)),r=Object.fromEntries(t.map(s=>[s.name,s.cards])),i=Object.fromEntries(t.map(s=>[s.name,s.description])),l=Object.fromEntries(t.map(s=>[s.name,s.variant])),c=t.map(s=>s.name),h=c[0],g=r[h][0];return{categories:r,descriptions:i,variants:l,categoryNames:c,initialCategory:h,initialCard:g}}function xe(n,e){let t=e;for(let r=0;r<n.length;r+=1)t^=n.charCodeAt(r),t=Math.imul(t,16777619);return t>>>0}function ye(n){return n/4294967295}function ke(n){const e=`${n.id}:${n.set}:${n.number}`,t=ye(xe(e,2166136261)),r=ye(xe(e,709607)),i={x:Math.floor(t*734),y:Math.floor(r*1280)};return{x:t,y:r,cosmosPixels:i}}function un({cssCard:n,cssCardImage:e,cssCardFront:t,cssCardRotator:r}){function i(a,v=0,C=100){return Math.min(Math.max(a,v),C)}function l(a,v=3){return parseFloat(a.toFixed(v))}function c(a,v,C,P,A){return l(P+(A-P)*(a-v)/(C-v))}function h(a){return["card","interactive",...(a.types??[]).map(v=>v.toLowerCase())].join(" ")}let g={pointerX:50,pointerY:50,rotateX:0,rotateY:0,backgroundX:50,backgroundY:50,opacity:0},s={...g},f;function m(a){const v=i(Math.sqrt((a.pointerY-50)*(a.pointerY-50)+(a.pointerX-50)*(a.pointerX-50))/50,0,1);n.style.setProperty("--pointer-x",`${a.pointerX}%`),n.style.setProperty("--pointer-y",`${a.pointerY}%`),n.style.setProperty("--pointer-from-center",String(v)),n.style.setProperty("--pointer-from-top",String(a.pointerY/100)),n.style.setProperty("--pointer-from-left",String(a.pointerX/100)),n.style.setProperty("--card-opacity",String(a.opacity)),n.style.setProperty("--rotate-x",`${a.rotateX}deg`),n.style.setProperty("--rotate-y",`${a.rotateY}deg`),n.style.setProperty("--background-x",`${a.backgroundX}%`),n.style.setProperty("--background-y",`${a.backgroundY}%`),n.style.setProperty("--card-scale","1"),n.style.setProperty("--translate-x","0px"),n.style.setProperty("--translate-y","0px")}function b(a=500){window.clearTimeout(f),f=window.setTimeout(()=>{n.classList.remove("interacting"),g={pointerX:50,pointerY:50,rotateX:0,rotateY:0,backgroundX:50,backgroundY:50,opacity:0}},a)}function x(a,v,C,P){const A=ke(a);n.className=`${h(a)} loading`;const z=W(a,"masks",C,P),F=W(a,"foils",C,P);n.classList.toggle("masked",!!z),n.dataset.number=a.number.toLowerCase(),n.dataset.set=a.set,n.dataset.subtypes=(a.subtypes??[]).join(" ").toLowerCase(),n.dataset.supertype=a.supertype.toLowerCase(),n.dataset.rarity=Ce(a,C,P),n.dataset.trainerGallery=String(!!a.number.match(/^[tg]g/i)),r.setAttribute("aria-label",`Expand the Pokemon Card; ${a.name}.`),e.alt=`Front design of the ${a.name} Pokemon Card, with the stats and info around the edge`,t.style.setProperty("--seedx",String(A.x)),t.style.setProperty("--seedy",String(A.y)),t.style.setProperty("--cosmosbg",`${A.cosmosPixels.x}px ${A.cosmosPixels.y}px`),z?(t.style.setProperty("--mask",`url(${z})`),t.style.setProperty("--foil",`url(${F})`)):(t.style.removeProperty("--mask"),t.style.removeProperty("--foil")),e.onload=()=>{n.classList.remove("loading")},e.src=v}function B(a){window.clearTimeout(f),n.classList.add("interacting");const v={x:i(l(a.x*100)),y:i(l(a.y*100))},C={x:v.x-50,y:v.y-50};g={backgroundX:c(v.x,0,100,37,63),backgroundY:c(v.y,0,100,33,67),rotateX:l(-(C.x/3.5)),rotateY:l(C.y/3.5),pointerX:l(v.x),pointerY:l(v.y),opacity:1}}function L(a){const v=r.getBoundingClientRect(),C={x:a.clientX-v.left,y:a.clientY-v.top},P={x:i(C.x/v.width,0,1),y:i(C.y/v.height,0,1)};return B(P),P}function y(){b()}function d(){b(0)}function o(){s={pointerX:s.pointerX+(g.pointerX-s.pointerX)*.15,pointerY:s.pointerY+(g.pointerY-s.pointerY)*.15,rotateX:s.rotateX+(g.rotateX-s.rotateX)*.15,rotateY:s.rotateY+(g.rotateY-s.rotateY)*.15,backgroundX:s.backgroundX+(g.backgroundX-s.backgroundX)*.15,backgroundY:s.backgroundY+(g.backgroundY-s.backgroundY)*.15,opacity:s.opacity+(g.opacity-s.opacity)*.15},m(s)}return{updateCard:x,setPointer:B,handlePointerMove:L,handlePointerLeave:y,handleBlur:d,tick:o}}/**
  * lil-gui
  * https://lil-gui.georgealways.com
  * @version 0.21.0
  * @author George Michael Brower
  * @license MIT
- */class P{constructor(e,t,r,l,i="div"){this.parent=e,this.object=t,this.property=r,this._disabled=!1,this._hidden=!1,this.initialValue=this.getValue(),this.domElement=document.createElement(i),this.domElement.classList.add("lil-controller"),this.domElement.classList.add(l),this.$name=document.createElement("div"),this.$name.classList.add("lil-name"),P.nextNameID=P.nextNameID||0,this.$name.id=`lil-gui-name-${++P.nextNameID}`,this.$widget=document.createElement("div"),this.$widget.classList.add("lil-widget"),this.$disable=this.$widget,this.domElement.appendChild(this.$name),this.domElement.appendChild(this.$widget),this.domElement.addEventListener("keydown",c=>c.stopPropagation()),this.domElement.addEventListener("keyup",c=>c.stopPropagation()),this.parent.children.push(this),this.parent.controllers.push(this),this.parent.$children.appendChild(this.domElement),this._listenCallback=this._listenCallback.bind(this),this.name(r)}name(e){return this._name=e,this.$name.textContent=e,this}onChange(e){return this._onChange=e,this}_callOnChange(){this.parent._callOnChange(this),this._onChange!==void 0&&this._onChange.call(this,this.getValue()),this._changed=!0}onFinishChange(e){return this._onFinishChange=e,this}_callOnFinishChange(){this._changed&&(this.parent._callOnFinishChange(this),this._onFinishChange!==void 0&&this._onFinishChange.call(this,this.getValue())),this._changed=!1}reset(){return this.setValue(this.initialValue),this._callOnFinishChange(),this}enable(e=!0){return this.disable(!e)}disable(e=!0){return e===this._disabled?this:(this._disabled=e,this.domElement.classList.toggle("lil-disabled",e),this.$disable.toggleAttribute("disabled",e),this)}show(e=!0){return this._hidden=!e,this.domElement.style.display=this._hidden?"none":"",this}hide(){return this.show(!1)}options(e){const t=this.parent.add(this.object,this.property,e);return t.name(this._name),this.destroy(),t}min(e){return this}max(e){return this}step(e){return this}decimals(e){return this}listen(e=!0){return this._listening=e,this._listenCallbackID!==void 0&&(cancelAnimationFrame(this._listenCallbackID),this._listenCallbackID=void 0),this._listening&&this._listenCallback(),this}_listenCallback(){this._listenCallbackID=requestAnimationFrame(this._listenCallback);const e=this.save();e!==this._listenPrevValue&&this.updateDisplay(),this._listenPrevValue=e}getValue(){return this.object[this.property]}setValue(e){return this.getValue()!==e&&(this.object[this.property]=e,this._callOnChange(),this.updateDisplay()),this}updateDisplay(){return this}load(e){return this.setValue(e),this._callOnFinishChange(),this}save(){return this.getValue()}destroy(){this.listen(!1),this.parent.children.splice(this.parent.children.indexOf(this),1),this.parent.controllers.splice(this.parent.controllers.indexOf(this),1),this.parent.$children.removeChild(this.domElement)}}class pn extends P{constructor(e,t,r){super(e,t,r,"lil-boolean","label"),this.$input=document.createElement("input"),this.$input.setAttribute("type","checkbox"),this.$input.setAttribute("aria-labelledby",this.$name.id),this.$widget.appendChild(this.$input),this.$input.addEventListener("change",()=>{this.setValue(this.$input.checked),this._callOnFinishChange()}),this.$disable=this.$input,this.updateDisplay()}updateDisplay(){return this.$input.checked=this.getValue(),this}}function te(n){let e,t;return(e=n.match(/(#|0x)?([a-f0-9]{6})/i))?t=e[2]:(e=n.match(/rgb\(\s*(\d*)\s*,\s*(\d*)\s*,\s*(\d*)\s*\)/))?t=parseInt(e[1]).toString(16).padStart(2,0)+parseInt(e[2]).toString(16).padStart(2,0)+parseInt(e[3]).toString(16).padStart(2,0):(e=n.match(/^#?([a-f0-9])([a-f0-9])([a-f0-9])$/i))&&(t=e[1]+e[1]+e[2]+e[2]+e[3]+e[3]),t?"#"+t:!1}const vn={isPrimitive:!0,match:n=>typeof n=="string",fromHexString:te,toHexString:te},O={isPrimitive:!0,match:n=>typeof n=="number",fromHexString:n=>parseInt(n.substring(1),16),toHexString:n=>"#"+n.toString(16).padStart(6,0)},hn={isPrimitive:!1,match:n=>Array.isArray(n)||ArrayBuffer.isView(n),fromHexString(n,e,t=1){const r=O.fromHexString(n);e[0]=(r>>16&255)/255*t,e[1]=(r>>8&255)/255*t,e[2]=(r&255)/255*t},toHexString([n,e,t],r=1){r=255/r;const l=n*r<<16^e*r<<8^t*r<<0;return O.toHexString(l)}},gn={isPrimitive:!1,match:n=>Object(n)===n,fromHexString(n,e,t=1){const r=O.fromHexString(n);e.r=(r>>16&255)/255*t,e.g=(r>>8&255)/255*t,e.b=(r&255)/255*t},toHexString({r:n,g:e,b:t},r=1){r=255/r;const l=n*r<<16^e*r<<8^t*r<<0;return O.toHexString(l)}},mn=[vn,O,hn,gn];function bn(n){return mn.find(e=>e.match(n))}class xn extends P{constructor(e,t,r,l){super(e,t,r,"lil-color"),this.$input=document.createElement("input"),this.$input.setAttribute("type","color"),this.$input.setAttribute("tabindex",-1),this.$input.setAttribute("aria-labelledby",this.$name.id),this.$text=document.createElement("input"),this.$text.setAttribute("type","text"),this.$text.setAttribute("spellcheck","false"),this.$text.setAttribute("aria-labelledby",this.$name.id),this.$display=document.createElement("div"),this.$display.classList.add("lil-display"),this.$display.appendChild(this.$input),this.$widget.appendChild(this.$display),this.$widget.appendChild(this.$text),this._format=bn(this.initialValue),this._rgbScale=l,this._initialValueHexString=this.save(),this._textFocused=!1,this.$input.addEventListener("input",()=>{this._setValueFromHexString(this.$input.value)}),this.$input.addEventListener("blur",()=>{this._callOnFinishChange()}),this.$text.addEventListener("input",()=>{const i=te(this.$text.value);i&&this._setValueFromHexString(i)}),this.$text.addEventListener("focus",()=>{this._textFocused=!0,this.$text.select()}),this.$text.addEventListener("blur",()=>{this._textFocused=!1,this.updateDisplay(),this._callOnFinishChange()}),this.$disable=this.$text,this.updateDisplay()}reset(){return this._setValueFromHexString(this._initialValueHexString),this}_setValueFromHexString(e){if(this._format.isPrimitive){const t=this._format.fromHexString(e);this.setValue(t)}else this._format.fromHexString(e,this.getValue(),this._rgbScale),this._callOnChange(),this.updateDisplay()}save(){return this._format.toHexString(this.getValue(),this._rgbScale)}load(e){return this._setValueFromHexString(e),this._callOnFinishChange(),this}updateDisplay(){return this.$input.value=this._format.toHexString(this.getValue(),this._rgbScale),this._textFocused||(this.$text.value=this.$input.value.substring(1)),this.$display.style.backgroundColor=this.$input.value,this}}class ne extends P{constructor(e,t,r){super(e,t,r,"lil-function"),this.$button=document.createElement("button"),this.$button.appendChild(this.$name),this.$widget.appendChild(this.$button),this.$button.addEventListener("click",l=>{l.preventDefault(),this.getValue().call(this.object),this._callOnChange()}),this.$button.addEventListener("touchstart",()=>{},{passive:!0}),this.$disable=this.$button}}class yn extends P{constructor(e,t,r,l,i,c){super(e,t,r,"lil-number"),this._initInput(),this.min(l),this.max(i);const h=c!==void 0;this.step(h?c:this._getImplicitStep(),h),this.updateDisplay()}decimals(e){return this._decimals=e,this.updateDisplay(),this}min(e){return this._min=e,this._onUpdateMinMax(),this}max(e){return this._max=e,this._onUpdateMinMax(),this}step(e,t=!0){return this._step=e,this._stepExplicit=t,this}updateDisplay(){const e=this.getValue();if(this._hasSlider){let t=(e-this._min)/(this._max-this._min);t=Math.max(0,Math.min(t,1)),this.$fill.style.width=t*100+"%"}return this._inputFocused||(this.$input.value=this._decimals===void 0?e:e.toFixed(this._decimals)),this}_initInput(){this.$input=document.createElement("input"),this.$input.setAttribute("type","text"),this.$input.setAttribute("aria-labelledby",this.$name.id),window.matchMedia("(pointer: coarse)").matches&&(this.$input.setAttribute("type","number"),this.$input.setAttribute("step","any")),this.$widget.appendChild(this.$input),this.$disable=this.$input;const t=()=>{let o=parseFloat(this.$input.value);isNaN(o)||(this._stepExplicit&&(o=this._snap(o)),this.setValue(this._clamp(o)))},r=o=>{const a=parseFloat(this.$input.value);isNaN(a)||(this._snapClampSetValue(a+o),this.$input.value=this.getValue())},l=o=>{o.key==="Enter"&&this.$input.blur(),o.code==="ArrowUp"&&(o.preventDefault(),r(this._step*this._arrowKeyMultiplier(o))),o.code==="ArrowDown"&&(o.preventDefault(),r(this._step*this._arrowKeyMultiplier(o)*-1))},i=o=>{this._inputFocused&&(o.preventDefault(),r(this._step*this._normalizeMouseWheel(o)))};let c=!1,h,g,s,f,m;const b=5,x=o=>{h=o.clientX,g=s=o.clientY,c=!0,f=this.getValue(),m=0,window.addEventListener("mousemove",B),window.addEventListener("mouseup",L)},B=o=>{if(c){const a=o.clientX-h,v=o.clientY-g;Math.abs(v)>b?(o.preventDefault(),this.$input.blur(),c=!1,this._setDraggingStyle(!0,"vertical")):Math.abs(a)>b&&L()}if(!c){const a=o.clientY-s;m-=a*this._step*this._arrowKeyMultiplier(o),f+m>this._max?m=this._max-f:f+m<this._min&&(m=this._min-f),this._snapClampSetValue(f+m)}s=o.clientY},L=()=>{this._setDraggingStyle(!1,"vertical"),this._callOnFinishChange(),window.removeEventListener("mousemove",B),window.removeEventListener("mouseup",L)},y=()=>{this._inputFocused=!0},d=()=>{this._inputFocused=!1,this.updateDisplay(),this._callOnFinishChange()};this.$input.addEventListener("input",t),this.$input.addEventListener("keydown",l),this.$input.addEventListener("wheel",i,{passive:!1}),this.$input.addEventListener("mousedown",x),this.$input.addEventListener("focus",y),this.$input.addEventListener("blur",d)}_initSlider(){this._hasSlider=!0,this.$slider=document.createElement("div"),this.$slider.classList.add("lil-slider"),this.$fill=document.createElement("div"),this.$fill.classList.add("lil-fill"),this.$slider.appendChild(this.$fill),this.$widget.insertBefore(this.$slider,this.$input),this.domElement.classList.add("lil-has-slider");const e=(d,o,a,v,k)=>(d-o)/(a-o)*(k-v)+v,t=d=>{const o=this.$slider.getBoundingClientRect();let a=e(d,o.left,o.right,this._min,this._max);this._snapClampSetValue(a)},r=d=>{this._setDraggingStyle(!0),t(d.clientX),window.addEventListener("mousemove",l),window.addEventListener("mouseup",i)},l=d=>{t(d.clientX)},i=()=>{this._callOnFinishChange(),this._setDraggingStyle(!1),window.removeEventListener("mousemove",l),window.removeEventListener("mouseup",i)};let c=!1,h,g;const s=d=>{d.preventDefault(),this._setDraggingStyle(!0),t(d.touches[0].clientX),c=!1},f=d=>{d.touches.length>1||(this._hasScrollBar?(h=d.touches[0].clientX,g=d.touches[0].clientY,c=!0):s(d),window.addEventListener("touchmove",m,{passive:!1}),window.addEventListener("touchend",b))},m=d=>{if(c){const o=d.touches[0].clientX-h,a=d.touches[0].clientY-g;Math.abs(o)>Math.abs(a)?s(d):(window.removeEventListener("touchmove",m),window.removeEventListener("touchend",b))}else d.preventDefault(),t(d.touches[0].clientX)},b=()=>{this._callOnFinishChange(),this._setDraggingStyle(!1),window.removeEventListener("touchmove",m),window.removeEventListener("touchend",b)},x=this._callOnFinishChange.bind(this),B=400;let L;const y=d=>{if(Math.abs(d.deltaX)<Math.abs(d.deltaY)&&this._hasScrollBar)return;d.preventDefault();const a=this._normalizeMouseWheel(d)*this._step;this._snapClampSetValue(this.getValue()+a),this.$input.value=this.getValue(),clearTimeout(L),L=setTimeout(x,B)};this.$slider.addEventListener("mousedown",r),this.$slider.addEventListener("touchstart",f,{passive:!1}),this.$slider.addEventListener("wheel",y,{passive:!1})}_setDraggingStyle(e,t="horizontal"){this.$slider&&this.$slider.classList.toggle("lil-active",e),document.body.classList.toggle("lil-dragging",e),document.body.classList.toggle(`lil-${t}`,e)}_getImplicitStep(){return this._hasMin&&this._hasMax?(this._max-this._min)/1e3:.1}_onUpdateMinMax(){!this._hasSlider&&this._hasMin&&this._hasMax&&(this._stepExplicit||this.step(this._getImplicitStep(),!1),this._initSlider(),this.updateDisplay())}_normalizeMouseWheel(e){let{deltaX:t,deltaY:r}=e;return Math.floor(e.deltaY)!==e.deltaY&&e.wheelDelta&&(t=0,r=-e.wheelDelta/120,r*=this._stepExplicit?1:10),t+-r}_arrowKeyMultiplier(e){let t=this._stepExplicit?1:10;return e.shiftKey?t*=10:e.altKey&&(t/=10),t}_snap(e){let t=0;return this._hasMin?t=this._min:this._hasMax&&(t=this._max),e-=t,e=Math.round(e/this._step)*this._step,e+=t,e=parseFloat(e.toPrecision(15)),e}_clamp(e){return e<this._min&&(e=this._min),e>this._max&&(e=this._max),e}_snapClampSetValue(e){this.setValue(this._clamp(this._snap(e)))}get _hasScrollBar(){const e=this.parent.root.$children;return e.scrollHeight>e.clientHeight}get _hasMin(){return this._min!==void 0}get _hasMax(){return this._max!==void 0}}class Sn extends P{constructor(e,t,r,l){super(e,t,r,"lil-option"),this.$select=document.createElement("select"),this.$select.setAttribute("aria-labelledby",this.$name.id),this.$display=document.createElement("div"),this.$display.classList.add("lil-display"),this.$select.addEventListener("change",()=>{this.setValue(this._values[this.$select.selectedIndex]),this._callOnFinishChange()}),this.$select.addEventListener("focus",()=>{this.$display.classList.add("lil-focus")}),this.$select.addEventListener("blur",()=>{this.$display.classList.remove("lil-focus")}),this.$widget.appendChild(this.$select),this.$widget.appendChild(this.$display),this.$disable=this.$select,this.options(l)}options(e){return this._values=Array.isArray(e)?e:Object.values(e),this._names=Array.isArray(e)?e:Object.keys(e),this.$select.replaceChildren(),this._names.forEach(t=>{const r=document.createElement("option");r.textContent=t,this.$select.appendChild(r)}),this.updateDisplay(),this}updateDisplay(){const e=this.getValue(),t=this._values.indexOf(e);return this.$select.selectedIndex=t,this.$display.textContent=t===-1?e:this._names[t],this}}class wn extends P{constructor(e,t,r){super(e,t,r,"lil-string"),this.$input=document.createElement("input"),this.$input.setAttribute("type","text"),this.$input.setAttribute("spellcheck","false"),this.$input.setAttribute("aria-labelledby",this.$name.id),this.$input.addEventListener("input",()=>{this.setValue(this.$input.value)}),this.$input.addEventListener("keydown",l=>{l.code==="Enter"&&this.$input.blur()}),this.$input.addEventListener("blur",()=>{this._callOnFinishChange()}),this.$widget.appendChild(this.$input),this.$disable=this.$input,this.updateDisplay()}updateDisplay(){return this.$input.value=this.getValue(),this}}var kn=`.lil-gui {
+ */class U{constructor(e,t,r,i,l="div"){this.parent=e,this.object=t,this.property=r,this._disabled=!1,this._hidden=!1,this.initialValue=this.getValue(),this.domElement=document.createElement(l),this.domElement.classList.add("lil-controller"),this.domElement.classList.add(i),this.$name=document.createElement("div"),this.$name.classList.add("lil-name"),U.nextNameID=U.nextNameID||0,this.$name.id=`lil-gui-name-${++U.nextNameID}`,this.$widget=document.createElement("div"),this.$widget.classList.add("lil-widget"),this.$disable=this.$widget,this.domElement.appendChild(this.$name),this.domElement.appendChild(this.$widget),this.domElement.addEventListener("keydown",c=>c.stopPropagation()),this.domElement.addEventListener("keyup",c=>c.stopPropagation()),this.parent.children.push(this),this.parent.controllers.push(this),this.parent.$children.appendChild(this.domElement),this._listenCallback=this._listenCallback.bind(this),this.name(r)}name(e){return this._name=e,this.$name.textContent=e,this}onChange(e){return this._onChange=e,this}_callOnChange(){this.parent._callOnChange(this),this._onChange!==void 0&&this._onChange.call(this,this.getValue()),this._changed=!0}onFinishChange(e){return this._onFinishChange=e,this}_callOnFinishChange(){this._changed&&(this.parent._callOnFinishChange(this),this._onFinishChange!==void 0&&this._onFinishChange.call(this,this.getValue())),this._changed=!1}reset(){return this.setValue(this.initialValue),this._callOnFinishChange(),this}enable(e=!0){return this.disable(!e)}disable(e=!0){return e===this._disabled?this:(this._disabled=e,this.domElement.classList.toggle("lil-disabled",e),this.$disable.toggleAttribute("disabled",e),this)}show(e=!0){return this._hidden=!e,this.domElement.style.display=this._hidden?"none":"",this}hide(){return this.show(!1)}options(e){const t=this.parent.add(this.object,this.property,e);return t.name(this._name),this.destroy(),t}min(e){return this}max(e){return this}step(e){return this}decimals(e){return this}listen(e=!0){return this._listening=e,this._listenCallbackID!==void 0&&(cancelAnimationFrame(this._listenCallbackID),this._listenCallbackID=void 0),this._listening&&this._listenCallback(),this}_listenCallback(){this._listenCallbackID=requestAnimationFrame(this._listenCallback);const e=this.save();e!==this._listenPrevValue&&this.updateDisplay(),this._listenPrevValue=e}getValue(){return this.object[this.property]}setValue(e){return this.getValue()!==e&&(this.object[this.property]=e,this._callOnChange(),this.updateDisplay()),this}updateDisplay(){return this}load(e){return this.setValue(e),this._callOnFinishChange(),this}save(){return this.getValue()}destroy(){this.listen(!1),this.parent.children.splice(this.parent.children.indexOf(this),1),this.parent.controllers.splice(this.parent.controllers.indexOf(this),1),this.parent.$children.removeChild(this.domElement)}}class pn extends U{constructor(e,t,r){super(e,t,r,"lil-boolean","label"),this.$input=document.createElement("input"),this.$input.setAttribute("type","checkbox"),this.$input.setAttribute("aria-labelledby",this.$name.id),this.$widget.appendChild(this.$input),this.$input.addEventListener("change",()=>{this.setValue(this.$input.checked),this._callOnFinishChange()}),this.$disable=this.$input,this.updateDisplay()}updateDisplay(){return this.$input.checked=this.getValue(),this}}function te(n){let e,t;return(e=n.match(/(#|0x)?([a-f0-9]{6})/i))?t=e[2]:(e=n.match(/rgb\(\s*(\d*)\s*,\s*(\d*)\s*,\s*(\d*)\s*\)/))?t=parseInt(e[1]).toString(16).padStart(2,0)+parseInt(e[2]).toString(16).padStart(2,0)+parseInt(e[3]).toString(16).padStart(2,0):(e=n.match(/^#?([a-f0-9])([a-f0-9])([a-f0-9])$/i))&&(t=e[1]+e[1]+e[2]+e[2]+e[3]+e[3]),t?"#"+t:!1}const vn={isPrimitive:!0,match:n=>typeof n=="string",fromHexString:te,toHexString:te},O={isPrimitive:!0,match:n=>typeof n=="number",fromHexString:n=>parseInt(n.substring(1),16),toHexString:n=>"#"+n.toString(16).padStart(6,0)},hn={isPrimitive:!1,match:n=>Array.isArray(n)||ArrayBuffer.isView(n),fromHexString(n,e,t=1){const r=O.fromHexString(n);e[0]=(r>>16&255)/255*t,e[1]=(r>>8&255)/255*t,e[2]=(r&255)/255*t},toHexString([n,e,t],r=1){r=255/r;const i=n*r<<16^e*r<<8^t*r<<0;return O.toHexString(i)}},gn={isPrimitive:!1,match:n=>Object(n)===n,fromHexString(n,e,t=1){const r=O.fromHexString(n);e.r=(r>>16&255)/255*t,e.g=(r>>8&255)/255*t,e.b=(r&255)/255*t},toHexString({r:n,g:e,b:t},r=1){r=255/r;const i=n*r<<16^e*r<<8^t*r<<0;return O.toHexString(i)}},mn=[vn,O,hn,gn];function bn(n){return mn.find(e=>e.match(n))}class xn extends U{constructor(e,t,r,i){super(e,t,r,"lil-color"),this.$input=document.createElement("input"),this.$input.setAttribute("type","color"),this.$input.setAttribute("tabindex",-1),this.$input.setAttribute("aria-labelledby",this.$name.id),this.$text=document.createElement("input"),this.$text.setAttribute("type","text"),this.$text.setAttribute("spellcheck","false"),this.$text.setAttribute("aria-labelledby",this.$name.id),this.$display=document.createElement("div"),this.$display.classList.add("lil-display"),this.$display.appendChild(this.$input),this.$widget.appendChild(this.$display),this.$widget.appendChild(this.$text),this._format=bn(this.initialValue),this._rgbScale=i,this._initialValueHexString=this.save(),this._textFocused=!1,this.$input.addEventListener("input",()=>{this._setValueFromHexString(this.$input.value)}),this.$input.addEventListener("blur",()=>{this._callOnFinishChange()}),this.$text.addEventListener("input",()=>{const l=te(this.$text.value);l&&this._setValueFromHexString(l)}),this.$text.addEventListener("focus",()=>{this._textFocused=!0,this.$text.select()}),this.$text.addEventListener("blur",()=>{this._textFocused=!1,this.updateDisplay(),this._callOnFinishChange()}),this.$disable=this.$text,this.updateDisplay()}reset(){return this._setValueFromHexString(this._initialValueHexString),this}_setValueFromHexString(e){if(this._format.isPrimitive){const t=this._format.fromHexString(e);this.setValue(t)}else this._format.fromHexString(e,this.getValue(),this._rgbScale),this._callOnChange(),this.updateDisplay()}save(){return this._format.toHexString(this.getValue(),this._rgbScale)}load(e){return this._setValueFromHexString(e),this._callOnFinishChange(),this}updateDisplay(){return this.$input.value=this._format.toHexString(this.getValue(),this._rgbScale),this._textFocused||(this.$text.value=this.$input.value.substring(1)),this.$display.style.backgroundColor=this.$input.value,this}}class ne extends U{constructor(e,t,r){super(e,t,r,"lil-function"),this.$button=document.createElement("button"),this.$button.appendChild(this.$name),this.$widget.appendChild(this.$button),this.$button.addEventListener("click",i=>{i.preventDefault(),this.getValue().call(this.object),this._callOnChange()}),this.$button.addEventListener("touchstart",()=>{},{passive:!0}),this.$disable=this.$button}}class yn extends U{constructor(e,t,r,i,l,c){super(e,t,r,"lil-number"),this._initInput(),this.min(i),this.max(l);const h=c!==void 0;this.step(h?c:this._getImplicitStep(),h),this.updateDisplay()}decimals(e){return this._decimals=e,this.updateDisplay(),this}min(e){return this._min=e,this._onUpdateMinMax(),this}max(e){return this._max=e,this._onUpdateMinMax(),this}step(e,t=!0){return this._step=e,this._stepExplicit=t,this}updateDisplay(){const e=this.getValue();if(this._hasSlider){let t=(e-this._min)/(this._max-this._min);t=Math.max(0,Math.min(t,1)),this.$fill.style.width=t*100+"%"}return this._inputFocused||(this.$input.value=this._decimals===void 0?e:e.toFixed(this._decimals)),this}_initInput(){this.$input=document.createElement("input"),this.$input.setAttribute("type","text"),this.$input.setAttribute("aria-labelledby",this.$name.id),window.matchMedia("(pointer: coarse)").matches&&(this.$input.setAttribute("type","number"),this.$input.setAttribute("step","any")),this.$widget.appendChild(this.$input),this.$disable=this.$input;const t=()=>{let o=parseFloat(this.$input.value);isNaN(o)||(this._stepExplicit&&(o=this._snap(o)),this.setValue(this._clamp(o)))},r=o=>{const a=parseFloat(this.$input.value);isNaN(a)||(this._snapClampSetValue(a+o),this.$input.value=this.getValue())},i=o=>{o.key==="Enter"&&this.$input.blur(),o.code==="ArrowUp"&&(o.preventDefault(),r(this._step*this._arrowKeyMultiplier(o))),o.code==="ArrowDown"&&(o.preventDefault(),r(this._step*this._arrowKeyMultiplier(o)*-1))},l=o=>{this._inputFocused&&(o.preventDefault(),r(this._step*this._normalizeMouseWheel(o)))};let c=!1,h,g,s,f,m;const b=5,x=o=>{h=o.clientX,g=s=o.clientY,c=!0,f=this.getValue(),m=0,window.addEventListener("mousemove",B),window.addEventListener("mouseup",L)},B=o=>{if(c){const a=o.clientX-h,v=o.clientY-g;Math.abs(v)>b?(o.preventDefault(),this.$input.blur(),c=!1,this._setDraggingStyle(!0,"vertical")):Math.abs(a)>b&&L()}if(!c){const a=o.clientY-s;m-=a*this._step*this._arrowKeyMultiplier(o),f+m>this._max?m=this._max-f:f+m<this._min&&(m=this._min-f),this._snapClampSetValue(f+m)}s=o.clientY},L=()=>{this._setDraggingStyle(!1,"vertical"),this._callOnFinishChange(),window.removeEventListener("mousemove",B),window.removeEventListener("mouseup",L)},y=()=>{this._inputFocused=!0},d=()=>{this._inputFocused=!1,this.updateDisplay(),this._callOnFinishChange()};this.$input.addEventListener("input",t),this.$input.addEventListener("keydown",i),this.$input.addEventListener("wheel",l,{passive:!1}),this.$input.addEventListener("mousedown",x),this.$input.addEventListener("focus",y),this.$input.addEventListener("blur",d)}_initSlider(){this._hasSlider=!0,this.$slider=document.createElement("div"),this.$slider.classList.add("lil-slider"),this.$fill=document.createElement("div"),this.$fill.classList.add("lil-fill"),this.$slider.appendChild(this.$fill),this.$widget.insertBefore(this.$slider,this.$input),this.domElement.classList.add("lil-has-slider");const e=(d,o,a,v,C)=>(d-o)/(a-o)*(C-v)+v,t=d=>{const o=this.$slider.getBoundingClientRect();let a=e(d,o.left,o.right,this._min,this._max);this._snapClampSetValue(a)},r=d=>{this._setDraggingStyle(!0),t(d.clientX),window.addEventListener("mousemove",i),window.addEventListener("mouseup",l)},i=d=>{t(d.clientX)},l=()=>{this._callOnFinishChange(),this._setDraggingStyle(!1),window.removeEventListener("mousemove",i),window.removeEventListener("mouseup",l)};let c=!1,h,g;const s=d=>{d.preventDefault(),this._setDraggingStyle(!0),t(d.touches[0].clientX),c=!1},f=d=>{d.touches.length>1||(this._hasScrollBar?(h=d.touches[0].clientX,g=d.touches[0].clientY,c=!0):s(d),window.addEventListener("touchmove",m,{passive:!1}),window.addEventListener("touchend",b))},m=d=>{if(c){const o=d.touches[0].clientX-h,a=d.touches[0].clientY-g;Math.abs(o)>Math.abs(a)?s(d):(window.removeEventListener("touchmove",m),window.removeEventListener("touchend",b))}else d.preventDefault(),t(d.touches[0].clientX)},b=()=>{this._callOnFinishChange(),this._setDraggingStyle(!1),window.removeEventListener("touchmove",m),window.removeEventListener("touchend",b)},x=this._callOnFinishChange.bind(this),B=400;let L;const y=d=>{if(Math.abs(d.deltaX)<Math.abs(d.deltaY)&&this._hasScrollBar)return;d.preventDefault();const a=this._normalizeMouseWheel(d)*this._step;this._snapClampSetValue(this.getValue()+a),this.$input.value=this.getValue(),clearTimeout(L),L=setTimeout(x,B)};this.$slider.addEventListener("mousedown",r),this.$slider.addEventListener("touchstart",f,{passive:!1}),this.$slider.addEventListener("wheel",y,{passive:!1})}_setDraggingStyle(e,t="horizontal"){this.$slider&&this.$slider.classList.toggle("lil-active",e),document.body.classList.toggle("lil-dragging",e),document.body.classList.toggle(`lil-${t}`,e)}_getImplicitStep(){return this._hasMin&&this._hasMax?(this._max-this._min)/1e3:.1}_onUpdateMinMax(){!this._hasSlider&&this._hasMin&&this._hasMax&&(this._stepExplicit||this.step(this._getImplicitStep(),!1),this._initSlider(),this.updateDisplay())}_normalizeMouseWheel(e){let{deltaX:t,deltaY:r}=e;return Math.floor(e.deltaY)!==e.deltaY&&e.wheelDelta&&(t=0,r=-e.wheelDelta/120,r*=this._stepExplicit?1:10),t+-r}_arrowKeyMultiplier(e){let t=this._stepExplicit?1:10;return e.shiftKey?t*=10:e.altKey&&(t/=10),t}_snap(e){let t=0;return this._hasMin?t=this._min:this._hasMax&&(t=this._max),e-=t,e=Math.round(e/this._step)*this._step,e+=t,e=parseFloat(e.toPrecision(15)),e}_clamp(e){return e<this._min&&(e=this._min),e>this._max&&(e=this._max),e}_snapClampSetValue(e){this.setValue(this._clamp(this._snap(e)))}get _hasScrollBar(){const e=this.parent.root.$children;return e.scrollHeight>e.clientHeight}get _hasMin(){return this._min!==void 0}get _hasMax(){return this._max!==void 0}}class Sn extends U{constructor(e,t,r,i){super(e,t,r,"lil-option"),this.$select=document.createElement("select"),this.$select.setAttribute("aria-labelledby",this.$name.id),this.$display=document.createElement("div"),this.$display.classList.add("lil-display"),this.$select.addEventListener("change",()=>{this.setValue(this._values[this.$select.selectedIndex]),this._callOnFinishChange()}),this.$select.addEventListener("focus",()=>{this.$display.classList.add("lil-focus")}),this.$select.addEventListener("blur",()=>{this.$display.classList.remove("lil-focus")}),this.$widget.appendChild(this.$select),this.$widget.appendChild(this.$display),this.$disable=this.$select,this.options(i)}options(e){return this._values=Array.isArray(e)?e:Object.values(e),this._names=Array.isArray(e)?e:Object.keys(e),this.$select.replaceChildren(),this._names.forEach(t=>{const r=document.createElement("option");r.textContent=t,this.$select.appendChild(r)}),this.updateDisplay(),this}updateDisplay(){const e=this.getValue(),t=this._values.indexOf(e);return this.$select.selectedIndex=t,this.$display.textContent=t===-1?e:this._names[t],this}}class wn extends U{constructor(e,t,r){super(e,t,r,"lil-string"),this.$input=document.createElement("input"),this.$input.setAttribute("type","text"),this.$input.setAttribute("spellcheck","false"),this.$input.setAttribute("aria-labelledby",this.$name.id),this.$input.addEventListener("input",()=>{this.setValue(this.$input.value)}),this.$input.addEventListener("keydown",i=>{i.code==="Enter"&&this.$input.blur()}),this.$input.addEventListener("blur",()=>{this._callOnFinishChange()}),this.$widget.appendChild(this.$input),this.$disable=this.$input,this.updateDisplay()}updateDisplay(){return this.$input.value=this.getValue(),this}}var Cn=`.lil-gui {
   font-family: var(--font-family);
   font-size: var(--font-size);
   line-height: 1;
@@ -425,10 +425,10 @@
 @font-face {
   font-family: "lil-gui";
   src: url("data:application/font-woff2;charset=utf-8;base64,d09GMgABAAAAAALkAAsAAAAABtQAAAKVAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHFQGYACDMgqBBIEbATYCJAMUCwwABCAFhAoHgQQbHAbIDiUFEYVARAAAYQTVWNmz9MxhEgodq49wYRUFKE8GWNiUBxI2LBRaVnc51U83Gmhs0Q7JXWMiz5eteLwrKwuxHO8VFxUX9UpZBs6pa5ABRwHA+t3UxUnH20EvVknRerzQgX6xC/GH6ZUvTcAjAv122dF28OTqCXrPuyaDER30YBA1xnkVutDDo4oCi71Ca7rrV9xS8dZHbPHefsuwIyCpmT7j+MnjAH5X3984UZoFFuJ0yiZ4XEJFxjagEBeqs+e1iyK8Xf/nOuwF+vVK0ur765+vf7txotUi0m3N0m/84RGSrBCNrh8Ee5GjODjF4gnWP+dJrH/Lk9k4oT6d+gr6g/wssA2j64JJGP6cmx554vUZnpZfn6ZfX2bMwPPrlANsB86/DiHjhl0OP+c87+gaJo/gY084s3HoYL/ZkWHTRfBXvvoHnnkHvngKun4KBE/ede7tvq3/vQOxDXB1/fdNz6XbPdcr0Vhpojj9dG+owuSKFsslCi1tgEjirjXdwMiov2EioadxmqTHUCIwo8NgQaeIasAi0fTYSPTbSmwbMOFduyh9wvBrESGY0MtgRjtgQR8Q1bRPohn2UoCRZf9wyYANMXFeJTysqAe0I4mrherOekFdKMrYvJjLvOIUM9SuwYB5DVZUwwVjJJOaUnZCmcEkIZZrKqNvRGRMvmFZsmhP4VMKCSXBhSqUBxgMS7h0cZvEd71AWkEhGWaeMFcNnpqyJkyXgYL7PQ1MoSq0wDAkRtJIijkZSmqYTiSImfLiSWXIZwhRh3Rug2X0kk1Dgj+Iu43u5p98ghopcpSo0Uyc8SnjlYX59WUeaMoDqmVD2TOWD9a4pCRAzf2ECgwGcrHjPOWY9bNxq/OL3I/QjwEAAAA=") format("woff2");
-}`;function Cn(n){const e=document.createElement("style");e.innerHTML=n;const t=document.querySelector("head link[rel=stylesheet], head style");t?document.head.insertBefore(e,t):document.head.appendChild(e)}let Se=!1;class re{constructor({parent:e,autoPlace:t=e===void 0,container:r,width:l,title:i="Controls",closeFolders:c=!1,injectStyles:h=!0,touchStyles:g=!0}={}){if(this.parent=e,this.root=e?e.root:this,this.children=[],this.controllers=[],this.folders=[],this._closed=!1,this._hidden=!1,this.domElement=document.createElement("div"),this.domElement.classList.add("lil-gui"),this.$title=document.createElement("button"),this.$title.classList.add("lil-title"),this.$title.setAttribute("aria-expanded",!0),this.$title.addEventListener("click",()=>this.openAnimated(this._closed)),this.$title.addEventListener("touchstart",()=>{},{passive:!0}),this.$children=document.createElement("div"),this.$children.classList.add("lil-children"),this.domElement.appendChild(this.$title),this.domElement.appendChild(this.$children),this.title(i),this.parent){this.parent.children.push(this),this.parent.folders.push(this),this.parent.$children.appendChild(this.domElement);return}this.domElement.classList.add("lil-root"),g&&this.domElement.classList.add("lil-allow-touch-styles"),!Se&&h&&(Cn(kn),Se=!0),r?r.appendChild(this.domElement):t&&(this.domElement.classList.add("lil-auto-place","autoPlace"),document.body.appendChild(this.domElement)),l&&this.domElement.style.setProperty("--width",l+"px"),this._closeFolders=c}add(e,t,r,l,i){if(Object(r)===r)return new Sn(this,e,t,r);const c=e[t];switch(typeof c){case"number":return new yn(this,e,t,r,l,i);case"boolean":return new pn(this,e,t);case"string":return new wn(this,e,t);case"function":return new ne(this,e,t)}console.error(`gui.add failed
+}`;function kn(n){const e=document.createElement("style");e.innerHTML=n;const t=document.querySelector("head link[rel=stylesheet], head style");t?document.head.insertBefore(e,t):document.head.appendChild(e)}let Se=!1;class re{constructor({parent:e,autoPlace:t=e===void 0,container:r,width:i,title:l="Controls",closeFolders:c=!1,injectStyles:h=!0,touchStyles:g=!0}={}){if(this.parent=e,this.root=e?e.root:this,this.children=[],this.controllers=[],this.folders=[],this._closed=!1,this._hidden=!1,this.domElement=document.createElement("div"),this.domElement.classList.add("lil-gui"),this.$title=document.createElement("button"),this.$title.classList.add("lil-title"),this.$title.setAttribute("aria-expanded",!0),this.$title.addEventListener("click",()=>this.openAnimated(this._closed)),this.$title.addEventListener("touchstart",()=>{},{passive:!0}),this.$children=document.createElement("div"),this.$children.classList.add("lil-children"),this.domElement.appendChild(this.$title),this.domElement.appendChild(this.$children),this.title(l),this.parent){this.parent.children.push(this),this.parent.folders.push(this),this.parent.$children.appendChild(this.domElement);return}this.domElement.classList.add("lil-root"),g&&this.domElement.classList.add("lil-allow-touch-styles"),!Se&&h&&(kn(Cn),Se=!0),r?r.appendChild(this.domElement):t&&(this.domElement.classList.add("lil-auto-place","autoPlace"),document.body.appendChild(this.domElement)),i&&this.domElement.style.setProperty("--width",i+"px"),this._closeFolders=c}add(e,t,r,i,l){if(Object(r)===r)return new Sn(this,e,t,r);const c=e[t];switch(typeof c){case"number":return new yn(this,e,t,r,i,l);case"boolean":return new pn(this,e,t);case"string":return new wn(this,e,t);case"function":return new ne(this,e,t)}console.error(`gui.add failed
 	property:`,t,`
 	object:`,e,`
-	value:`,c)}addColor(e,t,r=1){return new xn(this,e,t,r)}addFolder(e){const t=new re({parent:this,title:e});return this.root._closeFolders&&t.close(),t}load(e,t=!0){return e.controllers&&this.controllers.forEach(r=>{r instanceof ne||r._name in e.controllers&&r.load(e.controllers[r._name])}),t&&e.folders&&this.folders.forEach(r=>{r._title in e.folders&&r.load(e.folders[r._title])}),this}save(e=!0){const t={controllers:{},folders:{}};return this.controllers.forEach(r=>{if(!(r instanceof ne)){if(r._name in t.controllers)throw new Error(`Cannot save GUI with duplicate property "${r._name}"`);t.controllers[r._name]=r.save()}}),e&&this.folders.forEach(r=>{if(r._title in t.folders)throw new Error(`Cannot save GUI with duplicate folder "${r._title}"`);t.folders[r._title]=r.save()}),t}open(e=!0){return this._setClosed(!e),this.$title.setAttribute("aria-expanded",!this._closed),this.domElement.classList.toggle("lil-closed",this._closed),this}close(){return this.open(!1)}_setClosed(e){this._closed!==e&&(this._closed=e,this._callOnOpenClose(this))}show(e=!0){return this._hidden=!e,this.domElement.style.display=this._hidden?"none":"",this}hide(){return this.show(!1)}openAnimated(e=!0){return this._setClosed(!e),this.$title.setAttribute("aria-expanded",!this._closed),requestAnimationFrame(()=>{const t=this.$children.clientHeight;this.$children.style.height=t+"px",this.domElement.classList.add("lil-transition");const r=i=>{i.target===this.$children&&(this.$children.style.height="",this.domElement.classList.remove("lil-transition"),this.$children.removeEventListener("transitionend",r))};this.$children.addEventListener("transitionend",r);const l=e?this.$children.scrollHeight:0;this.domElement.classList.toggle("lil-closed",!e),requestAnimationFrame(()=>{this.$children.style.height=l+"px"})}),this}title(e){return this._title=e,this.$title.textContent=e,this}reset(e=!0){return(e?this.controllersRecursive():this.controllers).forEach(r=>r.reset()),this}onChange(e){return this._onChange=e,this}_callOnChange(e){this.parent&&this.parent._callOnChange(e),this._onChange!==void 0&&this._onChange.call(this,{object:e.object,property:e.property,value:e.getValue(),controller:e})}onFinishChange(e){return this._onFinishChange=e,this}_callOnFinishChange(e){this.parent&&this.parent._callOnFinishChange(e),this._onFinishChange!==void 0&&this._onFinishChange.call(this,{object:e.object,property:e.property,value:e.getValue(),controller:e})}onOpenClose(e){return this._onOpenClose=e,this}_callOnOpenClose(e){this.parent&&this.parent._callOnOpenClose(e),this._onOpenClose!==void 0&&this._onOpenClose.call(this,e)}destroy(){this.parent&&(this.parent.children.splice(this.parent.children.indexOf(this),1),this.parent.folders.splice(this.parent.folders.indexOf(this),1)),this.domElement.parentElement&&this.domElement.parentElement.removeChild(this.domElement),Array.from(this.children).forEach(e=>e.destroy())}controllersRecursive(){let e=Array.from(this.controllers);return this.folders.forEach(t=>{e=e.concat(t.controllersRecursive())}),e}foldersRecursive(){let e=Array.from(this.folders);return this.folders.forEach(t=>{e=e.concat(t.foldersRecursive())}),e}}function Ln({cardLibrary:n,cards:e,initialCategory:t,initialCardId:r,onCardChange:l,onSelectionChange:i,webgpuRenderer:c}){var d;const h=new re({title:"Card Library"});h.close();const g={patternWidth:.2,patternHeight:.4};function s(o){o==="Radiant Holofoil"&&(c==null||c.setPatternParams(g.patternWidth,g.patternHeight))}const f={category:n.categoryNames.includes(t)?t:n.initialCategory,activeId:r},m=document.createElement("div");m.className="gui-description";const b=o=>Object.fromEntries(n.categories[o].map(a=>[a.name,a.id])),x=async(o,a)=>{f.category=a,f.activeId=o.id,m.textContent=n.descriptions[a],L.options(b(a)),L.updateDisplay(),s(a),i==null||i(o,a),await l(o,a)};(d=h.add(f,"category",n.categoryNames).name("Type").onChange(async o=>{const a=n.categories[o];a.length>0&&await x(a[0],o)}).domElement.parentElement)==null||d.appendChild(m),m.textContent=n.descriptions[f.category];const L=h.add(f,"activeId",b(f.category)).name("Select Card").onChange(async o=>{const a=e.find(v=>v.id===o);a&&await x(a,f.category)}),y=n.categories[f.category].find(o=>o.id===r)??n.categories[f.category][0];y&&(f.activeId=y.id,x(y,f.category))}const Rn="secret-rare-gold",Bn="swsh12pt5-160";function Le(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}function Un(n,e){return n.categoryNames.find(t=>t===e)??n.categoryNames.find(t=>Le(t)===e)}function Pn(n,e){const t=new URLSearchParams(window.location.search),r=t.get("type")??Rn,l=Un(n,r)??n.initialCategory,i=n.categories[l],c=t.get("card")??Bn,h=i.find(g=>g.id===c)??i[0]??e[0];return{category:l,card:h}}function An(n,e){const t=new URL(window.location.href);t.searchParams.set("type",Le(n)),t.searchParams.set("card",e.id),history.replaceState({},"",t)}const _n=`struct Uniforms {
+	value:`,c)}addColor(e,t,r=1){return new xn(this,e,t,r)}addFolder(e){const t=new re({parent:this,title:e});return this.root._closeFolders&&t.close(),t}load(e,t=!0){return e.controllers&&this.controllers.forEach(r=>{r instanceof ne||r._name in e.controllers&&r.load(e.controllers[r._name])}),t&&e.folders&&this.folders.forEach(r=>{r._title in e.folders&&r.load(e.folders[r._title])}),this}save(e=!0){const t={controllers:{},folders:{}};return this.controllers.forEach(r=>{if(!(r instanceof ne)){if(r._name in t.controllers)throw new Error(`Cannot save GUI with duplicate property "${r._name}"`);t.controllers[r._name]=r.save()}}),e&&this.folders.forEach(r=>{if(r._title in t.folders)throw new Error(`Cannot save GUI with duplicate folder "${r._title}"`);t.folders[r._title]=r.save()}),t}open(e=!0){return this._setClosed(!e),this.$title.setAttribute("aria-expanded",!this._closed),this.domElement.classList.toggle("lil-closed",this._closed),this}close(){return this.open(!1)}_setClosed(e){this._closed!==e&&(this._closed=e,this._callOnOpenClose(this))}show(e=!0){return this._hidden=!e,this.domElement.style.display=this._hidden?"none":"",this}hide(){return this.show(!1)}openAnimated(e=!0){return this._setClosed(!e),this.$title.setAttribute("aria-expanded",!this._closed),requestAnimationFrame(()=>{const t=this.$children.clientHeight;this.$children.style.height=t+"px",this.domElement.classList.add("lil-transition");const r=l=>{l.target===this.$children&&(this.$children.style.height="",this.domElement.classList.remove("lil-transition"),this.$children.removeEventListener("transitionend",r))};this.$children.addEventListener("transitionend",r);const i=e?this.$children.scrollHeight:0;this.domElement.classList.toggle("lil-closed",!e),requestAnimationFrame(()=>{this.$children.style.height=i+"px"})}),this}title(e){return this._title=e,this.$title.textContent=e,this}reset(e=!0){return(e?this.controllersRecursive():this.controllers).forEach(r=>r.reset()),this}onChange(e){return this._onChange=e,this}_callOnChange(e){this.parent&&this.parent._callOnChange(e),this._onChange!==void 0&&this._onChange.call(this,{object:e.object,property:e.property,value:e.getValue(),controller:e})}onFinishChange(e){return this._onFinishChange=e,this}_callOnFinishChange(e){this.parent&&this.parent._callOnFinishChange(e),this._onFinishChange!==void 0&&this._onFinishChange.call(this,{object:e.object,property:e.property,value:e.getValue(),controller:e})}onOpenClose(e){return this._onOpenClose=e,this}_callOnOpenClose(e){this.parent&&this.parent._callOnOpenClose(e),this._onOpenClose!==void 0&&this._onOpenClose.call(this,e)}destroy(){this.parent&&(this.parent.children.splice(this.parent.children.indexOf(this),1),this.parent.folders.splice(this.parent.folders.indexOf(this),1)),this.domElement.parentElement&&this.domElement.parentElement.removeChild(this.domElement),Array.from(this.children).forEach(e=>e.destroy())}controllersRecursive(){let e=Array.from(this.controllers);return this.folders.forEach(t=>{e=e.concat(t.controllersRecursive())}),e}foldersRecursive(){let e=Array.from(this.folders);return this.folders.forEach(t=>{e=e.concat(t.foldersRecursive())}),e}}function Ln({cardLibrary:n,cards:e,initialCategory:t,initialCardId:r,onCardChange:i,onSelectionChange:l,webgpuRenderer:c}){var d;const h=new re({title:"Card Library"});h.close();const g={patternWidth:.2,patternHeight:.4};function s(o){o==="Radiant Holofoil"&&(c==null||c.setPatternParams(g.patternWidth,g.patternHeight))}const f={category:n.categoryNames.includes(t)?t:n.initialCategory,activeId:r},m=document.createElement("div");m.className="gui-description";const b=o=>Object.fromEntries(n.categories[o].map(a=>[a.name,a.id])),x=async(o,a)=>{f.category=a,f.activeId=o.id,m.textContent=n.descriptions[a],L.options(b(a)),L.updateDisplay(),s(a),l==null||l(o,a),await i(o,a)};(d=h.add(f,"category",n.categoryNames).name("Type").onChange(async o=>{const a=n.categories[o];a.length>0&&await x(a[0],o)}).domElement.parentElement)==null||d.appendChild(m),m.textContent=n.descriptions[f.category];const L=h.add(f,"activeId",b(f.category)).name("Select Card").onChange(async o=>{const a=e.find(v=>v.id===o);a&&await x(a,f.category)}),y=n.categories[f.category].find(o=>o.id===r)??n.categories[f.category][0];y&&(f.activeId=y.id,x(y,f.category))}const Rn="secret-rare-gold",Bn="swsh12pt5-160";function Le(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"")}function Pn(n,e){return n.categoryNames.find(t=>t===e)??n.categoryNames.find(t=>Le(t)===e)}function Un(n,e){const t=new URLSearchParams(window.location.search),r=t.get("type")??Rn,i=Pn(n,r)??n.initialCategory,l=n.categories[i],c=t.get("card")??Bn,h=l.find(g=>g.id===c)??l[0]??e[0];return{category:i,card:h}}function An(n,e){const t=new URL(window.location.href);t.searchParams.set("type",Le(n)),t.searchParams.set("card",e.id),history.replaceState({},"",t)}const _n=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -934,7 +934,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Fn=`struct Uniforms {
+`,zn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -1265,7 +1265,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,zn=`struct Uniforms {
+`,Fn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -2905,7 +2905,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Gn=`struct Uniforms {
+`,En=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -3156,7 +3156,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,En=`struct Uniforms {
+`,Gn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -4576,7 +4576,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Wn=`struct Uniforms {
+`,$n=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -4974,7 +4974,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Hn=`struct Uniforms {
+`,Wn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -4985,9 +4985,13 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     foilBrightness: f32,
     patternScaleX: f32,
     patternScaleY: f32,
+    cosmosOffsetX: f32,
+    cosmosOffsetY: f32,
+    clipMode: f32,
+    shinyKind: f32,
+    hasMask: f32,
     _pad0: f32,
     _pad1: f32,
-    _pad2: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -4995,7 +4999,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
 @group(0) @binding(2) var cardTexture: texture_2d<f32>;
 @group(0) @binding(3) var foilTexture: texture_2d<f32>;
 @group(0) @binding(4) var maskTexture: texture_2d<f32>;
-@group(0) @binding(5) var glitterTexture: texture_2d<f32>;
+@group(0) @binding(5) var grainTexture: texture_2d<f32>;
 
 struct VertexOutput {
     @builtin(position) position: vec4f,
@@ -5053,112 +5057,6 @@ fn farthestCornerDist(p: vec2f) -> f32 {
 
 fn linearStep(edge0: f32, edge1: f32, x: f32) -> f32 {
     return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
-}
-
-// --- Blend Modes ---
-
-fn screenBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return 1.0 - (1.0 - base) * (1.0 - blend);
-}
-
-fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return mix(
-        2.0 * base * blend,
-        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
-        step(vec3f(0.5), blend)
-    );
-}
-
-fn softLightBlend(base: vec3f, blend: vec3f) -> vec3f {
-    let low = base - (1.0 - 2.0 * blend) * base * (1.0 - base);
-    let d = select(((16.0 * base - 12.0) * base + 4.0) * base, sqrt(max(base, vec3f(0.0))), base > vec3f(0.25));
-    let high = base + (2.0 * blend - 1.0) * (d - base);
-    return mix(low, high, step(vec3f(0.5), blend));
-}
-
-fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
-}
-
-fn rgb2hsl(c: vec3f) -> vec3f {
-    let maxC = max(max(c.r, c.g), c.b);
-    let minC = min(min(c.r, c.g), c.b);
-    let l = (maxC + minC) * 0.5;
-
-    if (maxC == minC) {
-        return vec3f(0.0, 0.0, l);
-    }
-
-    let d = maxC - minC;
-    let s = select(d / (2.0 - maxC - minC), d / (maxC + minC), l > 0.5);
-
-    var h: f32;
-    if (maxC == c.r) {
-        h = (c.g - c.b) / d + select(0.0, 6.0, c.g < c.b);
-    } else if (maxC == c.g) {
-        h = (c.b - c.r) / d + 2.0;
-    } else {
-        h = (c.r - c.g) / d + 4.0;
-    }
-    h /= 6.0;
-
-    return vec3f(h, s, l);
-}
-
-fn hue2rgb(p: f32, q: f32, t: f32) -> f32 {
-    var tt = t;
-    if (tt < 0.0) { tt += 1.0; }
-    if (tt > 1.0) { tt -= 1.0; }
-    if (tt < 1.0/6.0) { return p + (q - p) * 6.0 * tt; }
-    if (tt < 1.0/2.0) { return q; }
-    if (tt < 2.0/3.0) { return p + (q - p) * (2.0/3.0 - tt) * 6.0; }
-    return p;
-}
-
-fn hsl2rgb(hsl: vec3f) -> vec3f {
-    if (hsl.y == 0.0) {
-        return vec3f(hsl.z);
-    }
-    let q = select(hsl.z + hsl.y - hsl.z * hsl.y, hsl.z * (1.0 + hsl.y), hsl.z < 0.5);
-    let p = 2.0 * hsl.z - q;
-    return vec3f(
-        hue2rgb(p, q, hsl.x + 1.0/3.0),
-        hue2rgb(p, q, hsl.x),
-        hue2rgb(p, q, hsl.x - 1.0/3.0)
-    );
-}
-
-fn hueBlend(base: vec3f, blend: vec3f) -> vec3f {
-    let baseHSL = rgb2hsl(base);
-    let blendHSL = rgb2hsl(blend);
-    return hsl2rgb(vec3f(blendHSL.x, baseHSL.y, baseHSL.z));
-}
-
-fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
-    var c = color * brightness;
-    c = (c - 0.5) * contrast + 0.5;
-    let gray = dot(c, vec3f(0.2126, 0.7152, 0.0722));
-    c = mix(vec3f(gray), c, saturate);
-    return clamp(c, vec3f(0.0), vec3f(1.0));
-}
-
-fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
-    let a = top.a + bottom.a * (1.0 - top.a);
-    let rgb = (top.rgb * top.a + bottom.rgb * bottom.a * (1.0 - top.a)) / max(a, 0.0001);
-    return vec4f(rgb, a);
-}
-
-// --- Sunpillar Colors ---
-const SUNPILLAR_1: vec3f = vec3f(0.973, 0.459, 0.459); // hsl(2, 100%, 73%) - red
-const SUNPILLAR_2: vec3f = vec3f(0.969, 0.878, 0.376); // hsl(53, 100%, 69%) - yellow
-const SUNPILLAR_3: vec3f = vec3f(0.608, 0.969, 0.376); // hsl(93, 100%, 69%) - green
-const SUNPILLAR_4: vec3f = vec3f(0.518, 1.0, 0.835);   // hsl(176, 100%, 76%) - cyan
-const SUNPILLAR_5: vec3f = vec3f(0.478, 0.569, 0.969); // hsl(228, 100%, 74%) - blue
-const SUNPILLAR_6: vec3f = vec3f(0.780, 0.459, 0.973); // hsl(283, 100%, 73%) - purple
-
-fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
-    let origin = (vec2f(1.0) - size) * pos;
-    return (uv - origin) / size;
 }
 
 fn cssBackgroundPosition() -> vec2f {
@@ -5168,366 +5066,9 @@ fn cssBackgroundPosition() -> vec2f {
     );
 }
 
-// CSS repeating-linear-gradient(0deg, ...), with 5% stops over a 35% cycle.
-fn verticalSunpillar(layerUv: vec2f) -> vec3f {
-    let t = fract((1.0 - layerUv.y) / 0.35);
-
-    if (t < 0.143) { return mix(SUNPILLAR_1, SUNPILLAR_2, t / 0.143); }
-    if (t < 0.286) { return mix(SUNPILLAR_2, SUNPILLAR_3, (t - 0.143) / 0.143); }
-    if (t < 0.429) { return mix(SUNPILLAR_3, SUNPILLAR_4, (t - 0.286) / 0.143); }
-    if (t < 0.571) { return mix(SUNPILLAR_4, SUNPILLAR_5, (t - 0.429) / 0.143); }
-    if (t < 0.714) { return mix(SUNPILLAR_5, SUNPILLAR_6, (t - 0.571) / 0.143); }
-    return mix(SUNPILLAR_6, SUNPILLAR_1, (t - 0.714) / 0.286);
-}
-
-fn diagonalStripePhaseWithRepeat(layerUv: vec2f, repeatSize: f32) -> f32 {
-    let angle = radians(115.0);
-    let dir = vec2f(sin(angle), -cos(angle));
-    let t = dot(layerUv, dir);
-    return fract(t / repeatSize);
-}
-
-fn diagonalStripePhase(layerUv: vec2f) -> f32 {
-    return diagonalStripePhaseWithRepeat(layerUv, 0.12);
-}
-
-// CSS repeating-linear-gradient(133deg, ... 12%).
-fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
-    let cycle = diagonalStripePhase(layerUv);
-
-    let dark = vec3f(0.055, 0.082, 0.18);      // #0e152e - dark blue
-    let gray = vec3f(0.557, 0.612, 0.612);     // hsl(180, 10%, 60%) - desaturated cyan
-    let cyan = vec3f(0.525, 0.725, 0.725);     // hsl(180, 29%, 66%) - cyan
-
-    let s1 = 0.317;  // 3.8/12
-    let s2 = 0.375;  // 4.5/12
-    let s3 = 0.433;  // 5.2/12
-    let s4 = 0.833;  // 10/12
-
-    if (cycle < s1) { return mix(dark, gray, cycle / s1); }
-    if (cycle < s2) { return mix(gray, cyan, (cycle - s1) / (s2 - s1)); }
-    if (cycle < s3) { return mix(cyan, gray, (cycle - s2) / (s3 - s2)); }
-    if (cycle < s4) { return mix(gray, dark, (cycle - s3) / (s4 - s3)); }
-    return dark;
-}
-
-fn diagonalBeamMask(layerUv: vec2f) -> f32 {
-    let cycle = diagonalStripePhase(layerUv);
-    let distToPeak = abs(cycle - 0.375);
-    let core = 1.0 - smoothstep(0.0, 0.12, distToPeak);
-    let halo = 1.0 - smoothstep(0.06, 0.34, distToPeak);
-    return clamp(core * 0.65 + halo * 0.5, 0.0, 1.0);
-}
-
-fn diagonalBeamHalo(layerUv: vec2f) -> f32 {
-    let cycle = diagonalStripePhase(layerUv);
-    let distToPeak = abs(cycle - 0.375);
-    let broad = 1.0 - smoothstep(0.08, 0.43, distToPeak);
-    let edge = smoothstep(0.035, 0.18, distToPeak);
-    return broad * edge;
-}
-
-fn diagonalBackBeamMask(layerUv: vec2f) -> f32 {
-    let cycle = diagonalStripePhaseWithRepeat(layerUv, 0.24);
-    let distToPeak = abs(cycle - 0.375);
-    let core = 1.0 - smoothstep(0.0, 0.033, distToPeak);
-    let halo = 1.0 - smoothstep(0.02, 0.075, distToPeak);
-    return clamp(core * 1.2 + halo * 0.16, 0.0, 1.0);
-}
-
-fn diagonalBackBeamHalo(layerUv: vec2f) -> f32 {
-    let cycle = diagonalStripePhaseWithRepeat(layerUv, 0.24);
-    let distToPeak = abs(cycle - 0.375);
-    let broad = 1.0 - smoothstep(0.03, 0.18, distToPeak);
-    let edge = smoothstep(0.015, 0.075, distToPeak);
-    return broad * edge;
-}
-
-fn pokemonVBeamOverlap(uv: vec2f) -> vec3f {
-    let bg = cssBackgroundPosition();
-    let frontUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), bg);
-    let backUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), -bg);
-    let frontBeam = diagonalBeamMask(frontUv);
-    let backBeam = diagonalBackBeamMask(backUv);
-    let overlap = pow(clamp(frontBeam * backBeam, 0.0, 1.0), 0.72);
-
-    let cardSize = getCardSize();
-    let cardWidthPx = max(cardSize.x * uniforms.resolution.y / uniforms.dpr, 1.0);
-    let grainWidth = 500.0 / cardWidthPx;
-    let grainUv = backgroundSampleUv(uv, vec2f(grainWidth, 1.0), vec2f(0.5, 0.5));
-    let grain = textureSampleLevel(glitterTexture, linearSampler, fract(grainUv), 0.0);
-    let fineGrain = textureSampleLevel(
-        glitterTexture,
-        linearSampler,
-        fract(grainUv * vec2f(1.85, 1.35) + vec2f(0.17, 0.39)),
-        0.0
-    );
-    let grainLuma = dot(grain.rgb, vec3f(0.299, 0.587, 0.114));
-    let fineGrainLuma = dot(fineGrain.rgb, vec3f(0.299, 0.587, 0.114));
-    let particle = 0.34 + smoothstep(0.08, 0.3, grainLuma) * 0.9 +
-        smoothstep(0.12, 0.34, fineGrainLuma) * 1.55;
-
-    let sunColor = verticalSunpillar(backgroundSampleUv(uv, vec2f(2.0, 7.0), vec2f(0.0, bg.y)));
-    let mergeTint = mix(sunColor * 1.35, vec3f(1.0, 0.94, 0.7), overlap * 0.45);
-    return mergeTint * overlap * particle * 1.25;
-}
-
-// Base radial gradient - subtle darkening at pointer
-fn baseRadialGradient(uv: vec2f) -> vec4f {
-    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
-    // CSS: hsla(0,0%,0%,0.1) 12%, hsla(0,0%,0%,0.15) 20%, hsla(0,0%,0%,0.25) 120%
-    let a1 = 0.1;
-    let a2 = 0.15;
-    let a3 = 0.25;
-
-    var alpha: f32;
-    if (t < 0.12) {
-        alpha = a1;
-    } else if (t < 0.20) {
-        alpha = mix(a1, a2, linearStep(0.12, 0.20, t));
-    } else {
-        alpha = mix(a2, a3, linearStep(0.20, 1.20, t));
-    }
-
-    return vec4f(0.0, 0.0, 0.0, alpha);
-}
-
-fn compositeBackgroundLayer(bottom: vec4f, top: vec4f, blendMode: i32) -> vec4f {
-    var blended: vec3f;
-    if (blendMode == 0) {
-        blended = screenBlend(bottom.rgb, top.rgb);
-    } else if (blendMode == 1) {
-        blended = hueBlend(bottom.rgb, top.rgb);
-    } else {
-        blended = hardLightBlend(bottom.rgb, top.rgb);
-    }
-    let rgb = mix(bottom.rgb, blended, top.a);
-    let alpha = top.a + bottom.a * (1.0 - top.a);
-    return vec4f(rgb, alpha);
-}
-
-fn pokemonVShineLayer(uv: vec2f, afterLayer: bool) -> vec4f {
-    let bg = cssBackgroundPosition();
-    let diagonalPos = select(bg, -bg, afterLayer);
-    let sunSize = select(vec2f(2.0, 7.0), vec2f(2.0, 4.0), afterLayer);
-    let diagonalSize = select(vec2f(3.0, 1.0), vec2f(1.95, 1.0), afterLayer);
-
-    let cardSize = getCardSize();
-    let cardWidthPx = max(cardSize.x * uniforms.resolution.y / uniforms.dpr, 1.0);
-    let grainWidth = 500.0 / cardWidthPx;
-    let grainUv = backgroundSampleUv(uv, vec2f(grainWidth, 1.0), vec2f(0.5, 0.5));
-    let grain = textureSampleLevel(glitterTexture, linearSampler, fract(grainUv), 0.0);
-    let fineGrain = textureSampleLevel(
-        glitterTexture,
-        linearSampler,
-        fract(grainUv * vec2f(1.85, 1.35) + vec2f(0.17, 0.39)),
-        0.0
-    );
-    let sunUv = backgroundSampleUv(uv, sunSize, vec2f(0.0, bg.y));
-    let diagonalUv = backgroundSampleUv(uv, diagonalSize, diagonalPos);
-    let frontRotationDiagonalUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), diagonalPos);
-    let boostedBeamUv = select(diagonalUv, frontRotationDiagonalUv, afterLayer);
-    let sunColor = verticalSunpillar(sunUv);
-    let sun = vec4f(sunColor, 1.0);
-    let diagonal = vec4f(diagonalStripeColor(diagonalUv), 1.0);
-    let radial = baseRadialGradient(backgroundSampleUv(uv, vec2f(2.0, 1.0), bg));
-
-    // CSS paints background images from bottom to top:
-    // radial-gradient, diagonal gradient, sunpillar gradient, then grain.
-    // The blend-mode list applies to each top layer over the already-composited
-    // layers beneath it: grain=screen, sunpillar=hue, diagonal=hard-light.
-    var layer = radial;
-    layer = compositeBackgroundLayer(layer, diagonal, 2);
-    layer = compositeBackgroundLayer(layer, sun, 1);
-    layer = compositeBackgroundLayer(layer, grain, 0);
-
-    var filtered = select(
-        applyFilter(layer.rgb, 0.8, 2.95, 0.65),
-        applyFilter(layer.rgb, 1.0, 2.5, 1.75),
-        afterLayer
-    );
-    let beam = select(diagonalBeamMask(boostedBeamUv), diagonalBackBeamMask(boostedBeamUv), afterLayer);
-    let beamHalo = select(diagonalBeamHalo(boostedBeamUv), diagonalBackBeamHalo(boostedBeamUv), afterLayer);
-    let grainLuma = dot(grain.rgb, vec3f(0.299, 0.587, 0.114));
-    let fineGrainLuma = dot(fineGrain.rgb, vec3f(0.299, 0.587, 0.114));
-    let particleGrain = smoothstep(0.06, 0.26, grainLuma);
-    let particleGrainFine = smoothstep(0.05, 0.21, fineGrainLuma);
-    let particleFlecks = smoothstep(0.12, 0.36, max(grainLuma, fineGrainLuma));
-    let edgeFlecks = pow(smoothstep(0.1, 0.34, fineGrainLuma), 1.65);
-    let frontParticleMask = 0.32 + particleGrain * 1.12 + particleFlecks * 2.85;
-    let backParticleMask = 0.07 + particleGrain * 0.92 + particleGrainFine * 1.18 + particleFlecks * 3.55;
-    let particleMask = select(frontParticleMask, backParticleMask, afterLayer);
-    let visibleBeam = select(beam, beam, afterLayer);
-    let beamStrength = select(1.38, 1.45, afterLayer);
-    let frontTint = mix(sunColor * 1.35, vec3f(1.0, 0.95, 0.76), particleFlecks * 0.38);
-    let backTint = mix(sunColor * 1.15, vec3f(0.65, 0.86, 1.0), 0.32 + particleFlecks * 0.22);
-    let beamTint = select(frontTint, backTint, afterLayer);
-    filtered = screenBlend(filtered, beamTint * visibleBeam * particleMask * beamStrength);
-    let fleckStrength = select(1.52, 1.175, afterLayer);
-    let frontFleckTint = mix(sunColor * 1.45, vec3f(1.0, 0.86, 0.45), edgeFlecks * 0.55);
-    let backFleckTint = mix(sunColor * 1.2, vec3f(0.7, 0.9, 1.0), 0.4);
-    let fleckTint = select(frontFleckTint, backFleckTint, afterLayer);
-    let backFleckDensity = particleGrainFine * 1.12 + edgeFlecks * 1.25;
-    let fleckBeam = select(beamHalo + beam * 0.35, beam * (0.28 + edgeFlecks * 0.78 + backFleckDensity), afterLayer);
-    filtered = screenBlend(filtered, fleckTint * fleckBeam * edgeFlecks * fleckStrength);
-    return vec4f(filtered, layer.a);
-}
-
-// Glare gradient
-fn glareGradient(uv: vec2f) -> vec4f {
-    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
-    // CSS: white 0%, hsla(210,3%,54%,0.33) 45%, hsla(0,0%,20%,0.9) 130%
-    let white = vec4f(1.0, 1.0, 1.0, 1.0);
-    let grayish = vec4f(0.533, 0.541, 0.549, 0.33);
-    let dark = vec4f(0.2, 0.2, 0.2, 0.9);
-
-    if (t < 0.45) {
-        return mix(white, grayish, linearStep(0.0, 0.45, t));
-    }
-    return mix(grayish, dark, linearStep(0.45, 1.30, t));
-}
-
-@fragment
-fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
-    let cardSize = getCardSize();
-    let cornerRadius = 0.04;
-    let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
-
-    let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
-
-    // Shadow
-    let shadowOffset = 22.0 * pxToLocal;
-    let shadowBlur = 34.0 * pxToLocal;
-    let shadowSpread = -7.0 * pxToLocal;
-    let shadowPos = localPos - vec2f(0.0, -shadowOffset);
-    let shadowSize = cardSize + vec2f(shadowSpread);
-    let shadowRadius = max(cornerRadius + shadowSpread, 0.0);
-    let shadowDist = sdRoundedRect(shadowPos, shadowSize, shadowRadius);
-    let shadowAlpha = 1.0 - smoothstep(-shadowBlur, shadowBlur, shadowDist);
-    let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha);
-
-    // Card UV
-    let cardUV = vec2f(
-        (localPos.x / (cardSize.x * 2.0)) + 0.5,
-        0.5 - (localPos.y / (cardSize.y * 2.0))
-    );
-
-    let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
-    let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
-    let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
-    let foilMask = maskColor.a;
-
-    var cardRgb = textureColor.rgb;
-
-    // === .card__shine layer ===
-    let shine = pokemonVShineLayer(cardUV, false);
-    let shineBlended = colorDodgeBlend(cardRgb, shine.rgb);
-    cardRgb = mix(cardRgb, shineBlended, shine.a * foilMask * uniforms.opacity * cardMask);
-
-    // === .card__shine:after layer ===
-    let afterShine = pokemonVShineLayer(cardUV, true);
-    let afterBlended = softLightBlend(cardRgb, afterShine.rgb);
-    cardRgb = mix(cardRgb, afterBlended, afterShine.a * foilMask * uniforms.opacity * cardMask);
-
-    let beamMerge = pokemonVBeamOverlap(cardUV);
-    cardRgb = screenBlend(cardRgb, beamMerge * foilMask * uniforms.opacity * cardMask);
-
-    // === GLARE LAYER ===
-    let glare = glareGradient(cardUV);
-    let glareFiltered = applyFilter(glare.rgb, 0.9, 1.75, 1.0);
-    let glareBlended = hardLightBlend(cardRgb, glareFiltered);
-    // CSS: opacity: calc(var(--card-opacity) * 0.5), mix-blend-mode: hard-light
-    cardRgb = mix(cardRgb, glareBlended, glare.a * uniforms.opacity * 0.5 * cardMask);
-
-    let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
-    let finalColor = alphaOver(shadowColor, finalCard);
-
-    if (finalColor.a <= 0.0) { discard; }
-    return finalColor;
-}
-`,$n=`struct Uniforms {
-    resolution: vec2f,
-    pointer: vec2f,
-    rotation: vec2f,
-    time: f32,
-    dpr: f32,
-    perspective: f32,
-    opacity: f32,
-    foilBrightness: f32,
-    patternScaleX: f32,
-    patternScaleY: f32,
-    _pad0: f32,
-    _pad1: f32,
-    _pad2: f32,
-};
-
-@group(0) @binding(0) var<uniform> uniforms: Uniforms;
-@group(0) @binding(1) var linearSampler: sampler;
-@group(0) @binding(2) var cardTexture: texture_2d<f32>;
-@group(0) @binding(3) var foilTexture: texture_2d<f32>;
-@group(0) @binding(4) var maskTexture: texture_2d<f32>;
-@group(0) @binding(5) var glitterTexture: texture_2d<f32>;
-
-struct VertexOutput {
-    @builtin(position) position: vec4f,
-    @location(0) uv: vec2f,
-    @location(1) localPos: vec2f,
-};
-
-fn rotateX(p: vec3f, angle: f32) -> vec3f {
-    let s = sin(angle);
-    let c = cos(angle);
-    return vec3f(p.x, p.y * c - p.z * s, p.y * s + p.z * c);
-}
-
-fn rotateY(p: vec3f, angle: f32) -> vec3f {
-    let s = sin(angle);
-    let c = cos(angle);
-    return vec3f(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
-}
-
-@vertex
-fn vertexMain(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
-    var output: VertexOutput;
-    let canvasAspect = uniforms.resolution.x / uniforms.resolution.y;
-    var p = vec3f(pos, 0.0);
-    p = rotateX(p, uniforms.rotation.y);
-    p = rotateY(p, uniforms.rotation.x);
-    let w = uniforms.perspective - p.z;
-    output.position = vec4f((p.x / canvasAspect) * uniforms.perspective, p.y * uniforms.perspective, 0.0, w);
-    output.uv = uv;
-    output.localPos = pos;
-    return output;
-}
-
-fn sdRoundedRect(p: vec2f, b: vec2f, r: f32) -> f32 {
-    let q = abs(p) - b + r;
-    return min(max(q.x, q.y), 0.0) + length(max(q, vec2f(0.0))) - r;
-}
-
-fn getCardSize() -> vec2f {
-    let cardAspect = 0.718;
-    let panePadding = 48.0 * uniforms.dpr;
-    let maxWidthFromHeight = 0.6;
-    let maxWidthFromPane = max((uniforms.resolution.x - panePadding) / uniforms.resolution.y, 0.0);
-    let cardWidth = min(maxWidthFromHeight, maxWidthFromPane);
-    return vec2f(cardWidth, cardWidth / cardAspect);
-}
-
-fn farthestCornerDist(p: vec2f) -> f32 {
-    let d0 = distance(p, vec2f(0.0, 0.0));
-    let d1 = distance(p, vec2f(1.0, 0.0));
-    let d2 = distance(p, vec2f(0.0, 1.0));
-    let d3 = distance(p, vec2f(1.0, 1.0));
-    return max(max(d0, d1), max(d2, d3));
-}
-
-fn linearStep(edge0: f32, edge1: f32, x: f32) -> f32 {
-    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
-}
-
-fn screenBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return 1.0 - (1.0 - base) * (1.0 - blend);
+fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
+    let origin = (vec2f(1.0) - size) * pos;
+    return (uv - origin) / size;
 }
 
 fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
@@ -5535,14 +5076,6 @@ fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
         2.0 * base * blend,
         1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
         step(vec3f(0.5), blend)
-    );
-}
-
-fn overlayBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return mix(
-        2.0 * base * blend,
-        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
-        step(vec3f(0.5), base)
     );
 }
 
@@ -5561,12 +5094,12 @@ fn softLightBlend(base: vec3f, blend: vec3f) -> vec3f {
     );
 }
 
-fn exclusionBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return base + blend - 2.0 * base * blend;
+fn screenBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return 1.0 - (1.0 - base) * (1.0 - blend);
 }
 
 fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
-    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.00001)), vec3f(1.0));
+    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
     return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
 }
 
@@ -5574,14 +5107,11 @@ fn rgb2hsl(c: vec3f) -> vec3f {
     let maxC = max(max(c.r, c.g), c.b);
     let minC = min(min(c.r, c.g), c.b);
     let l = (maxC + minC) * 0.5;
-
     if (maxC == minC) {
         return vec3f(0.0, 0.0, l);
     }
-
     let d = maxC - minC;
     let s = select(d / (2.0 - maxC - minC), d / (maxC + minC), l > 0.5);
-
     var h: f32;
     if (maxC == c.r) {
         h = (c.g - c.b) / d + select(0.0, 6.0, c.g < c.b);
@@ -5590,18 +5120,16 @@ fn rgb2hsl(c: vec3f) -> vec3f {
     } else {
         h = (c.r - c.g) / d + 4.0;
     }
-    h /= 6.0;
-
-    return vec3f(h, s, l);
+    return vec3f(h / 6.0, s, l);
 }
 
 fn hue2rgb(p: f32, q: f32, t: f32) -> f32 {
     var tt = t;
     if (tt < 0.0) { tt += 1.0; }
     if (tt > 1.0) { tt -= 1.0; }
-    if (tt < 1.0/6.0) { return p + (q - p) * 6.0 * tt; }
-    if (tt < 1.0/2.0) { return q; }
-    if (tt < 2.0/3.0) { return p + (q - p) * (2.0/3.0 - tt) * 6.0; }
+    if (tt < 1.0 / 6.0) { return p + (q - p) * 6.0 * tt; }
+    if (tt < 1.0 / 2.0) { return q; }
+    if (tt < 2.0 / 3.0) { return p + (q - p) * (2.0 / 3.0 - tt) * 6.0; }
     return p;
 }
 
@@ -5612,16 +5140,16 @@ fn hsl2rgb(hsl: vec3f) -> vec3f {
     let q = select(hsl.z + hsl.y - hsl.z * hsl.y, hsl.z * (1.0 + hsl.y), hsl.z < 0.5);
     let p = 2.0 * hsl.z - q;
     return vec3f(
-        hue2rgb(p, q, hsl.x + 1.0/3.0),
+        hue2rgb(p, q, hsl.x + 1.0 / 3.0),
         hue2rgb(p, q, hsl.x),
-        hue2rgb(p, q, hsl.x - 1.0/3.0)
+        hue2rgb(p, q, hsl.x - 1.0 / 3.0)
     );
 }
 
 fn hueBlend(base: vec3f, blend: vec3f) -> vec3f {
-    let baseHSL = rgb2hsl(base);
-    let blendHSL = rgb2hsl(blend);
-    return hsl2rgb(vec3f(blendHSL.x, baseHSL.y, baseHSL.z));
+    let baseHsl = rgb2hsl(base);
+    let blendHsl = rgb2hsl(blend);
+    return hsl2rgb(vec3f(blendHsl.x, baseHsl.y, baseHsl.z));
 }
 
 fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
@@ -5638,18 +5166,6 @@ fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
     return vec4f(rgb, a);
 }
 
-fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
-    let origin = (vec2f(1.0) - size) * pos;
-    return (uv - origin) / size;
-}
-
-fn cssBackgroundPosition() -> vec2f {
-    return vec2f(
-        mix(0.37, 0.63, uniforms.pointer.x),
-        mix(0.33, 0.67, uniforms.pointer.y)
-    );
-}
-
 const SUNPILLAR_1: vec3f = vec3f(0.973, 0.459, 0.459);
 const SUNPILLAR_2: vec3f = vec3f(0.969, 0.878, 0.376);
 const SUNPILLAR_3: vec3f = vec3f(0.608, 0.969, 0.376);
@@ -5657,158 +5173,128 @@ const SUNPILLAR_4: vec3f = vec3f(0.518, 1.0, 0.835);
 const SUNPILLAR_5: vec3f = vec3f(0.478, 0.569, 0.969);
 const SUNPILLAR_6: vec3f = vec3f(0.780, 0.459, 0.973);
 
-fn sunpillarGradient(y: f32) -> vec3f {
-    let t = fract(y * 2.857);
-    if (t < 0.143) { return mix(SUNPILLAR_1, SUNPILLAR_2, t / 0.143); }
-    if (t < 0.286) { return mix(SUNPILLAR_2, SUNPILLAR_3, (t - 0.143) / 0.143); }
-    if (t < 0.429) { return mix(SUNPILLAR_3, SUNPILLAR_4, (t - 0.286) / 0.143); }
-    if (t < 0.571) { return mix(SUNPILLAR_4, SUNPILLAR_5, (t - 0.429) / 0.143); }
-    if (t < 0.714) { return mix(SUNPILLAR_5, SUNPILLAR_6, (t - 0.571) / 0.143); }
-    return mix(SUNPILLAR_6, SUNPILLAR_1, (t - 0.714) / 0.286);
+fn sunpillarColor(index: i32, afterLayer: bool) -> vec3f {
+    let wrapped = ((index % 6) + 6) % 6;
+    let shifted = select(wrapped, (wrapped + 5) % 6, afterLayer);
+    switch shifted {
+        case 0: { return SUNPILLAR_1; }
+        case 1: { return SUNPILLAR_2; }
+        case 2: { return SUNPILLAR_3; }
+        case 3: { return SUNPILLAR_4; }
+        case 4: { return SUNPILLAR_5; }
+        default: { return SUNPILLAR_6; }
+    }
 }
 
-fn diagonalStripePhase(layerUv: vec2f, repeatSize: f32) -> f32 {
+fn verticalSunpillar(layerUv: vec2f, afterLayer: bool) -> vec3f {
+    let t = fract((1.0 - layerUv.y) / 0.35) * 7.0;
+    let idx = i32(floor(t));
+    let f = fract(t);
+    return mix(sunpillarColor(idx, afterLayer), sunpillarColor(idx + 1, afterLayer), f);
+}
+
+fn diagonalStripePhase(layerUv: vec2f) -> f32 {
     let angle = radians(115.0);
     let dir = vec2f(sin(angle), -cos(angle));
-    let t = dot(layerUv, dir);
-    return fract(t / repeatSize);
-}
-
-// Calculate perspective stretch factor based on fragment depth
-// Parts of the card closer to viewer (smaller W) appear larger
-fn getPerspectiveStretch(localPos: vec2f) -> f32 {
-    // Reconstruct the 3D position after rotation (same as vertex shader)
-    var p = vec3f(localPos, 0.0);
-    p = rotateX(p, uniforms.rotation.y);
-    p = rotateY(p, uniforms.rotation.x);
-    // W value - smaller = closer to camera = more stretch
-    let w = uniforms.perspective - p.z;
-    // Normalize relative to base perspective (when card is flat, w = perspective)
-    // Invert so closer = larger stretch factor
-    let baseStretch = uniforms.perspective / w;
-    // Amplify the effect - raise to power and scale
-    return pow(baseStretch, 20.0);
+    return fract(dot(layerUv, dir) / 0.12);
 }
 
 fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
-    let cycle = diagonalStripePhase(layerUv, 0.12);
+    let cycle = diagonalStripePhase(layerUv);
     let dark = vec3f(0.055, 0.082, 0.18);
     let gray = vec3f(0.557, 0.612, 0.612);
     let cyan = vec3f(0.525, 0.725, 0.725);
-    let s1 = 0.317;
-    let s2 = 0.375;
-    let s3 = 0.433;
-    let s4 = 0.833;
-    if (cycle < s1) { return mix(dark, gray, cycle / s1); }
-    if (cycle < s2) { return mix(gray, cyan, (cycle - s1) / (s2 - s1)); }
-    if (cycle < s3) { return mix(cyan, gray, (cycle - s2) / (s3 - s2)); }
-    if (cycle < s4) { return mix(gray, dark, (cycle - s3) / (s4 - s3)); }
+    if (cycle < 0.317) { return mix(dark, gray, cycle / 0.317); }
+    if (cycle < 0.375) { return mix(gray, cyan, (cycle - 0.317) / 0.058); }
+    if (cycle < 0.433) { return mix(cyan, gray, (cycle - 0.375) / 0.058); }
+    if (cycle < 0.833) { return mix(gray, dark, (cycle - 0.433) / 0.4); }
     return dark;
 }
 
-// Beam mask - creates wider, softer beam effect
-// stretch: perspective stretch factor (not used for width anymore - uniform beams)
-// repeatSize: larger = fewer beams
-fn diagonalBeamMask(layerUv: vec2f, stretch: f32, repeatSize: f32) -> f32 {
-    let cycle = diagonalStripePhase(layerUv, repeatSize);
-    let distToPeak = abs(cycle - 0.375);
-    // Scale beam width by perspective stretch - wider when closer to camera
-    // Use max() to ensure far beams don't get too thin
-    let coreWidth = max(0.04 * stretch, 0.025);
-    let haloWidth = max(0.09 * stretch, 0.05);
-    // Core beam - tight center
-    let core = 1.0 - smoothstep(0.0, coreWidth, distToPeak);
-    // Halo - soft glow
-    let halo = 1.0 - smoothstep(max(0.02 * stretch, 0.012), haloWidth, distToPeak);
-    return clamp(core * 0.8 + halo * 0.5, 0.0, 1.0);
-}
-
-fn baseRadialGradient(uv: vec2f) -> vec4f {
+fn shineRadial(uv: vec2f) -> vec4f {
     let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
-    let dark = vec4f(0.0, 0.0, 0.0, 0.1);
-    let pale = vec4f(0.0, 0.0, 0.0, 0.25);
-    return vec4f(0.0, 0.0, 0.0, mix(dark.a, pale.a, linearStep(0.12, 1.2, t)));
+    var alpha: f32;
+    if (t < 0.12) {
+        alpha = 0.1;
+    } else if (t < 0.20) {
+        alpha = mix(0.1, 0.15, linearStep(0.12, 0.20, t));
+    } else {
+        alpha = mix(0.15, 0.25, linearStep(0.20, 1.20, t));
+    }
+    return vec4f(0.0, 0.0, 0.0, alpha);
 }
 
-fn overlayRadialGradient(uv: vec2f) -> vec3f {
-    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
-    let pale = vec3f(0.918, 0.882, 0.863);
-    let black = vec3f(0.0, 0.0, 0.0);
-    return mix(pale, black, linearStep(0.10, 0.70, t));
+// CSS background-blend-mode compositing: the blend result only applies where
+// the backdrop has coverage; over transparent backdrop the source paints as-is.
+// mode: 1 hue, 2 hard-light, 3 screen
+fn compositeBackgroundLayer(bottom: vec4f, top: vec4f, mode: i32) -> vec4f {
+    var blended: vec3f;
+    if (mode == 1) {
+        blended = hueBlend(bottom.rgb, top.rgb);
+    } else if (mode == 2) {
+        blended = hardLightBlend(bottom.rgb, top.rgb);
+    } else {
+        blended = screenBlend(bottom.rgb, top.rgb);
+    }
+    let co = top.a * (1.0 - bottom.a) * top.rgb
+        + top.a * bottom.a * blended
+        + (1.0 - top.a) * bottom.a * bottom.rgb;
+    let ao = top.a + bottom.a * (1.0 - top.a);
+    return vec4f(co / max(ao, 0.00001), ao);
 }
 
+// Grain layer: 500px wide (CSS layout px), full height, centered, tiled.
+fn sampleGrain(uv: vec2f) -> vec4f {
+    let cardSize = getCardSize();
+    let cardWidthPx = max(cardSize.x * uniforms.resolution.y / uniforms.dpr, 1.0);
+    let grainWidth = 500.0 / cardWidthPx;
+    let grainUv = backgroundSampleUv(uv, vec2f(grainWidth, 1.0), vec2f(0.5, 0.5));
+    return textureSampleLevel(grainTexture, linearSampler, fract(grainUv), 0.0);
+}
+
+// Raw (unfiltered) v-regular shine stack: grain (screen) over sunpillar (hue)
+// over 133deg diagonal stripe (hard-light) over a pointer radial.
+fn shineLayer(uv: vec2f, afterLayer: bool) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let layerDiagonalPos = select(bg, -bg, afterLayer);
+    let sunSize = select(vec2f(2.0, 7.0), vec2f(2.0, 4.0), afterLayer);
+    let diagonalSize = select(vec2f(3.0, 1.0), vec2f(1.95, 1.0), afterLayer);
+
+    var layer = shineRadial(backgroundSampleUv(uv, vec2f(2.0, 1.0), bg));
+    let diagonal = vec4f(diagonalStripeColor(backgroundSampleUv(uv, diagonalSize, layerDiagonalPos)), 1.0);
+    let sun = vec4f(verticalSunpillar(backgroundSampleUv(uv, sunSize, vec2f(0.0, bg.y)), afterLayer), 1.0);
+    let grain = sampleGrain(uv);
+
+    layer = compositeBackgroundLayer(layer, diagonal, 2);
+    layer = compositeBackgroundLayer(layer, sun, 1);
+    layer = compositeBackgroundLayer(layer, grain, 3);
+
+    return layer.rgb;
+}
+
+// :after (soft-light) composites into the shine element, then the element's
+// own filter applies to the whole group.
+fn combinedShine(uv: vec2f) -> vec3f {
+    let front = shineLayer(uv, false);
+    let after = shineLayer(uv, true);
+    let afterFiltered = applyFilter(after, 1.0, 2.5, 1.75);
+    let combined = softLightBlend(front, afterFiltered);
+    if (uniforms.hasMask < 0.5) {
+        return applyFilter(combined, 0.7, 2.0, 0.5);
+    }
+    return applyFilter(combined, 0.8, 2.95, 0.65);
+}
+
+// V glare: white -> gray(0.33) 45% -> dark(0.9) 130%, hard-light at 0.5.
 fn glareGradient(uv: vec2f) -> vec4f {
     let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
-    let light = vec4f(0.812, 0.807, 0.788, 0.30);
-    let dark = vec4f(0.138, 0.116, 0.102, 1.0);
-    return vec4f(mix(light.rgb, dark.rgb, linearStep(0.0, 1.8, t)), mix(light.a, dark.a, linearStep(0.0, 1.8, t)));
-}
-
-fn composeAltArtLayer(
-    uv: vec2f,
-    diagonalSize: vec2f,
-    beamOffset: vec2f,
-    isBackLayer: bool,
-    pointerFromCenter: f32,
-    stretch: f32,
-) -> vec3f {
-    let foil = textureSampleLevel(foilTexture, linearSampler, uv, 0.0).rgb;
-    let diagonalUv = backgroundSampleUv(uv, diagonalSize, beamOffset);
-    let radialUv = backgroundSampleUv(uv, vec2f(2.0, 1.0), beamOffset);
-    let sunSize = select(vec2f(2.0, 7.0), vec2f(2.0, 4.0), isBackLayer);
-    let sunOffset = select(vec2f(0.0, beamOffset.y), vec2f(0.0, -beamOffset.y), isBackLayer);
-    let sun = sunpillarGradient(backgroundSampleUv(uv, sunSize, sunOffset).y);
-    let diagonal = diagonalStripeColor(diagonalUv);
-    let radial = baseRadialGradient(radialUv).a;
-
-    var layer = vec3f(radial);
-    // Remove diagonal stripe for front layer to avoid thin beam lines
-    // Back: reduced to avoid dark bands
-    if (isBackLayer) {
-        layer = hardLightBlend(layer, mix(vec3f(0.5), diagonal, 0.15));
+    let white = vec4f(1.0, 1.0, 1.0, 1.0);
+    let grayish = vec4f(0.533, 0.541, 0.549, 0.33);
+    let dark = vec4f(0.2, 0.2, 0.2, 0.9);
+    if (t < 0.45) {
+        return mix(white, grayish, linearStep(0.0, 0.45, t));
     }
-    layer = hueBlend(layer, sun);
-    layer = softLightBlend(layer, foil);
-
-    // CSS uses brightness that varies with pointer position
-    let frontBrightness = 0.8 + pointerFromCenter * 0.4;
-    let backBrightness = 1.0 + pointerFromCenter * 0.4;
-
-    var filtered = select(
-        applyFilter(layer, frontBrightness, 1.4, 2.25),
-        applyFilter(layer, backBrightness, 1.5, 1.25),
-        isBackLayer
-    );
-
-    // Add beam highlights for front layer only
-    // Back layer beams are applied separately after exclusion blend
-    // Fade beams based on tilt - less visible when card is flat
-    if (!isBackLayer) {
-        let tiltAmount = length(uniforms.rotation) * 5.0;  // Scale rotation to useful range
-        let beamFade = clamp(tiltAmount, 0.0, 1.0);
-        let beam = diagonalBeamMask(diagonalUv, stretch, 0.22);
-        let beamColor = sun * 1.2;
-        filtered = screenBlend(filtered, beamColor * beam * beamFade);
-    }
-
-    return filtered;
-}
-
-fn getBackBeamHighlight(uv: vec2f, beamOffset: vec2f, stretch: f32) -> vec3f {
-    let diagonalUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), beamOffset);
-    // Use same sun color calculation as front layer for consistent colors
-    let bg = cssBackgroundPosition();
-    let sunUv = backgroundSampleUv(uv, vec2f(2.0, 7.0), vec2f(0.0, bg.y));
-    let sun = sunpillarGradient(sunUv.y);
-    let beam = diagonalBeamMask(diagonalUv, stretch, 0.22);  // Same as front beams - closer together
-    return sun * 1.2 * beam;
-}
-
-fn beforeOverlay(uv: vec2f) -> vec3f {
-    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
-    let light = overlayRadialGradient(uv);
-    let alpha = 0.75 * (1.0 - linearStep(0.0, 0.4, t));
-    return light * alpha;
+    return mix(grayish, dark, linearStep(0.45, 1.30, t));
 }
 
 @fragment
@@ -5816,7 +5302,6 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let cardSize = getCardSize();
     let cornerRadius = 0.04;
     let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
-
     let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
 
     let shadowOffset = 22.0 * pxToLocal;
@@ -5837,53 +5322,27 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
     let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
     let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
-    let foilMask = maskColor.a;
-
-    // CSS var(--pointer-from-center) is distance from center normalized to ~1 at corners
-    let pointerFromCenter = length(uniforms.pointer - vec2f(0.5)) / 0.70710678;
-    let shineOpacity = clamp((1.35 * uniforms.opacity) - pointerFromCenter * 0.15, 0.0, 1.0);
-
-    // Calculate perspective stretch - beams are wider where card is closer to camera
-    let stretch = getPerspectiveStretch(localPos);
-
-    let bg = cssBackgroundPosition();
-    let beamPos = vec2f(bg.x + (bg.y * 0.2), bg.y);
-    // Use same diagonal size for both layers so beams have identical width
-    let diagonalSize = vec2f(3.0, 1.0);
-    let frontLayer = composeAltArtLayer(cardUV, diagonalSize, beamPos, false, pointerFromCenter, stretch);
-    let backLayer = composeAltArtLayer(cardUV, diagonalSize, -beamPos, true, pointerFromCenter, stretch);
+    let foilMask = select(1.0, maskColor.a, uniforms.hasMask > 0.5);
 
     var cardRgb = textureColor.rgb;
-    let frontShine = colorDodgeBlend(cardRgb, frontLayer);
-    cardRgb = mix(cardRgb, frontShine, shineOpacity * foilMask * cardMask);
 
-    let backShine = exclusionBlend(cardRgb, backLayer);
-    cardRgb = mix(cardRgb, backShine, shineOpacity * 0.65 * foilMask * cardMask);
-
-    // Apply back beam highlights after exclusion blend using screen
-    // Use -beamPos so back beams are in different positions and move opposite to front
-    // Fade beams based on tilt - less visible when card is flat
-    let tiltAmount = length(uniforms.rotation) * 5.0;
-    let beamFade = clamp(tiltAmount, 0.0, 1.0);
-    let backBeam = getBackBeamHighlight(cardUV, -beamPos, stretch);
-    cardRgb = screenBlend(cardRgb, backBeam * shineOpacity * beamFade * foilMask * cardMask);
-
-    let before = beforeOverlay(cardUV);
-    let beforeBlend = overlayBlend(cardRgb, before);
-    cardRgb = mix(cardRgb, beforeBlend, 0.75 * shineOpacity * cardMask);
+    let shine = combinedShine(cardUV);
+    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shine), foilMask * uniforms.opacity * cardMask);
 
     let glare = glareGradient(cardUV);
-    let glareFiltered = applyFilter(glare.rgb, 1.0, 1.2, 1.0);
-    let glareBlended = hardLightBlend(cardRgb, glareFiltered);
-    cardRgb = mix(cardRgb, glareBlended, glare.a * 0.75 * cardMask);
+    let glareFiltered = applyFilter(glare.rgb, 0.9, 1.75, 1.0);
+    cardRgb = mix(
+        cardRgb,
+        hardLightBlend(cardRgb, glareFiltered),
+        glare.a * 0.5 * uniforms.opacity * cardMask
+    );
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
     let finalColor = alphaOver(shadowColor, finalCard);
-
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Yn=`struct Uniforms {
+`,Hn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -6322,6 +5781,444 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     return finalColor;
 }
 `,Xn=`struct Uniforms {
+    resolution: vec2f,
+    pointer: vec2f,
+    rotation: vec2f,
+    time: f32,
+    dpr: f32,
+    perspective: f32,
+    opacity: f32,
+    foilBrightness: f32,
+    patternScaleX: f32,
+    patternScaleY: f32,
+    _pad0: f32,
+    _pad1: f32,
+    _pad2: f32,
+};
+
+@group(0) @binding(0) var<uniform> uniforms: Uniforms;
+@group(0) @binding(1) var linearSampler: sampler;
+@group(0) @binding(2) var cardTexture: texture_2d<f32>;
+@group(0) @binding(3) var foilTexture: texture_2d<f32>;
+@group(0) @binding(4) var maskTexture: texture_2d<f32>;
+@group(0) @binding(5) var glitterTexture: texture_2d<f32>;
+
+struct VertexOutput {
+    @builtin(position) position: vec4f,
+    @location(0) uv: vec2f,
+    @location(1) localPos: vec2f,
+};
+
+fn rotateX(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x, p.y * c - p.z * s, p.y * s + p.z * c);
+}
+
+fn rotateY(p: vec3f, angle: f32) -> vec3f {
+    let s = sin(angle);
+    let c = cos(angle);
+    return vec3f(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
+}
+
+@vertex
+fn vertexMain(@location(0) pos: vec2f, @location(1) uv: vec2f) -> VertexOutput {
+    var output: VertexOutput;
+    let canvasAspect = uniforms.resolution.x / uniforms.resolution.y;
+    var p = vec3f(pos, 0.0);
+    p = rotateX(p, uniforms.rotation.y);
+    p = rotateY(p, uniforms.rotation.x);
+    let w = uniforms.perspective - p.z;
+    output.position = vec4f((p.x / canvasAspect) * uniforms.perspective, p.y * uniforms.perspective, 0.0, w);
+    output.uv = uv;
+    output.localPos = pos;
+    return output;
+}
+
+fn sdRoundedRect(p: vec2f, b: vec2f, r: f32) -> f32 {
+    let q = abs(p) - b + r;
+    return min(max(q.x, q.y), 0.0) + length(max(q, vec2f(0.0))) - r;
+}
+
+fn getCardSize() -> vec2f {
+    let cardAspect = 0.718;
+    let panePadding = 48.0 * uniforms.dpr;
+    let maxWidthFromHeight = 0.6;
+    let maxWidthFromPane = max((uniforms.resolution.x - panePadding) / uniforms.resolution.y, 0.0);
+    let cardWidth = min(maxWidthFromHeight, maxWidthFromPane);
+    return vec2f(cardWidth, cardWidth / cardAspect);
+}
+
+fn farthestCornerDist(p: vec2f) -> f32 {
+    let d0 = distance(p, vec2f(0.0, 0.0));
+    let d1 = distance(p, vec2f(1.0, 0.0));
+    let d2 = distance(p, vec2f(0.0, 1.0));
+    let d3 = distance(p, vec2f(1.0, 1.0));
+    return max(max(d0, d1), max(d2, d3));
+}
+
+fn linearStep(edge0: f32, edge1: f32, x: f32) -> f32 {
+    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+}
+
+fn screenBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return 1.0 - (1.0 - base) * (1.0 - blend);
+}
+
+fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return mix(
+        2.0 * base * blend,
+        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
+        step(vec3f(0.5), blend)
+    );
+}
+
+fn overlayBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return mix(
+        2.0 * base * blend,
+        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
+        step(vec3f(0.5), base)
+    );
+}
+
+fn softLightChannel(base: f32, blend: f32) -> f32 {
+    let low = base - (1.0 - 2.0 * blend) * base * (1.0 - base);
+    let d = select(((16.0 * base - 12.0) * base + 4.0) * base, sqrt(max(base, 0.0)), base > 0.25);
+    let high = base + (2.0 * blend - 1.0) * (d - base);
+    return mix(low, high, step(0.5, blend));
+}
+
+fn softLightBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return vec3f(
+        softLightChannel(base.r, blend.r),
+        softLightChannel(base.g, blend.g),
+        softLightChannel(base.b, blend.b)
+    );
+}
+
+fn exclusionBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return base + blend - 2.0 * base * blend;
+}
+
+fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.00001)), vec3f(1.0));
+    return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
+}
+
+fn rgb2hsl(c: vec3f) -> vec3f {
+    let maxC = max(max(c.r, c.g), c.b);
+    let minC = min(min(c.r, c.g), c.b);
+    let l = (maxC + minC) * 0.5;
+
+    if (maxC == minC) {
+        return vec3f(0.0, 0.0, l);
+    }
+
+    let d = maxC - minC;
+    let s = select(d / (2.0 - maxC - minC), d / (maxC + minC), l > 0.5);
+
+    var h: f32;
+    if (maxC == c.r) {
+        h = (c.g - c.b) / d + select(0.0, 6.0, c.g < c.b);
+    } else if (maxC == c.g) {
+        h = (c.b - c.r) / d + 2.0;
+    } else {
+        h = (c.r - c.g) / d + 4.0;
+    }
+    h /= 6.0;
+
+    return vec3f(h, s, l);
+}
+
+fn hue2rgb(p: f32, q: f32, t: f32) -> f32 {
+    var tt = t;
+    if (tt < 0.0) { tt += 1.0; }
+    if (tt > 1.0) { tt -= 1.0; }
+    if (tt < 1.0/6.0) { return p + (q - p) * 6.0 * tt; }
+    if (tt < 1.0/2.0) { return q; }
+    if (tt < 2.0/3.0) { return p + (q - p) * (2.0/3.0 - tt) * 6.0; }
+    return p;
+}
+
+fn hsl2rgb(hsl: vec3f) -> vec3f {
+    if (hsl.y == 0.0) {
+        return vec3f(hsl.z);
+    }
+    let q = select(hsl.z + hsl.y - hsl.z * hsl.y, hsl.z * (1.0 + hsl.y), hsl.z < 0.5);
+    let p = 2.0 * hsl.z - q;
+    return vec3f(
+        hue2rgb(p, q, hsl.x + 1.0/3.0),
+        hue2rgb(p, q, hsl.x),
+        hue2rgb(p, q, hsl.x - 1.0/3.0)
+    );
+}
+
+fn hueBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let baseHSL = rgb2hsl(base);
+    let blendHSL = rgb2hsl(blend);
+    return hsl2rgb(vec3f(blendHSL.x, baseHSL.y, baseHSL.z));
+}
+
+fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
+    var c = color * brightness;
+    c = (c - 0.5) * contrast + 0.5;
+    let gray = dot(c, vec3f(0.2126, 0.7152, 0.0722));
+    c = mix(vec3f(gray), c, saturate);
+    return clamp(c, vec3f(0.0), vec3f(1.0));
+}
+
+fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
+    let a = top.a + bottom.a * (1.0 - top.a);
+    let rgb = (top.rgb * top.a + bottom.rgb * bottom.a * (1.0 - top.a)) / max(a, 0.0001);
+    return vec4f(rgb, a);
+}
+
+fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
+    let origin = (vec2f(1.0) - size) * pos;
+    return (uv - origin) / size;
+}
+
+fn cssBackgroundPosition() -> vec2f {
+    return vec2f(
+        mix(0.37, 0.63, uniforms.pointer.x),
+        mix(0.33, 0.67, uniforms.pointer.y)
+    );
+}
+
+const SUNPILLAR_1: vec3f = vec3f(0.973, 0.459, 0.459);
+const SUNPILLAR_2: vec3f = vec3f(0.969, 0.878, 0.376);
+const SUNPILLAR_3: vec3f = vec3f(0.608, 0.969, 0.376);
+const SUNPILLAR_4: vec3f = vec3f(0.518, 1.0, 0.835);
+const SUNPILLAR_5: vec3f = vec3f(0.478, 0.569, 0.969);
+const SUNPILLAR_6: vec3f = vec3f(0.780, 0.459, 0.973);
+
+fn sunpillarGradient(y: f32) -> vec3f {
+    let t = fract(y * 2.857);
+    if (t < 0.143) { return mix(SUNPILLAR_1, SUNPILLAR_2, t / 0.143); }
+    if (t < 0.286) { return mix(SUNPILLAR_2, SUNPILLAR_3, (t - 0.143) / 0.143); }
+    if (t < 0.429) { return mix(SUNPILLAR_3, SUNPILLAR_4, (t - 0.286) / 0.143); }
+    if (t < 0.571) { return mix(SUNPILLAR_4, SUNPILLAR_5, (t - 0.429) / 0.143); }
+    if (t < 0.714) { return mix(SUNPILLAR_5, SUNPILLAR_6, (t - 0.571) / 0.143); }
+    return mix(SUNPILLAR_6, SUNPILLAR_1, (t - 0.714) / 0.286);
+}
+
+fn diagonalStripePhase(layerUv: vec2f, repeatSize: f32) -> f32 {
+    let angle = radians(115.0);
+    let dir = vec2f(sin(angle), -cos(angle));
+    let t = dot(layerUv, dir);
+    return fract(t / repeatSize);
+}
+
+// Calculate perspective stretch factor based on fragment depth
+// Parts of the card closer to viewer (smaller W) appear larger
+fn getPerspectiveStretch(localPos: vec2f) -> f32 {
+    // Reconstruct the 3D position after rotation (same as vertex shader)
+    var p = vec3f(localPos, 0.0);
+    p = rotateX(p, uniforms.rotation.y);
+    p = rotateY(p, uniforms.rotation.x);
+    // W value - smaller = closer to camera = more stretch
+    let w = uniforms.perspective - p.z;
+    // Normalize relative to base perspective (when card is flat, w = perspective)
+    // Invert so closer = larger stretch factor
+    let baseStretch = uniforms.perspective / w;
+    // Amplify the effect - raise to power and scale
+    return pow(baseStretch, 20.0);
+}
+
+fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
+    let cycle = diagonalStripePhase(layerUv, 0.12);
+    let dark = vec3f(0.055, 0.082, 0.18);
+    let gray = vec3f(0.557, 0.612, 0.612);
+    let cyan = vec3f(0.525, 0.725, 0.725);
+    let s1 = 0.317;
+    let s2 = 0.375;
+    let s3 = 0.433;
+    let s4 = 0.833;
+    if (cycle < s1) { return mix(dark, gray, cycle / s1); }
+    if (cycle < s2) { return mix(gray, cyan, (cycle - s1) / (s2 - s1)); }
+    if (cycle < s3) { return mix(cyan, gray, (cycle - s2) / (s3 - s2)); }
+    if (cycle < s4) { return mix(gray, dark, (cycle - s3) / (s4 - s3)); }
+    return dark;
+}
+
+// Beam mask - creates wider, softer beam effect
+// stretch: perspective stretch factor (not used for width anymore - uniform beams)
+// repeatSize: larger = fewer beams
+fn diagonalBeamMask(layerUv: vec2f, stretch: f32, repeatSize: f32) -> f32 {
+    let cycle = diagonalStripePhase(layerUv, repeatSize);
+    let distToPeak = abs(cycle - 0.375);
+    // Scale beam width by perspective stretch - wider when closer to camera
+    // Use max() to ensure far beams don't get too thin
+    let coreWidth = max(0.04 * stretch, 0.025);
+    let haloWidth = max(0.09 * stretch, 0.05);
+    // Core beam - tight center
+    let core = 1.0 - smoothstep(0.0, coreWidth, distToPeak);
+    // Halo - soft glow
+    let halo = 1.0 - smoothstep(max(0.02 * stretch, 0.012), haloWidth, distToPeak);
+    return clamp(core * 0.8 + halo * 0.5, 0.0, 1.0);
+}
+
+fn baseRadialGradient(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let dark = vec4f(0.0, 0.0, 0.0, 0.1);
+    let pale = vec4f(0.0, 0.0, 0.0, 0.25);
+    return vec4f(0.0, 0.0, 0.0, mix(dark.a, pale.a, linearStep(0.12, 1.2, t)));
+}
+
+fn overlayRadialGradient(uv: vec2f) -> vec3f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let pale = vec3f(0.918, 0.882, 0.863);
+    let black = vec3f(0.0, 0.0, 0.0);
+    return mix(pale, black, linearStep(0.10, 0.70, t));
+}
+
+fn glareGradient(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let light = vec4f(0.812, 0.807, 0.788, 0.30);
+    let dark = vec4f(0.138, 0.116, 0.102, 1.0);
+    return vec4f(mix(light.rgb, dark.rgb, linearStep(0.0, 1.8, t)), mix(light.a, dark.a, linearStep(0.0, 1.8, t)));
+}
+
+fn composeAltArtLayer(
+    uv: vec2f,
+    diagonalSize: vec2f,
+    beamOffset: vec2f,
+    isBackLayer: bool,
+    pointerFromCenter: f32,
+    stretch: f32,
+) -> vec3f {
+    let foil = textureSampleLevel(foilTexture, linearSampler, uv, 0.0).rgb;
+    let diagonalUv = backgroundSampleUv(uv, diagonalSize, beamOffset);
+    let radialUv = backgroundSampleUv(uv, vec2f(2.0, 1.0), beamOffset);
+    let sunSize = select(vec2f(2.0, 7.0), vec2f(2.0, 4.0), isBackLayer);
+    let sunOffset = select(vec2f(0.0, beamOffset.y), vec2f(0.0, -beamOffset.y), isBackLayer);
+    let sun = sunpillarGradient(backgroundSampleUv(uv, sunSize, sunOffset).y);
+    let diagonal = diagonalStripeColor(diagonalUv);
+    let radial = baseRadialGradient(radialUv).a;
+
+    var layer = vec3f(radial);
+    // Remove diagonal stripe for front layer to avoid thin beam lines
+    // Back: reduced to avoid dark bands
+    if (isBackLayer) {
+        layer = hardLightBlend(layer, mix(vec3f(0.5), diagonal, 0.15));
+    }
+    layer = hueBlend(layer, sun);
+    layer = softLightBlend(layer, foil);
+
+    // CSS uses brightness that varies with pointer position
+    let frontBrightness = 0.8 + pointerFromCenter * 0.4;
+    let backBrightness = 1.0 + pointerFromCenter * 0.4;
+
+    var filtered = select(
+        applyFilter(layer, frontBrightness, 1.4, 2.25),
+        applyFilter(layer, backBrightness, 1.5, 1.25),
+        isBackLayer
+    );
+
+    // Add beam highlights for front layer only
+    // Back layer beams are applied separately after exclusion blend
+    // Fade beams based on tilt - less visible when card is flat
+    if (!isBackLayer) {
+        let tiltAmount = length(uniforms.rotation) * 5.0;  // Scale rotation to useful range
+        let beamFade = clamp(tiltAmount, 0.0, 1.0);
+        let beam = diagonalBeamMask(diagonalUv, stretch, 0.22);
+        let beamColor = sun * 1.2;
+        filtered = screenBlend(filtered, beamColor * beam * beamFade);
+    }
+
+    return filtered;
+}
+
+fn getBackBeamHighlight(uv: vec2f, beamOffset: vec2f, stretch: f32) -> vec3f {
+    let diagonalUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), beamOffset);
+    // Use same sun color calculation as front layer for consistent colors
+    let bg = cssBackgroundPosition();
+    let sunUv = backgroundSampleUv(uv, vec2f(2.0, 7.0), vec2f(0.0, bg.y));
+    let sun = sunpillarGradient(sunUv.y);
+    let beam = diagonalBeamMask(diagonalUv, stretch, 0.22);  // Same as front beams - closer together
+    return sun * 1.2 * beam;
+}
+
+fn beforeOverlay(uv: vec2f) -> vec3f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let light = overlayRadialGradient(uv);
+    let alpha = 0.75 * (1.0 - linearStep(0.0, 0.4, t));
+    return light * alpha;
+}
+
+@fragment
+fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @location(0) vec4f {
+    let cardSize = getCardSize();
+    let cornerRadius = 0.04;
+    let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
+
+    let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
+
+    let shadowOffset = 22.0 * pxToLocal;
+    let shadowBlur = 34.0 * pxToLocal;
+    let shadowSpread = -7.0 * pxToLocal;
+    let shadowPos = localPos - vec2f(0.0, -shadowOffset);
+    let shadowSize = cardSize + vec2f(shadowSpread);
+    let shadowRadius = max(cornerRadius + shadowSpread, 0.0);
+    let shadowDist = sdRoundedRect(shadowPos, shadowSize, shadowRadius);
+    let shadowAlpha = 1.0 - smoothstep(-shadowBlur, shadowBlur, shadowDist);
+    let shadowColor = vec4f(0.0, 0.0, 0.0, shadowAlpha);
+
+    let cardUV = vec2f(
+        (localPos.x / (cardSize.x * 2.0)) + 0.5,
+        0.5 - (localPos.y / (cardSize.y * 2.0))
+    );
+
+    let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
+    let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
+    let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
+    let foilMask = maskColor.a;
+
+    // CSS var(--pointer-from-center) is distance from center normalized to ~1 at corners
+    let pointerFromCenter = length(uniforms.pointer - vec2f(0.5)) / 0.70710678;
+    let shineOpacity = clamp((1.35 * uniforms.opacity) - pointerFromCenter * 0.15, 0.0, 1.0);
+
+    // Calculate perspective stretch - beams are wider where card is closer to camera
+    let stretch = getPerspectiveStretch(localPos);
+
+    let bg = cssBackgroundPosition();
+    let beamPos = vec2f(bg.x + (bg.y * 0.2), bg.y);
+    // Use same diagonal size for both layers so beams have identical width
+    let diagonalSize = vec2f(3.0, 1.0);
+    let frontLayer = composeAltArtLayer(cardUV, diagonalSize, beamPos, false, pointerFromCenter, stretch);
+    let backLayer = composeAltArtLayer(cardUV, diagonalSize, -beamPos, true, pointerFromCenter, stretch);
+
+    var cardRgb = textureColor.rgb;
+    let frontShine = colorDodgeBlend(cardRgb, frontLayer);
+    cardRgb = mix(cardRgb, frontShine, shineOpacity * foilMask * cardMask);
+
+    let backShine = exclusionBlend(cardRgb, backLayer);
+    cardRgb = mix(cardRgb, backShine, shineOpacity * 0.65 * foilMask * cardMask);
+
+    // Apply back beam highlights after exclusion blend using screen
+    // Use -beamPos so back beams are in different positions and move opposite to front
+    // Fade beams based on tilt - less visible when card is flat
+    let tiltAmount = length(uniforms.rotation) * 5.0;
+    let beamFade = clamp(tiltAmount, 0.0, 1.0);
+    let backBeam = getBackBeamHighlight(cardUV, -beamPos, stretch);
+    cardRgb = screenBlend(cardRgb, backBeam * shineOpacity * beamFade * foilMask * cardMask);
+
+    let before = beforeOverlay(cardUV);
+    let beforeBlend = overlayBlend(cardRgb, before);
+    cardRgb = mix(cardRgb, beforeBlend, 0.75 * shineOpacity * cardMask);
+
+    let glare = glareGradient(cardUV);
+    let glareFiltered = applyFilter(glare.rgb, 1.0, 1.2, 1.0);
+    let glareBlended = hardLightBlend(cardRgb, glareFiltered);
+    cardRgb = mix(cardRgb, glareBlended, glare.a * 0.75 * cardMask);
+
+    let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
+    let finalColor = alphaOver(shadowColor, finalCard);
+
+    if (finalColor.a <= 0.0) { discard; }
+    return finalColor;
+}
+`,Yn=`struct Uniforms {
     resolution: vec2f,
     pointer: vec2f,
     rotation: vec2f,
@@ -7495,9 +7392,9 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }
-`,Kn={id:"glare",shaderCode:_n},Zn={id:"reverse-holo",shaderCode:zn},Jn={id:"amazing-rare",shaderCode:Mn},Qn={id:"galaxy-cosmos-holo",shaderCode:Tn,auxiliaryTextureUrls:["img/cosmos-bottom.png","img/cosmos-middle-trans.png","img/cosmos-top-trans.png"]},et={id:"holofoil-rare",shaderCode:Fn},nt={id:"radiant-holo",shaderCode:Vn},tt={id:"rainbow-rare",shaderCode:On},rt={id:"secret-rare",shaderCode:Dn},at={id:"trainer-gallery-holo",shaderCode:Gn},lt={id:"trainer-gallery-v",shaderCode:En,auxiliaryTextureUrl:"img/illusion.png"},it={id:"trainer-gallery-v-max",shaderCode:In},ot={id:"trainer-holo",shaderCode:qn,auxiliaryTextureUrl:"img/trainerbg.png"},st={id:"pokemon-v",shaderCode:Hn,auxiliaryTextureUrl:"img/grain.webp"},ct={id:"pokemon-v-alternate-art",shaderCode:$n},ft={id:"pokemon-v-full-art",shaderCode:Yn},dt={id:"v-star",shaderCode:Wn,auxiliaryTextureUrl:"img/ancient.png"},ut={id:"v-max-alt",shaderCode:Nn},pt={id:"v-max",shaderCode:Xn,auxiliaryTextureUrl:"img/vmaxbg.jpg"},vt={id:"shiny-vault",shaderCode:jn,auxiliaryTextureUrls:["img/glitter.png","img/illusion.png","img/grain.webp"]},ht={"Reverse Holo non-rares":Zn,"Holofoil Rare":et,"Trainer Gallery (V)":lt,"Trainer Gallery (VMax)":it,"Trainer Holo":ot,"Holofoil Amazing Rare":Jn,"Galaxy/Cosmos Holofoil":Qn,"Trainer Gallery Holofoil":at,"Radiant Holofoil":nt,"Rainbow Rare":tt,"Secret Rare (Gold)":rt,"Pokemon V":st,"Pokemon V (Alternate Art)":ct,"Pokemon V (Full Art)":ft,VMax:pt,"VMax (Alternate/Rainbow)":ut,VStar:dt,"Shiny Vault":vt};function we(n){return ht[n]??Kn}function gt(n){const e=new Set((n.types??[]).map(t=>t.toLowerCase()));return e.has("lightning")?.7:e.has("darkness")?.8:e.has("metal")?.6:.55}function mt(n){const e=(n.subtypes??[]).map(t=>t.toLowerCase());return n.supertype.toLowerCase()==="trainer"?2:e.some(t=>t.startsWith("stage"))?1:0}function bt(n,e){if(n!=="Shiny Vault"||!e.number.toLowerCase().startsWith("sv"))return 0;const t=new Set((e.subtypes??[]).map(r=>r.toLowerCase()));return t.has("vmax")?2:t.has("v")?1:0}async function xt({canvas:n,webgpuPane:e}){if(!navigator.gpu)throw alert("WebGPU not supported on this browser."),new Error("WebGPU not supported");const t=await navigator.gpu.requestAdapter();if(!t)throw alert("No appropriate GPUAdapter found."),new Error("No appropriate GPUAdapter found");const r=await t.requestDevice(),l=n.getContext("webgpu");if(!l)throw new Error("Unable to acquire WebGPU context");let i=window.devicePixelRatio||1;const c=navigator.gpu.getPreferredCanvasFormat(),h={device:r,format:c,alphaMode:"premultiplied"};l.configure(h);const g=r.createSampler({magFilter:"linear",minFilter:"linear"}),s=.718,f=1.2,m=new Float32Array([-1*f,-1/s*f,0,1,1*f,-1/s*f,1,1,1*f,1/s*f,1,0,-1*f,1/s*f,0,0]),b=new Uint16Array([0,1,2,0,2,3]),x=r.createBuffer({size:m.byteLength,usage:GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST});r.queue.writeBuffer(x,0,m);const B=r.createBuffer({size:b.byteLength,usage:GPUBufferUsage.INDEX|GPUBufferUsage.COPY_DST});r.queue.writeBuffer(B,0,b);const L=r.createBuffer({size:80,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST}),y=r.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.VERTEX|GPUShaderStage.FRAGMENT,buffer:{}},{binding:1,visibility:GPUShaderStage.FRAGMENT,sampler:{}},{binding:2,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:3,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:4,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:5,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:6,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:7,visibility:GPUShaderStage.FRAGMENT,texture:{}}]}),d=r.createPipelineLayout({bindGroupLayouts:[y]}),o=new Map;function a(p){const u=r.createShaderModule({code:p.shaderCode});return r.createRenderPipeline({layout:d,vertex:{module:u,entryPoint:"vertexMain",buffers:[{arrayStride:16,attributes:[{shaderLocation:0,offset:0,format:"float32x2"},{shaderLocation:1,offset:8,format:"float32x2"}]}]},fragment:{module:u,entryPoint:"fragmentMain",targets:[{format:c,blend:{color:{srcFactor:"one",dstFactor:"one-minus-src-alpha",operation:"add"},alpha:{srcFactor:"one",dstFactor:"one-minus-src-alpha",operation:"add"}}}]},primitive:{topology:"triangle-list"}})}function v(p){let u=o.get(p.id);return u||(u=a(p),o.set(p.id,u)),u}const k=new Map;async function U(p){let u=k.get(p);return u||(u=await W(R(p)),k.set(p,u)),u}async function A(p){const u=p.auxiliaryTextureUrls??[p.auxiliaryTextureUrl??"img/glitter.png"],S=[u[0]??"img/glitter.png",u[1]??"img/glitter.png",u[2]??"img/glitter.png"];return Promise.all(S.map(U))}function F(p,u,S,C){return r.createBindGroup({layout:y,entries:[{binding:0,resource:{buffer:L}},{binding:1,resource:g},{binding:2,resource:p.createView()},{binding:3,resource:u.createView()},{binding:4,resource:S.createView()},{binding:5,resource:C[0].createView()},{binding:6,resource:C[1].createView()},{binding:7,resource:C[2].createView()}]})}let z=V([255,255,255,255]),D=V([0,0,0,255]),G=V([0,0,0,0]);const ae=we("");let le=v(ae),$=await A(ae),ie=F(z,D,G,$),E=.5,I=.5,Y=0,X=0,j=0,K=0,Z=0,J=0,oe=.55,se=.476,ce=.476,fe=0,de=0,ue=0,pe=0,ve=0;const Re=performance.now();let q=1,M=1,N;function he(){window.clearTimeout(N),E=.5,I=.5,Y=0,X=0,Z=0}function Be(p=500){window.clearTimeout(N),N=window.setTimeout(he,p)}function Ue(){const p=n.getBoundingClientRect(),u=Math.min(p.height*.6,p.width-48),S=u/s,C=p.left+(p.width-u)/2,_=p.top+(p.height-S)/2;return{width:u,height:S,cardLeft:C,cardTop:_}}function ge(p){window.clearTimeout(N),E=Math.min(Math.max(p.x,0),1),I=Math.min(Math.max(p.y,0),1);const u=E-.5,S=I-.5;Y=-(u*100)/3.5*(Math.PI/180),X=-(S*100)/3.5*(Math.PI/180),Z=1}function Pe(p){const u=Ue(),S={x:(p.clientX-u.cardLeft)/u.width,y:(p.clientY-u.cardTop)/u.height};return ge(S),S}function Ae(){Be()}function Q(){i=window.devicePixelRatio||1;const p=e.getBoundingClientRect();q=Math.max(1,Math.round(p.width*i)),M=Math.max(1,Math.round(p.height*i)),(n.width!==q||n.height!==M)&&(n.width=q,n.height=M,l.configure(h))}new ResizeObserver(Q).observe(e),window.addEventListener("resize",Q),Q();function V(p){const u=r.createTexture({size:[1,1,1],format:"rgba8unorm",usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});return r.queue.writeTexture({texture:u},new Uint8Array(p),{bytesPerRow:4},[1,1]),u}async function W(p){const u=await fetch(p);if(!u.ok)throw new Error(`Unable to load texture: ${p}`);const S=await u.blob(),C=await createImageBitmap(S),_=r.createTexture({size:[C.width,C.height,1],format:"rgba8unorm",usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST|GPUTextureUsage.RENDER_ATTACHMENT});return r.queue.copyExternalImageToTexture({source:C},{texture:_},[C.width,C.height]),C.close(),_}async function _e(p,u,S,C){const _=we(u),T=v(_),me=H(S,"foils",u,C),ee=H(S,"masks",u,C),[ze,Me,Ve]=await Promise.all([W(p),me?W(me):Promise.resolve(V([0,0,0,255])),ee?W(ee):Promise.resolve(V([0,0,0,0]))]),Oe=z,De=D,Ge=G;z=ze,D=Me,G=Ve,le=T,$=await A(_),oe=gt(S);const be=Ce(S);fe=be.cosmosPixels.x,de=be.cosmosPixels.y,ue=mt(S),pe=bt(u,S),ve=ee?1:0,ie=F(z,D,G,$),Oe.destroy(),De.destroy(),Ge.destroy()}function Te(){j+=(Y-j)*.15,K+=(X-K)*.15,J+=(Z-J)*.15;const p=(performance.now()-Re)/1e3,u=600*(2*i/M),S=new Float32Array([q,M,E,I,j,K,p,i,u,J,oe,se,ce,fe,de,ue,pe,ve,0,0]);r.queue.writeBuffer(L,0,S);const C=r.createCommandEncoder(),_=l.getCurrentTexture().createView(),T=C.beginRenderPass({colorAttachments:[{view:_,clearValue:{r:.2235,g:.2314,b:.2706,a:1},loadOp:"clear",storeOp:"store"}]});T.setPipeline(le),T.setBindGroup(0,ie),T.setVertexBuffer(0,x),T.setIndexBuffer(B,"uint16"),T.drawIndexed(b.length),T.end(),r.queue.submit([C.finish()])}function Fe(p,u){se=p,ce=u}return{updateTexture:_e,setPointer:ge,handlePointerMove:Pe,handlePointerLeave:Ae,resetPointer:he,render:Te,setPatternParams:Fe}}async function yt(){Ee();const n=document.createElement("a");n.className="github-link",n.href="https://github.com/jeantimex/pokemon-cards-webgpu",n.target="_blank",n.rel="noreferrer noopener",n.setAttribute("aria-label","GitHub profile for jeantimex"),n.innerHTML=`
+`,Kn={id:"glare",shaderCode:_n},Zn={id:"reverse-holo",shaderCode:Fn},Jn={id:"amazing-rare",shaderCode:Mn},Qn={id:"galaxy-cosmos-holo",shaderCode:Tn,auxiliaryTextureUrls:["img/cosmos-bottom.png","img/cosmos-middle-trans.png","img/cosmos-top-trans.png"]},et={id:"holofoil-rare",shaderCode:zn},nt={id:"radiant-holo",shaderCode:Vn},tt={id:"rainbow-rare",shaderCode:On},rt={id:"secret-rare",shaderCode:Dn},at={id:"trainer-gallery-holo",shaderCode:En},it={id:"trainer-gallery-v",shaderCode:Gn,auxiliaryTextureUrl:"img/illusion.png"},lt={id:"trainer-gallery-v-max",shaderCode:In},ot={id:"trainer-holo",shaderCode:qn,auxiliaryTextureUrl:"img/trainerbg.png"},st={id:"pokemon-v",shaderCode:Wn,auxiliaryTextureUrl:"img/grain.webp"},ct={id:"pokemon-v-alternate-art",shaderCode:Hn},ft={id:"pokemon-v-full-art",shaderCode:Xn},dt={id:"v-star",shaderCode:$n,auxiliaryTextureUrl:"img/ancient.png"},ut={id:"v-max-alt",shaderCode:Nn},pt={id:"v-max",shaderCode:Yn,auxiliaryTextureUrl:"img/vmaxbg.jpg"},vt={id:"shiny-vault",shaderCode:jn,auxiliaryTextureUrls:["img/glitter.png","img/illusion.png","img/grain.webp"]},ht={"Reverse Holo non-rares":Zn,"Holofoil Rare":et,"Trainer Gallery (V)":it,"Trainer Gallery (VMax)":lt,"Trainer Holo":ot,"Holofoil Amazing Rare":Jn,"Galaxy/Cosmos Holofoil":Qn,"Trainer Gallery Holofoil":at,"Radiant Holofoil":nt,"Rainbow Rare":tt,"Secret Rare (Gold)":rt,"Pokemon V":st,"Pokemon V (Alternate Art)":ct,"Pokemon V (Full Art)":ft,VMax:pt,"VMax (Alternate/Rainbow)":ut,VStar:dt,"Shiny Vault":vt};function we(n){return ht[n]??Kn}function gt(n){const e=new Set((n.types??[]).map(t=>t.toLowerCase()));return e.has("lightning")?.7:e.has("darkness")?.8:e.has("metal")?.6:.55}function mt(n){const e=(n.subtypes??[]).map(t=>t.toLowerCase());return n.supertype.toLowerCase()==="trainer"?2:e.some(t=>t.startsWith("stage"))?1:0}function bt(n,e){if(n!=="Shiny Vault"||!e.number.toLowerCase().startsWith("sv"))return 0;const t=new Set((e.subtypes??[]).map(r=>r.toLowerCase()));return t.has("vmax")?2:t.has("v")?1:0}async function xt({canvas:n,webgpuPane:e}){if(!navigator.gpu)throw alert("WebGPU not supported on this browser."),new Error("WebGPU not supported");const t=await navigator.gpu.requestAdapter();if(!t)throw alert("No appropriate GPUAdapter found."),new Error("No appropriate GPUAdapter found");const r=await t.requestDevice(),i=n.getContext("webgpu");if(!i)throw new Error("Unable to acquire WebGPU context");let l=window.devicePixelRatio||1;const c=navigator.gpu.getPreferredCanvasFormat(),h={device:r,format:c,alphaMode:"premultiplied"};i.configure(h);const g=r.createSampler({magFilter:"linear",minFilter:"linear"}),s=.718,f=1.2,m=new Float32Array([-1*f,-1/s*f,0,1,1*f,-1/s*f,1,1,1*f,1/s*f,1,0,-1*f,1/s*f,0,0]),b=new Uint16Array([0,1,2,0,2,3]),x=r.createBuffer({size:m.byteLength,usage:GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST});r.queue.writeBuffer(x,0,m);const B=r.createBuffer({size:b.byteLength,usage:GPUBufferUsage.INDEX|GPUBufferUsage.COPY_DST});r.queue.writeBuffer(B,0,b);const L=r.createBuffer({size:80,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST}),y=r.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.VERTEX|GPUShaderStage.FRAGMENT,buffer:{}},{binding:1,visibility:GPUShaderStage.FRAGMENT,sampler:{}},{binding:2,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:3,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:4,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:5,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:6,visibility:GPUShaderStage.FRAGMENT,texture:{}},{binding:7,visibility:GPUShaderStage.FRAGMENT,texture:{}}]}),d=r.createPipelineLayout({bindGroupLayouts:[y]}),o=new Map;function a(p){const u=r.createShaderModule({code:p.shaderCode});return r.createRenderPipeline({layout:d,vertex:{module:u,entryPoint:"vertexMain",buffers:[{arrayStride:16,attributes:[{shaderLocation:0,offset:0,format:"float32x2"},{shaderLocation:1,offset:8,format:"float32x2"}]}]},fragment:{module:u,entryPoint:"fragmentMain",targets:[{format:c,blend:{color:{srcFactor:"one",dstFactor:"one-minus-src-alpha",operation:"add"},alpha:{srcFactor:"one",dstFactor:"one-minus-src-alpha",operation:"add"}}}]},primitive:{topology:"triangle-list"}})}function v(p){let u=o.get(p.id);return u||(u=a(p),o.set(p.id,u)),u}const C=new Map;async function P(p){let u=C.get(p);return u||(u=await $(R(p)),C.set(p,u)),u}async function A(p){const u=p.auxiliaryTextureUrls??[p.auxiliaryTextureUrl??"img/glitter.png"],S=[u[0]??"img/glitter.png",u[1]??"img/glitter.png",u[2]??"img/glitter.png"];return Promise.all(S.map(P))}function z(p,u,S,k){return r.createBindGroup({layout:y,entries:[{binding:0,resource:{buffer:L}},{binding:1,resource:g},{binding:2,resource:p.createView()},{binding:3,resource:u.createView()},{binding:4,resource:S.createView()},{binding:5,resource:k[0].createView()},{binding:6,resource:k[1].createView()},{binding:7,resource:k[2].createView()}]})}let F=V([255,255,255,255]),D=V([0,0,0,255]),E=V([0,0,0,0]);const ae=we("");let ie=v(ae),H=await A(ae),le=z(F,D,E,H),G=.5,I=.5,X=0,Y=0,j=0,K=0,Z=0,J=0,oe=.55,se=.476,ce=.476,fe=0,de=0,ue=0,pe=0,ve=0;const Re=performance.now();let q=1,M=1,N;function he(){window.clearTimeout(N),G=.5,I=.5,X=0,Y=0,Z=0}function Be(p=500){window.clearTimeout(N),N=window.setTimeout(he,p)}function Pe(){const p=n.getBoundingClientRect(),u=Math.min(p.height*.6,p.width-48),S=u/s,k=p.left+(p.width-u)/2,_=p.top+(p.height-S)/2;return{width:u,height:S,cardLeft:k,cardTop:_}}function ge(p){window.clearTimeout(N),G=Math.min(Math.max(p.x,0),1),I=Math.min(Math.max(p.y,0),1);const u=G-.5,S=I-.5;X=-(u*100)/3.5*(Math.PI/180),Y=-(S*100)/3.5*(Math.PI/180),Z=1}function Ue(p){const u=Pe(),S={x:(p.clientX-u.cardLeft)/u.width,y:(p.clientY-u.cardTop)/u.height};return ge(S),S}function Ae(){Be()}function Q(){l=window.devicePixelRatio||1;const p=e.getBoundingClientRect();q=Math.max(1,Math.round(p.width*l)),M=Math.max(1,Math.round(p.height*l)),(n.width!==q||n.height!==M)&&(n.width=q,n.height=M,i.configure(h))}new ResizeObserver(Q).observe(e),window.addEventListener("resize",Q),Q();function V(p){const u=r.createTexture({size:[1,1,1],format:"rgba8unorm",usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST});return r.queue.writeTexture({texture:u},new Uint8Array(p),{bytesPerRow:4},[1,1]),u}async function $(p){const u=await fetch(p);if(!u.ok)throw new Error(`Unable to load texture: ${p}`);const S=await u.blob(),k=await createImageBitmap(S),_=r.createTexture({size:[k.width,k.height,1],format:"rgba8unorm",usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.COPY_DST|GPUTextureUsage.RENDER_ATTACHMENT});return r.queue.copyExternalImageToTexture({source:k},{texture:_},[k.width,k.height]),k.close(),_}async function _e(p,u,S,k){const _=we(u),T=v(_),me=W(S,"foils",u,k),ee=W(S,"masks",u,k),[Fe,Me,Ve]=await Promise.all([$(p),me?$(me):Promise.resolve(V([0,0,0,255])),ee?$(ee):Promise.resolve(V([0,0,0,0]))]),Oe=F,De=D,Ee=E;F=Fe,D=Me,E=Ve,ie=T,H=await A(_),oe=gt(S);const be=ke(S);fe=be.cosmosPixels.x,de=be.cosmosPixels.y,ue=mt(S),pe=bt(u,S),ve=ee?1:0,le=z(F,D,E,H),Oe.destroy(),De.destroy(),Ee.destroy()}function Te(){j+=(X-j)*.15,K+=(Y-K)*.15,J+=(Z-J)*.15;const p=(performance.now()-Re)/1e3,u=600*(2*l/M),S=new Float32Array([q,M,G,I,j,K,p,l,u,J,oe,se,ce,fe,de,ue,pe,ve,0,0]);r.queue.writeBuffer(L,0,S);const k=r.createCommandEncoder(),_=i.getCurrentTexture().createView(),T=k.beginRenderPass({colorAttachments:[{view:_,clearValue:{r:.2235,g:.2314,b:.2706,a:1},loadOp:"clear",storeOp:"store"}]});T.setPipeline(ie),T.setBindGroup(0,le),T.setVertexBuffer(0,x),T.setIndexBuffer(B,"uint16"),T.drawIndexed(b.length),T.end(),r.queue.submit([k.finish()])}function ze(p,u){se=p,ce=u}return{updateTexture:_e,setPointer:ge,handlePointerMove:Ue,handlePointerLeave:Ae,resetPointer:he,render:Te,setPatternParams:ze}}async function yt(){Ge();const n=document.createElement("a");n.className="github-link",n.href="https://github.com/jeantimex/pokemon-cards-webgpu",n.target="_blank",n.rel="noreferrer noopener",n.setAttribute("aria-label","GitHub profile for jeantimex"),n.innerHTML=`
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path d="M12 2a10 10 0 0 0-3.16 19.48c.5.09.68-.22.68-.48v-1.68c-2.78.61-3.37-1.17-3.37-1.17-.46-1.18-1.11-1.49-1.11-1.49-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.36 1.09 2.94.83.09-.66.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.93 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.03a9.5 9.5 0 0 1 5 0c1.91-1.3 2.75-1.03 2.75-1.03.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.83-2.34 4.68-4.57 4.93.36.31.69.92.69 1.86v2.76c0 .26.18.58.69.48A10 10 0 0 0 12 2Z"/>
     </svg>
     <span>jeantimex</span>
-  `,document.body.appendChild(n);const e=document.querySelector("#webgpu-canvas"),t=document.querySelector("#css-card"),r=document.querySelector("#css-card-image"),l=document.querySelector(".pane-css .card__front"),i=document.querySelector(".pane-css .card__rotator"),c=document.querySelector(".pane-webgpu"),g=await(await fetch(R("cards.json"))).json(),f=dn(g,new Set),m=Pn(f,g),b=un({cssCard:t,cssCardImage:r,cssCardFront:l,cssCardRotator:i}),x=await xt({canvas:e,webgpuPane:c}),B=async(y,d)=>{const o=Ie(y.images.large);b.updateCard(y,o,d,f.variants[d]),await x.updateTexture(o,d,y,f.variants[d])};Ln({cardLibrary:f,cards:g,initialCategory:m.category,initialCardId:m.card.id,onCardChange:B,onSelectionChange:(y,d)=>{An(d,y)},webgpuRenderer:x}),i.addEventListener("pointermove",y=>{const d=b.handlePointerMove(y);x.setPointer(d)}),i.addEventListener("pointerleave",()=>{b.handlePointerLeave(),x.handlePointerLeave()}),i.addEventListener("blur",()=>{b.handleBlur(),x.resetPointer()}),c.addEventListener("pointermove",y=>{const d=x.handlePointerMove(y);b.setPointer(d)}),c.addEventListener("pointerleave",()=>{x.handlePointerLeave(),b.handlePointerLeave()}),window.addEventListener("blur",()=>{x.resetPointer(),b.handleBlur()});function L(){b.tick(),x.render(),requestAnimationFrame(L)}requestAnimationFrame(L)}yt();
+  `,document.body.appendChild(n);const e=document.querySelector("#webgpu-canvas"),t=document.querySelector("#css-card"),r=document.querySelector("#css-card-image"),i=document.querySelector(".pane-css .card__front"),l=document.querySelector(".pane-css .card__rotator"),c=document.querySelector(".pane-webgpu"),g=await(await fetch(R("cards.json"))).json(),f=dn(g,new Set),m=Un(f,g),b=un({cssCard:t,cssCardImage:r,cssCardFront:i,cssCardRotator:l}),x=await xt({canvas:e,webgpuPane:c}),B=async(y,d)=>{const o=Ie(y.images.large);b.updateCard(y,o,d,f.variants[d]),await x.updateTexture(o,d,y,f.variants[d])};Ln({cardLibrary:f,cards:g,initialCategory:m.category,initialCardId:m.card.id,onCardChange:B,onSelectionChange:(y,d)=>{An(d,y)},webgpuRenderer:x}),l.addEventListener("pointermove",y=>{const d=b.handlePointerMove(y);x.setPointer(d)}),l.addEventListener("pointerleave",()=>{b.handlePointerLeave(),x.handlePointerLeave()}),l.addEventListener("blur",()=>{b.handleBlur(),x.resetPointer()}),c.addEventListener("pointermove",y=>{const d=x.handlePointerMove(y);b.setPointer(d)}),c.addEventListener("pointerleave",()=>{x.handlePointerLeave(),b.handlePointerLeave()}),window.addEventListener("blur",()=>{x.resetPointer(),b.handleBlur()});function L(){b.tick(),x.render(),requestAnimationFrame(L)}requestAnimationFrame(L)}yt();
