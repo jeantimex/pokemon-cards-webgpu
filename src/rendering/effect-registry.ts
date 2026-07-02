@@ -9,6 +9,7 @@ import secretRareShaderCode from '../effects/secret-rare/webgpu.wgsl?raw';
 import trainerGalleryHoloShaderCode from '../effects/trainer-gallery-holo/webgpu.wgsl?raw';
 import trainerGalleryVShaderCode from '../effects/trainer-gallery-v/webgpu.wgsl?raw';
 import trainerGalleryVMaxShaderCode from '../effects/trainer-gallery-v-max/webgpu.wgsl?raw';
+import trainerHoloShaderCode from '../effects/trainer-holo/webgpu.wgsl?raw';
 import pokemonVShaderCode from '../effects/pokemon-v/webgpu.wgsl?raw';
 import pokemonVAlternateArtShaderCode from '../effects/pokemon-v-alternate-art/webgpu.wgsl?raw';
 import pokemonVFullArtShaderCode from '../effects/pokemon-v-full-art/webgpu.wgsl?raw';
@@ -77,6 +78,12 @@ const TRAINER_GALLERY_V_MAX_EFFECT: CardEffect = {
   shaderCode: trainerGalleryVMaxShaderCode,
 };
 
+const TRAINER_HOLO_EFFECT: CardEffect = {
+  id: 'trainer-holo',
+  shaderCode: trainerHoloShaderCode,
+  auxiliaryTextureUrl: 'img/trainerbg.png',
+};
+
 const POKEMON_V_EFFECT: CardEffect = {
   id: 'pokemon-v',
   shaderCode: pokemonVShaderCode,
@@ -113,6 +120,7 @@ const REGISTRY: Record<string, CardEffect> = {
   'Holofoil Rare': HOLOFOIL_RARE_EFFECT,
   'Trainer Gallery (V)': TRAINER_GALLERY_V_EFFECT,
   'Trainer Gallery (VMax)': TRAINER_GALLERY_V_MAX_EFFECT,
+  'Trainer Holo': TRAINER_HOLO_EFFECT,
   'Holofoil Amazing Rare': AMAZING_RARE_EFFECT,
   'Galaxy/Cosmos Holofoil': GALAXY_COSMOS_HOLO_EFFECT,
   'Trainer Gallery Holofoil': TRAINER_GALLERY_HOLO_EFFECT,
