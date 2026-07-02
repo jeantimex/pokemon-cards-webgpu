@@ -13,7 +13,6 @@ import trainerHoloShaderCode from '../effects/trainer-holo/webgpu.wgsl?raw';
 import vMaxAltShaderCode from '../effects/v-max-alt/webgpu.wgsl?raw';
 import vStarShaderCode from '../effects/v-star/webgpu.wgsl?raw';
 import pokemonVShaderCode from '../effects/pokemon-v/webgpu.wgsl?raw';
-import pokemonVAlternateArtShaderCode from '../effects/pokemon-v-alternate-art/webgpu.wgsl?raw';
 import pokemonVFullArtShaderCode from '../effects/pokemon-v-full-art/webgpu.wgsl?raw';
 import vMaxShaderCode from '../effects/v-max/webgpu.wgsl?raw';
 import shinyVaultShaderCode from '../effects/shiny-vault/webgpu.wgsl?raw';
@@ -92,14 +91,12 @@ const POKEMON_V_EFFECT: CardEffect = {
   auxiliaryTextureUrl: 'img/grain.webp',
 };
 
-const POKEMON_V_ALTERNATE_ART_EFFECT: CardEffect = {
-  id: 'pokemon-v-alternate-art',
-  shaderCode: pokemonVAlternateArtShaderCode,
-};
-
+// Full art and alternate art share the same CSS (v-full-art.css for
+// rare ultra); the visual difference comes from each card's foil texture.
 const POKEMON_V_FULL_ART_EFFECT: CardEffect = {
   id: 'pokemon-v-full-art',
   shaderCode: pokemonVFullArtShaderCode,
+  auxiliaryTextureUrl: 'img/illusion.png',
 };
 
 const V_STAR_EFFECT: CardEffect = {
@@ -142,7 +139,7 @@ const REGISTRY: Record<string, CardEffect> = {
   'Rainbow Rare': RAINBOW_RARE_EFFECT,
   'Secret Rare (Gold)': SECRET_RARE_EFFECT,
   'Pokemon V': POKEMON_V_EFFECT,
-  'Pokemon V (Alternate Art)': POKEMON_V_ALTERNATE_ART_EFFECT,
+  'Pokemon V (Alternate Art)': POKEMON_V_FULL_ART_EFFECT,
   'Pokemon V (Full Art)': POKEMON_V_FULL_ART_EFFECT,
   'VMax': V_MAX_EFFECT,
   'VMax (Alternate/Rainbow)': V_MAX_ALT_EFFECT,

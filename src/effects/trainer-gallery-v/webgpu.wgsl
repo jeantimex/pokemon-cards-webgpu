@@ -99,6 +99,16 @@ fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
     return (uv - origin) / size;
 }
 
+// CSS linear-gradient projection: angle in degrees (0 = to top, clockwise),
+// box is the background layer's dimensions (only the aspect matters).
+fn cssLinearGradientT(layerUv: vec2f, angleDeg: f32, box: vec2f) -> f32 {
+    let a = radians(angleDeg);
+    let dir = vec2f(sin(a), -cos(a));
+    let p = (layerUv - vec2f(0.5)) * box;
+    let lineLength = abs(dir.x) * box.x + abs(dir.y) * box.y;
+    return dot(p, dir) / lineLength + 0.5;
+}
+
 fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
     return mix(
         2.0 * base * blend,
@@ -221,14 +231,10 @@ fn verticalSunpillar(layerUv: vec2f, afterLayer: bool) -> vec3f {
     return mix(sunpillarColor(idx, afterLayer), sunpillarColor(idx + 1, afterLayer), f);
 }
 
-fn diagonalStripePhase(layerUv: vec2f) -> f32 {
-    let angle = radians(115.0);
-    let dir = vec2f(sin(angle), -cos(angle));
-    return fract(dot(layerUv, dir) / 0.12);
-}
-
-fn diagonalStripeColor(layerUv: vec2f) -> vec3f {
-    let cycle = diagonalStripePhase(layerUv);
+// 133deg repeating stripe, projected in the layer's px box so both the
+// front and :after layers render parallel beams (only spacing differs).
+fn diagonalStripeColor(layerUv: vec2f, box: vec2f) -> vec3f {
+    let cycle = fract(cssLinearGradientT(layerUv, 133.0, box) / 0.12);
     let dark = vec3f(0.055, 0.082, 0.18);
     let gray = vec3f(0.557, 0.612, 0.612);
     let cyan = vec3f(0.525, 0.725, 0.725);
@@ -304,7 +310,10 @@ fn shineLayer(uv: vec2f, afterLayer: bool) -> vec3f {
     let diagonalSize = select(vec2f(3.0, 1.0), vec2f(1.95, 1.0), afterLayer);
 
     var layer = shineRadial(backgroundSampleUv(uv, vec2f(2.0, 1.0), bg));
-    let diagonal = vec4f(diagonalStripeColor(backgroundSampleUv(uv, diagonalSize, layerDiagonalPos)), 1.0);
+    let diagonal = vec4f(diagonalStripeColor(
+        backgroundSampleUv(uv, diagonalSize, layerDiagonalPos),
+        vec2f(0.718, 1.0) * diagonalSize,
+    ), 1.0);
     let sun = vec4f(verticalSunpillar(backgroundSampleUv(uv, sunSize, vec2f(0.0, bg.y)), afterLayer), 1.0);
     let foil = sampleFoilOrIllusion(uv);
 
