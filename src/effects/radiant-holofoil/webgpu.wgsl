@@ -320,11 +320,11 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     shineBase = darkenBlend(shineBase, pattern45);
     shineBase = exclusionBlend(shineBase, radialShine);
 
-    // CSS: filter: brightness(.44) contrast(1.85) saturate(1.5)
-    // Boost brightness near pointer to match CSS bright spot
+    // CSS: filter: brightness(.5) contrast(2) saturate(1.75)
+    // Slight brightness variation near pointer
     let pointerDist = distance(cardUV, uniforms.pointer);
-    let brightnessBoost = mix(0.52, 0.44, smoothstep(0.0, 0.5, pointerDist));
-    shineBase = applyFilter(shineBase, brightnessBoost, 1.85, 1.5);
+    let brightnessVal = mix(0.46, 0.38, smoothstep(0.0, 0.5, pointerDist));
+    shineBase = applyFilter(shineBase, brightnessVal, 2.0, 1.75);
 
     // Mix-blend-mode: color-dodge (whole shine layer onto card)
     let shineBlended = colorDodgeBlend(cardRgb, shineBase);
