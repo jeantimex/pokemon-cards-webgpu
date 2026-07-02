@@ -348,16 +348,15 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let glitter = textureSampleLevel(glitterTexture, linearSampler, glitterUv, 0.0).rgb;
     let glitterRadial = glitterRadialGradient(cardUV);
 
-    // Use a softer multiply instead of color-dodge to combine glitter with radial glare
-    var beforeLayer = glitter * glitterRadial;
+    // CSS: background-blend-mode: color-dodge, but toned down for subtlety
+    var beforeLayer = colorDodgeBlend(glitterRadial, glitter);
 
-    // CSS: filter: brightness(.56) contrast(1.75) saturate(.45)
-    // Significantly lowered to remove the "coarse/rough" look
-    beforeLayer = applyFilter(beforeLayer, 0.35, 1.2, 0.35);
+    // Reduced from CSS values for subtle sparkle
+    beforeLayer = applyFilter(beforeLayer, 0.45, 1.6, 0.5);
 
-    // Mix-blend-mode: overlay
+    // Mix-blend-mode: overlay with reduced intensity
     let beforeBlended = overlayBlend(cardRgb, beforeLayer);
-    cardRgb = mix(cardRgb, beforeBlended, uniforms.opacity * 0.5 * cardMask);
+    cardRgb = mix(cardRgb, beforeBlended, uniforms.opacity * 0.35 * cardMask);
 
     // === .card__glare layer ===
     let glare = glareGradient(cardUV);
