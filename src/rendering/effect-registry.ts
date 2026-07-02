@@ -11,6 +11,7 @@ import trainerGalleryVShaderCode from '../effects/trainer-gallery-v/webgpu.wgsl?
 import trainerGalleryVMaxShaderCode from '../effects/trainer-gallery-v-max/webgpu.wgsl?raw';
 import trainerHoloShaderCode from '../effects/trainer-holo/webgpu.wgsl?raw';
 import vMaxAltShaderCode from '../effects/v-max-alt/webgpu.wgsl?raw';
+import vStarShaderCode from '../effects/v-star/webgpu.wgsl?raw';
 import pokemonVShaderCode from '../effects/pokemon-v/webgpu.wgsl?raw';
 import pokemonVAlternateArtShaderCode from '../effects/pokemon-v-alternate-art/webgpu.wgsl?raw';
 import pokemonVFullArtShaderCode from '../effects/pokemon-v-full-art/webgpu.wgsl?raw';
@@ -101,6 +102,12 @@ const POKEMON_V_FULL_ART_EFFECT: CardEffect = {
   shaderCode: pokemonVFullArtShaderCode,
 };
 
+const V_STAR_EFFECT: CardEffect = {
+  id: 'v-star',
+  shaderCode: vStarShaderCode,
+  auxiliaryTextureUrl: 'img/ancient.png',
+};
+
 const V_MAX_ALT_EFFECT: CardEffect = {
   id: 'v-max-alt',
   shaderCode: vMaxAltShaderCode,
@@ -139,6 +146,7 @@ const REGISTRY: Record<string, CardEffect> = {
   'Pokemon V (Full Art)': POKEMON_V_FULL_ART_EFFECT,
   'VMax': V_MAX_EFFECT,
   'VMax (Alternate/Rainbow)': V_MAX_ALT_EFFECT,
+  'VStar': V_STAR_EFFECT,
   'Shiny Vault': SHINY_VAULT_EFFECT,
 };
 
