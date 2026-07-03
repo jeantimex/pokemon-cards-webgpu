@@ -9,9 +9,13 @@ struct Uniforms {
     foilBrightness: f32,
     patternScaleX: f32,
     patternScaleY: f32,
+    cosmosOffsetX: f32,
+    cosmosOffsetY: f32,
+    clipMode: f32,
+    shinyKind: f32,
+    hasMask: f32,
     _pad0: f32,
     _pad1: f32,
-    _pad2: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -75,6 +79,20 @@ fn farthestCornerDist(p: vec2f) -> f32 {
     return max(max(d0, d1), max(d2, d3));
 }
 
+fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
+    let origin = (vec2f(1.0) - size) * pos;
+    return (uv - origin) / size;
+}
+
+// CSS linear-gradient projection: angle in degrees (0 = to top, clockwise).
+fn cssLinearGradientT(layerUv: vec2f, angleDeg: f32, box: vec2f) -> f32 {
+    let a = radians(angleDeg);
+    let dir = vec2f(sin(a), -cos(a));
+    let p = (layerUv - vec2f(0.5)) * box;
+    let lineLength = abs(dir.x) * box.x + abs(dir.y) * box.y;
+    return dot(p, dir) / lineLength + 0.5;
+}
+
 // Rainbow colors from CSS
 fn getRainbowColor(index: i32) -> vec3f {
     switch(index % 7) {
@@ -90,34 +108,20 @@ fn getRainbowColor(index: i32) -> vec3f {
 }
 
 // Rainbow gradient along an angle (smooth gradient through 7 colors repeated 3x)
-fn rainbowGradient(uv: vec2f, angleDeg: f32, bgPos: vec2f, scale: f32) -> vec3f {
-    let angle = radians(angleDeg);
-    let dir = vec2f(cos(angle), sin(angle));
-
-    // Scale and offset UV - background-size is 400%, so divide by 4
-    let scaledUv = (uv + bgPos) / scale;
-    let t = dot(scaledUv, dir) + 0.5;
-
-    // Smooth gradient through colors (not repeating bands)
-    let cycleT = fract(t * 3.0) * 7.0; // 3 cycles of 7 colors
-    let idx = i32(cycleT);
-    let frac = fract(cycleT);
-
-    let color1 = getRainbowColor(idx);
-    let color2 = getRainbowColor(idx + 1);
-
-    return mix(color1, color2, smoothstep(0.0, 1.0, frac));
+fn rainbowGradient(uv: vec2f, angleDeg: f32, position: vec2f, size: vec2f) -> vec3f {
+    let layerUv = backgroundSampleUv(uv, size, position);
+    let t = cssLinearGradientT(layerUv, angleDeg, vec2f(0.718, 1.0) * size);
+    let stop = clamp(t, 0.0, 1.0) * 21.0;
+    let idx = i32(floor(stop));
+    let f = fract(stop);
+    return mix(getRainbowColor(idx), getRainbowColor(idx + 1), f);
 }
 
 // Simple diagonal gradient (2 colors)
-fn diagonalGradient(uv: vec2f, bgPos: vec2f) -> vec3f {
-    let angle = radians(-45.0);
-    let dir = vec2f(cos(angle), sin(angle));
-
-    // Scale 200% and offset
-    let scaledUv = (uv - 0.5) * 2.0 + 0.5 + bgPos;
-    let t = clamp(dot(scaledUv, dir), 0.0, 1.0);
-
+fn diagonalGradient(uv: vec2f, position: vec2f) -> vec3f {
+    let size = vec2f(2.0);
+    let layerUv = backgroundSampleUv(uv, size, position);
+    let t = clamp(cssLinearGradientT(layerUv, -45.0, vec2f(0.718, 1.0) * size), 0.0, 1.0);
     let color1 = vec3f(0.576, 0.200, 0.200); // Red
     let color5 = vec3f(0.140, 0.560, 0.560); // Cyan
 
@@ -126,10 +130,52 @@ fn diagonalGradient(uv: vec2f, bgPos: vec2f) -> vec3f {
 
 // Blend modes
 fn luminosityBlend(base: vec3f, blend: vec3f) -> vec3f {
-    let baseLum = dot(base, vec3f(0.299, 0.587, 0.114));
-    let blendLum = dot(blend, vec3f(0.299, 0.587, 0.114));
-    let diff = blendLum - baseLum;
-    return clamp(base + diff, vec3f(0.0), vec3f(1.0));
+    let baseHsl = rgb2hsl(base);
+    let blendHsl = rgb2hsl(blend);
+    return hsl2rgb(vec3f(baseHsl.x, baseHsl.y, blendHsl.z));
+}
+
+fn rgb2hsl(c: vec3f) -> vec3f {
+    let maxC = max(max(c.r, c.g), c.b);
+    let minC = min(min(c.r, c.g), c.b);
+    let l = (maxC + minC) * 0.5;
+    if (maxC == minC) {
+        return vec3f(0.0, 0.0, l);
+    }
+    let d = maxC - minC;
+    let s = select(d / (2.0 - maxC - minC), d / (maxC + minC), l > 0.5);
+    var h: f32;
+    if (maxC == c.r) {
+        h = (c.g - c.b) / d + select(0.0, 6.0, c.g < c.b);
+    } else if (maxC == c.g) {
+        h = (c.b - c.r) / d + 2.0;
+    } else {
+        h = (c.r - c.g) / d + 4.0;
+    }
+    return vec3f(h / 6.0, s, l);
+}
+
+fn hue2rgb(p: f32, q: f32, t: f32) -> f32 {
+    var tt = t;
+    if (tt < 0.0) { tt += 1.0; }
+    if (tt > 1.0) { tt -= 1.0; }
+    if (tt < 1.0 / 6.0) { return p + (q - p) * 6.0 * tt; }
+    if (tt < 1.0 / 2.0) { return q; }
+    if (tt < 2.0 / 3.0) { return p + (q - p) * (2.0 / 3.0 - tt) * 6.0; }
+    return p;
+}
+
+fn hsl2rgb(hsl: vec3f) -> vec3f {
+    if (hsl.y == 0.0) {
+        return vec3f(hsl.z);
+    }
+    let q = select(hsl.z + hsl.y - hsl.z * hsl.y, hsl.z * (1.0 + hsl.y), hsl.z < 0.5);
+    let p = 2.0 * hsl.z - q;
+    return vec3f(
+        hue2rgb(p, q, hsl.x + 1.0 / 3.0),
+        hue2rgb(p, q, hsl.x),
+        hue2rgb(p, q, hsl.x - 1.0 / 3.0)
+    );
 }
 
 fn softLightChannel(base: f32, blend: f32) -> f32 {
@@ -151,6 +197,10 @@ fn softLightBlend(base: vec3f, blend: vec3f) -> vec3f {
 
 fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
     return min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
+}
+
+fn tonedColorDodge(base: vec3f, blend: vec3f, strength: f32) -> vec3f {
+    return mix(base, colorDodgeBlend(base, blend), strength);
 }
 
 fn differenceBlend(base: vec3f, blend: vec3f) -> vec3f {
@@ -230,7 +280,10 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
 
     let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
     let foilColor = textureSampleLevel(foilTexture, linearSampler, cardUV, 0.0).rgb;
+    let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
     let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
+    let foilMask = select(1.0, maskColor.a, uniforms.hasMask > 0.5);
+    let shineMask = foilMask * cardMask;
 
     // Pointer calculations
     let pointerFromCenter = length(uniforms.pointer - vec2f(0.5)) / 0.7071;
@@ -241,18 +294,18 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
 
     // === .card__shine layer ===
     // Background position calculations
-    let bgPos1 = vec2f(0.25 + 0.5 * pointerFromLeft, 0.25 + 0.5 * pointerFromTop) - 0.5;
-    let bgPos3 = vec2f(0.25 + uniforms.pointer.x * 0.5, 0.25 + uniforms.pointer.y * 0.5) - 0.5;
+    let bgPos1 = vec2f(0.25 + 0.5 * pointerFromLeft, 0.25 + 0.5 * pointerFromTop);
+    let bgPos3 = vec2f(0.25 + uniforms.pointer.x * 0.5, 0.25 + uniforms.pointer.y * 0.5);
 
     // Layer 1: -45deg diagonal gradient (red to cyan)
     let diag = diagonalGradient(cardUV, bgPos1);
 
     // Layer 2: Glitter (fixed position)
-    let glitterUv = fract(cardUV / 0.15);
+    let glitterUv = fract(cardUV / 0.25);
     let glitter = textureSampleLevel(glitterTexture, linearSampler, glitterUv, 0.0).rgb;
 
     // Layer 3: -30deg rainbow gradient (400% scale)
-    let rainbow30 = rainbowGradient(cardUV, -30.0, bgPos3, 4.0);
+    let rainbow30 = rainbowGradient(cardUV, -30.0, bgPos3, vec2f(4.0));
 
     // CSS blend order: luminosity, soft-light (bottom to top)
     // rainbow30 is base, glitter blends with soft-light, then diag blends with luminosity
@@ -267,13 +320,11 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     // === .card__shine:before (foil layer) ===
     // Filter: brightness(2.5) contrast(1)
     var foilLayer = applyFilter(foilColor, 2.5, 1.0, 1.0);
-    // Background blend: difference (within the layer)
-    // Mix blend: darken
     let foilOpacity = (pointerFromCenter + 0.4) * 0.6;
 
     // === .card__shine:after layer ===
-    let bgPosAfter = uniforms.pointer - 0.5;
-    let rainbow60 = rainbowGradient(cardUV, -60.0, bgPosAfter, 4.0);
+    let bgPosAfter = uniforms.pointer;
+    let rainbow60 = rainbowGradient(cardUV, -60.0, bgPosAfter, vec2f(4.0));
 
     // Soft-light blend glitter with rainbow
     var afterLayer = softLightBlend(rainbow60, glitter);
@@ -283,27 +334,16 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     afterLayer = applyFilter(afterLayer, afterBrightness, 2.0, 1.0);
 
     // === Composite layers ===
-    // The shine layers overlay the card - they don't replace it
-    // Use softer blending to keep card visible
+    // The shared CSS mask applies to .card__shine and :before, but Rainbow
+    // explicitly removes the mask from :after.
+    let shineDodged = tonedColorDodge(cardRgb, shineLayer, 0.68);
+    cardRgb = mix(cardRgb, shineDodged, uniforms.opacity * shineMask);
 
-    // Apply shine layer with soft-light to preserve card details
-    let shineSoftLight = softLightBlend(cardRgb, shineLayer);
-    cardRgb = mix(cardRgb, shineSoftLight, uniforms.opacity * 0.7 * cardMask);
-
-    // Apply foil with darken blend (subtle)
     let foilDarkened = darkenBlend(cardRgb, foilLayer);
-    cardRgb = mix(cardRgb, foilDarkened, foilOpacity * uniforms.opacity * 0.3 * cardMask);
+    cardRgb = mix(cardRgb, foilDarkened, foilOpacity * 0.36 * uniforms.opacity * shineMask);
 
-    // Apply :after with color-dodge (this creates the rainbow shimmer)
-    let afterDodged = colorDodgeBlend(cardRgb, afterLayer);
-    cardRgb = mix(cardRgb, afterDodged, uniforms.opacity * 0.5 * cardMask);
-
-    // === Subtle glitter sparkle overlay ===
-    // Add just the brightest glitter spots as a gentle overlay
-    let sparkleIntensity = max(max(glitter.r, glitter.g), glitter.b);
-    let sparkle = smoothstep(0.65, 0.95, sparkleIntensity);
-    let sparkleColor = glitter * sparkle;
-    cardRgb = mix(cardRgb, cardRgb + sparkleColor * 0.15, uniforms.opacity * cardMask);
+    let afterDodged = tonedColorDodge(cardRgb, afterLayer, 0.46);
+    cardRgb = mix(cardRgb, afterDodged, uniforms.opacity * cardMask);
 
     // === .card__glare layer ===
     let glare = glareGradient(cardUV);
@@ -312,7 +352,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
 
     // Hard-light blend
     let glareBlended = hardLightBlend(cardRgb, glareFiltered);
-    cardRgb = mix(cardRgb, glareBlended, glare.a * glareOpacity * uniforms.opacity * cardMask);
+    cardRgb = mix(cardRgb, glareBlended, glare.a * glareOpacity * 0.62 * uniforms.opacity * cardMask);
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
     let finalColor = vec4f(
