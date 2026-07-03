@@ -244,8 +244,8 @@ export async function createWebGpuCardRenderer({
   let targetOpacity = 0;
   let currentOpacity = 0;
   let foilBrightness = 0.55;
-  let patternScaleX = 0.476;
-  let patternScaleY = 0.476;
+  let patternScaleX = 2.1;
+  let patternScaleY = 2.1;
   let cosmosOffsetX = 0;
   let cosmosOffsetY = 0;
   let artworkClipMode = 0;

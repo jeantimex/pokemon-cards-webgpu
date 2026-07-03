@@ -149,7 +149,7 @@ fn crissCrossPattern(uv: vec2f) -> vec3f {
     // Apply offset
     let offsetUv = centeredUv + vec2f(offsetX, offsetY);
 
-    // Multiply by card aspect ratio to stretch the pattern vertically even more,
+    // Multiply by card aspect ratio to stretch the pattern vertically,
     // matching the vertical elongation seen in the CSS implementation.
     let aspectCorrectedUv = vec2f(offsetUv.x, offsetUv.y * cardAspect);
 
@@ -321,9 +321,9 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     shineBase = exclusionBlend(shineBase, radialShine);
 
     // CSS: filter: brightness(.5) contrast(2) saturate(1.75)
-    // Slight brightness variation near pointer
+    // Brightness falls off from pointer - bright near mouse, darker elsewhere
     let pointerDist = distance(cardUV, uniforms.pointer);
-    let brightnessVal = mix(0.46, 0.38, smoothstep(0.0, 0.5, pointerDist));
+    let brightnessVal = mix(0.48, 0.30, smoothstep(0.0, 0.6, pointerDist));
     shineBase = applyFilter(shineBase, brightnessVal, 2.0, 1.75);
 
     // Mix-blend-mode: color-dodge (whole shine layer onto card)
