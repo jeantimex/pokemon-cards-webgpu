@@ -302,7 +302,12 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
 
     // Layer 2: Glitter (fixed position)
     let glitterUv = fract(cardUV / 0.25);
-    let glitter = textureSampleLevel(glitterTexture, linearSampler, glitterUv, 0.0).rgb;
+    let glitterSample = textureSampleLevel(glitterTexture, linearSampler, glitterUv, 0.0).rgb;
+    let glitterLuma = dot(glitterSample, vec3f(0.2126, 0.7152, 0.0722));
+    let glitter = applyFilter(glitterSample, 1.12, 1.55, 1.0);
+    let glitterFlecks = smoothstep(0.72, 0.96, glitterLuma);
+    var glitterSparkle = mix(vec3f(0.5), glitter, 0.52 + glitterFlecks * 0.34);
+    glitterSparkle = mix(glitterSparkle, vec3f(1.0), glitterFlecks * 0.58);
 
     // Layer 3: -30deg rainbow gradient (400% scale)
     let rainbow30 = rainbowGradient(cardUV, -30.0, bgPos3, vec2f(4.0));
@@ -310,7 +315,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     // CSS blend order: luminosity, soft-light (bottom to top)
     // rainbow30 is base, glitter blends with soft-light, then diag blends with luminosity
     var shineLayer = rainbow30;
-    shineLayer = softLightBlend(shineLayer, glitter);
+    shineLayer = softLightBlend(shineLayer, glitterSparkle);
     shineLayer = luminosityBlend(shineLayer, diag);
 
     // Filter: brightness varies with pointer distance
@@ -327,7 +332,7 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let rainbow60 = rainbowGradient(cardUV, -60.0, bgPosAfter, vec2f(4.0));
 
     // Soft-light blend glitter with rainbow
-    var afterLayer = softLightBlend(rainbow60, glitter);
+    var afterLayer = softLightBlend(rainbow60, glitterSparkle);
 
     // Filter: brightness varies
     let afterBrightness = (pointerFromCenter * 0.3) + 0.55;
