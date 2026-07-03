@@ -92,10 +92,22 @@ export async function createWebGpuCardRenderer({
   const cardAspect = 0.718;
   const quadScale = 1.2;
   const vertices = new Float32Array([
-    -1.0 * quadScale, (-1.0 / cardAspect) * quadScale, 0, 1,
-     1.0 * quadScale, (-1.0 / cardAspect) * quadScale, 1, 1,
-     1.0 * quadScale,  (1.0 / cardAspect) * quadScale, 1, 0,
-    -1.0 * quadScale,  (1.0 / cardAspect) * quadScale, 0, 0,
+    -1.0 * quadScale,
+    (-1.0 / cardAspect) * quadScale,
+    0,
+    1,
+    1.0 * quadScale,
+    (-1.0 / cardAspect) * quadScale,
+    1,
+    1,
+    1.0 * quadScale,
+    (1.0 / cardAspect) * quadScale,
+    1,
+    0,
+    -1.0 * quadScale,
+    (1.0 / cardAspect) * quadScale,
+    0,
+    0,
   ]);
   const indices = new Uint16Array([0, 1, 2, 0, 2, 3]);
 
@@ -339,9 +351,15 @@ export async function createWebGpuCardRenderer({
     const tex = device.createTexture({
       size: [source.width, source.height, 1],
       format: 'rgba8unorm',
-      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
     });
-    device.queue.copyExternalImageToTexture({ source }, { texture: tex }, [source.width, source.height]);
+    device.queue.copyExternalImageToTexture({ source }, { texture: tex }, [
+      source.width,
+      source.height,
+    ]);
     source.close();
     return tex;
   }
@@ -359,9 +377,7 @@ export async function createWebGpuCardRenderer({
     const [nextCardTexture, nextFoilTexture, nextMaskTexture] = await Promise.all([
       createTextureFromUrl(url),
       foilUrl ? createTextureFromUrl(foilUrl) : Promise.resolve(createSolidTexture([0, 0, 0, 255])),
-      maskUrl
-        ? createTextureFromUrl(maskUrl)
-        : Promise.resolve(createSolidTexture([0, 0, 0, 0])),
+      maskUrl ? createTextureFromUrl(maskUrl) : Promise.resolve(createSolidTexture([0, 0, 0, 0])),
     ]);
 
     const previousCardTexture = cardTexture;
@@ -395,28 +411,40 @@ export async function createWebGpuCardRenderer({
     const time = (performance.now() - startTime) / 1000;
     const cssPerspective = 600 * ((2 * devicePixelRatio) / renderHeight);
     const uniformData = new Float32Array([
-      renderWidth, renderHeight,
-      currentMouseX, currentMouseY,
-      currentRotationX, currentRotationY,
-      time, devicePixelRatio,
-      cssPerspective, currentOpacity,
-      foilBrightness, patternScaleX,
-      patternScaleY, cosmosOffsetX,
-      cosmosOffsetY, artworkClipMode,
-      shinyKind, activeHasMask,
-      0, 0,
+      renderWidth,
+      renderHeight,
+      currentMouseX,
+      currentMouseY,
+      currentRotationX,
+      currentRotationY,
+      time,
+      devicePixelRatio,
+      cssPerspective,
+      currentOpacity,
+      foilBrightness,
+      patternScaleX,
+      patternScaleY,
+      cosmosOffsetX,
+      cosmosOffsetY,
+      artworkClipMode,
+      shinyKind,
+      activeHasMask,
+      0,
+      0,
     ]);
     device.queue.writeBuffer(uniformBuffer, 0, uniformData);
 
     const commandEncoder = device.createCommandEncoder();
     const textureView = context.getCurrentTexture().createView();
     const renderPass = commandEncoder.beginRenderPass({
-      colorAttachments: [{
-        view: textureView,
-        clearValue: { r: 0.2235, g: 0.2314, b: 0.2706, a: 1.0 },
-        loadOp: 'clear',
-        storeOp: 'store',
-      }],
+      colorAttachments: [
+        {
+          view: textureView,
+          clearValue: { r: 0.2235, g: 0.2314, b: 0.2706, a: 1.0 },
+          loadOp: 'clear',
+          storeOp: 'store',
+        },
+      ],
     });
     renderPass.setPipeline(activePipeline);
     renderPass.setBindGroup(0, bindGroup);

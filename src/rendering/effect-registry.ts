@@ -119,11 +119,7 @@ const V_MAX_EFFECT: CardEffect = {
 const SHINY_VAULT_EFFECT: CardEffect = {
   id: 'shiny-vault',
   shaderCode: shinyVaultShaderCode,
-  auxiliaryTextureUrls: [
-    'img/glitter.png',
-    'img/illusion.png',
-    'img/grain.webp',
-  ],
+  auxiliaryTextureUrls: ['img/glitter.png', 'img/illusion.png', 'img/grain.webp'],
 };
 
 const REGISTRY: Record<string, CardEffect> = {
@@ -141,9 +137,9 @@ const REGISTRY: Record<string, CardEffect> = {
   'Pokemon V': POKEMON_V_EFFECT,
   'Pokemon V (Alternate Art)': POKEMON_V_FULL_ART_EFFECT,
   'Pokemon V (Full Art)': POKEMON_V_FULL_ART_EFFECT,
-  'VMax': V_MAX_EFFECT,
+  VMax: V_MAX_EFFECT,
   'VMax (Alternate/Rainbow)': V_MAX_ALT_EFFECT,
-  'VStar': V_STAR_EFFECT,
+  VStar: V_STAR_EFFECT,
   'Shiny Vault': SHINY_VAULT_EFFECT,
 };
 
