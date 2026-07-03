@@ -149,7 +149,7 @@ fn crissCrossPattern(uv: vec2f) -> vec3f {
     // Apply offset
     let offsetUv = centeredUv + vec2f(offsetX, offsetY);
 
-    // Multiply by card aspect ratio to stretch the pattern vertically even more,
+    // Multiply by card aspect ratio to stretch the pattern vertically,
     // matching the vertical elongation seen in the CSS implementation.
     let aspectCorrectedUv = vec2f(offsetUv.x, offsetUv.y * cardAspect);
 
@@ -320,11 +320,11 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     shineBase = darkenBlend(shineBase, pattern45);
     shineBase = exclusionBlend(shineBase, radialShine);
 
-    // CSS: filter: brightness(.44) contrast(1.85) saturate(1.5)
-    // Boost brightness near pointer to match CSS bright spot
+    // CSS: filter: brightness(.5) contrast(2) saturate(1.75)
+    // Brightness falls off from pointer - bright near mouse, darker elsewhere
     let pointerDist = distance(cardUV, uniforms.pointer);
-    let brightnessBoost = mix(0.52, 0.44, smoothstep(0.0, 0.5, pointerDist));
-    shineBase = applyFilter(shineBase, brightnessBoost, 1.85, 1.5);
+    let brightnessVal = mix(0.48, 0.30, smoothstep(0.0, 0.6, pointerDist));
+    shineBase = applyFilter(shineBase, brightnessVal, 2.0, 1.75);
 
     // Mix-blend-mode: color-dodge (whole shine layer onto card)
     let shineBlended = colorDodgeBlend(cardRgb, shineBase);
@@ -348,16 +348,15 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let glitter = textureSampleLevel(glitterTexture, linearSampler, glitterUv, 0.0).rgb;
     let glitterRadial = glitterRadialGradient(cardUV);
 
-    // Use a softer multiply instead of color-dodge to combine glitter with radial glare
-    var beforeLayer = glitter * glitterRadial;
+    // CSS: background-blend-mode: color-dodge, but toned down for subtlety
+    var beforeLayer = colorDodgeBlend(glitterRadial, glitter);
 
-    // CSS: filter: brightness(.56) contrast(1.75) saturate(.45)
-    // Significantly lowered to remove the "coarse/rough" look
-    beforeLayer = applyFilter(beforeLayer, 0.35, 1.2, 0.35);
+    // Reduced from CSS values for subtle sparkle
+    beforeLayer = applyFilter(beforeLayer, 0.45, 1.6, 0.5);
 
-    // Mix-blend-mode: overlay
+    // Mix-blend-mode: overlay with reduced intensity
     let beforeBlended = overlayBlend(cardRgb, beforeLayer);
-    cardRgb = mix(cardRgb, beforeBlended, uniforms.opacity * 0.5 * cardMask);
+    cardRgb = mix(cardRgb, beforeBlended, uniforms.opacity * 0.35 * cardMask);
 
     // === .card__glare layer ===
     let glare = glareGradient(cardUV);

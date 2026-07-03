@@ -12,12 +12,15 @@ struct Uniforms {
     cosmosOffsetX: f32,
     cosmosOffsetY: f32,
     clipMode: f32,
+    shinyKind: f32,
+    hasMask: f32,
+    _pad0: f32,
+    _pad1: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var linearSampler: sampler;
 @group(0) @binding(2) var cardTexture: texture_2d<f32>;
-@group(0) @binding(3) var foilTexture: texture_2d<f32>;
 @group(0) @binding(4) var maskTexture: texture_2d<f32>;
 
 struct VertexOutput {
@@ -74,16 +77,30 @@ fn farthestCornerDist(p: vec2f) -> f32 {
     return max(max(d0, d1), max(d2, d3));
 }
 
-fn luma(color: vec3f) -> f32 {
-    return dot(color, vec3f(0.299, 0.587, 0.114));
+fn linearStep(edge0: f32, edge1: f32, x: f32) -> f32 {
+    return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
 }
 
-fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
-    var c = color * brightness;
-    c = (c - 0.5) * contrast + 0.5;
-    let gray = dot(c, vec3f(0.2126, 0.7152, 0.0722));
-    c = mix(vec3f(gray), c, saturate);
-    return clamp(c, vec3f(0.0), vec3f(1.0));
+fn cssBackgroundPosition() -> vec2f {
+    return vec2f(
+        mix(0.37, 0.63, uniforms.pointer.x),
+        mix(0.33, 0.67, uniforms.pointer.y)
+    );
+}
+
+fn backgroundSampleUv(uv: vec2f, size: vec2f, pos: vec2f) -> vec2f {
+    let origin = (vec2f(1.0) - size) * pos;
+    return (uv - origin) / size;
+}
+
+// CSS linear-gradient projection: angle in degrees (0 = to top, clockwise),
+// box is the background layer's dimensions (only the aspect matters).
+fn cssLinearGradientT(layerUv: vec2f, angleDeg: f32, box: vec2f) -> f32 {
+    let a = radians(angleDeg);
+    let dir = vec2f(sin(a), -cos(a));
+    let p = (layerUv - vec2f(0.5)) * box;
+    let lineLength = abs(dir.x) * box.x + abs(dir.y) * box.y;
+    return dot(p, dir) / lineLength + 0.5;
 }
 
 fn overlayBlend(base: vec3f, blend: vec3f) -> vec3f {
@@ -94,179 +111,151 @@ fn overlayBlend(base: vec3f, blend: vec3f) -> vec3f {
     );
 }
 
-fn screenBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return vec3f(1.0) - (vec3f(1.0) - base) * (vec3f(1.0) - blend);
-}
-
 fn hardLightBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return overlayBlend(blend, base);
-}
-
-fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
-    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.00001)), vec3f(1.0));
-    return select(dodged, vec3f(1.0), blend >= vec3f(0.99999));
-}
-
-fn luminosityBlend(base: vec3f, blend: vec3f) -> vec3f {
-    let delta = luma(blend) - luma(base);
-    return clamp(base + vec3f(delta), vec3f(0.0), vec3f(1.0));
-}
-
-fn isInRect(uv: vec2f, left: f32, top: f32, right: f32, bottom: f32) -> f32 {
-    let inX = step(left, uv.x) * step(uv.x, 1.0 - right);
-    let inY = step(top, uv.y) * step(uv.y, 1.0 - bottom);
-    return inX * inY;
-}
-
-fn isInStageArtworkArea(uv: vec2f) -> f32 {
-    let top = 0.0985;
-    let bottom = 0.4715;
-    let inY = step(top, uv.y) * step(uv.y, bottom);
-
-    let right = mix(0.915, 0.92, clamp((uv.y - top) / (bottom - top), 0.0, 1.0));
-    var left = 0.08;
-    if (uv.y < 0.12) {
-        left = mix(0.57, 0.54, clamp((uv.y - 0.0985) / (0.12 - 0.0985), 0.0, 1.0));
-    } else if (uv.y < 0.14) {
-        left = mix(0.17, 0.16, clamp((uv.y - 0.12) / (0.14 - 0.12), 0.0, 1.0));
-    } else if (uv.y < 0.16) {
-        left = mix(0.16, 0.12, clamp((uv.y - 0.14) / (0.16 - 0.14), 0.0, 1.0));
-    }
-
-    return inY * step(left, uv.x) * step(uv.x, right);
-}
-
-fn isInArtworkArea(uv: vec2f) -> f32 {
-    if (uniforms.clipMode > 1.5) {
-        return isInRect(uv, 0.085, 0.145, 0.085, 0.482);
-    }
-    if (uniforms.clipMode > 0.5) {
-        return isInStageArtworkArea(uv);
-    }
-    return isInRect(uv, 0.08, 0.0985, 0.08, 0.5285);
-}
-
-fn backgroundUv(uv: vec2f, scale: vec2f, position: vec2f) -> vec2f {
-    let origin = (vec2f(1.0) - scale) * position;
-    return (uv - origin) / scale;
-}
-
-fn cssBackground() -> vec2f {
-    return vec2f(
-        0.37 + uniforms.pointer.x * 0.26,
-        0.33 + uniforms.pointer.y * 0.34
+    return mix(
+        2.0 * base * blend,
+        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
+        step(vec3f(0.5), blend)
     );
 }
 
-fn rainbowStops(t: f32) -> vec3f {
-    let red = vec3f(0.973, 0.055, 0.208);
-    let yellow = vec3f(0.933, 0.875, 0.063);
-    let green = vec3f(0.129, 0.914, 0.522);
-    let blue = vec3f(0.051, 0.741, 0.914);
-    let violet = vec3f(0.788, 0.161, 0.945);
-    let p = fract(t) * 5.0;
-    if (p < 1.0) { return mix(violet, blue, p); }
-    if (p < 2.0) { return mix(blue, green, p - 1.0); }
-    if (p < 3.0) { return mix(green, yellow, p - 2.0); }
-    if (p < 4.0) { return mix(yellow, red, p - 3.0); }
-    return mix(red, violet, p - 4.0);
+fn screenBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return 1.0 - (1.0 - base) * (1.0 - blend);
 }
 
-fn rainbowLayer(uv: vec2f) -> vec3f {
-    let bg = cssBackground();
-    let pos = vec2f(((0.5 - bg.x) * 2.6) + 0.5, ((0.5 - bg.y) * 3.5) + 0.5);
-    let layerUv = backgroundUv(uv, vec2f(4.0, 4.0), pos);
-    let angle = radians(110.0);
-    let dir = vec2f(cos(angle), sin(angle));
-    return rainbowStops(dot(layerUv, dir) * 1.9);
+fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
+    return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
 }
 
-fn scanlineLayer(uv: vec2f, cardSize: vec2f) -> vec3f {
+fn luminosityBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let baseLum = dot(base, vec3f(0.299, 0.587, 0.114));
+    let blendLum = dot(blend, vec3f(0.299, 0.587, 0.114));
+    return clamp(base + (blendLum - baseLum), vec3f(0.0), vec3f(1.0));
+}
+
+fn applyFilter(color: vec3f, brightness: f32, contrast: f32, saturate: f32) -> vec3f {
+    var c = color * brightness;
+    c = (c - 0.5) * contrast + 0.5;
+    let gray = dot(c, vec3f(0.2126, 0.7152, 0.0722));
+    c = mix(vec3f(gray), c, saturate);
+    return clamp(c, vec3f(0.0), vec3f(1.0));
+}
+
+fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
+    let a = top.a + bottom.a * (1.0 - top.a);
+    let rgb = (top.rgb * top.a + bottom.rgb * bottom.a * (1.0 - top.a)) / max(a, 0.0001);
+    return vec4f(rgb, a);
+}
+
+// --violet, --blue, --green, --yellow, --red from base.css.
+fn holoRainbowColor(index: i32) -> vec3f {
+    switch (((index % 5) + 5) % 5) {
+        case 0: { return vec3f(0.788, 0.161, 0.945); }
+        case 1: { return vec3f(0.051, 0.741, 0.914); }
+        case 2: { return vec3f(0.129, 0.914, 0.522); }
+        case 3: { return vec3f(0.933, 0.875, 0.063); }
+        default: { return vec3f(0.973, 0.055, 0.208); }
+    }
+}
+
+// 110deg gradient with 15 evenly-spaced stops (5 colors x 3): 14 intervals.
+fn holoRainbow(uv: vec2f, cardBox: vec2f) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let pos = vec2f((0.5 - bg.x) * 2.6 + 0.5, (0.5 - bg.y) * 3.5 + 0.5);
+    let layerUv = backgroundSampleUv(uv, vec2f(4.0, 4.0), pos);
+    let t = clamp(cssLinearGradientT(layerUv, 110.0, cardBox * 4.0), 0.0, 1.0) * 14.0;
+    let idx = i32(floor(min(t, 13.0)));
+    let f = t - floor(t);
+    return mix(holoRainbowColor(idx), holoRainbowColor(idx + 1), f);
+}
+
+// Vertical scanlines: 90deg repeating gradient, 2px dark / 2px light (#666),
+// measured in CSS layout pixels.
+fn scanlines(uv: vec2f) -> vec3f {
+    let cardSize = getCardSize();
     let cardWidthPx = max(cardSize.x * uniforms.resolution.y / uniforms.dpr, 1.0);
-    let stripe = fract(uv.x * cardWidthPx / 4.0);
-    let value = select(0.0, 0.4, stripe >= 0.5);
-    return vec3f(value);
+    let px = uv.x * cardWidthPx;
+    return select(vec3f(0.4), vec3f(0.0), fract(px / 4.0) < 0.5);
 }
 
-fn cssLinearGradientStop(t: f32, aPos: f32, aValue: f32, bPos: f32, bValue: f32) -> f32 {
-    return mix(aValue, bValue, clamp((t - aPos) / (bPos - aPos), 0.0, 1.0));
+// :before bar gradient: black background with two gray beams per tile.
+// Stops at 6% / 9% / 10.5% / 12% / 15% of the gradient line, tile ends at
+// tileEnd (42% for the first layer, 30% for the second).
+fn barGradient(x: f32, tileEnd: f32) -> vec3f {
+    let barColor = vec3f(0.7);
+    let barBg = vec3f(0.0);
+    let period = tileEnd - 0.06;
+    let p = fract((x - 0.06) / period) * period;
+    if (p < 0.03) { return mix(barBg, barColor, linearStep(0.0, 0.03, p)); }
+    if (p < 0.045) { return mix(barColor, barBg, linearStep(0.03, 0.045, p)); }
+    if (p < 0.06) { return mix(barBg, barColor, linearStep(0.045, 0.06, p)); }
+    if (p < 0.09) { return mix(barColor, barBg, linearStep(0.06, 0.09, p)); }
+    return barBg;
 }
 
-fn barPattern(uv: vec2f, position: vec2f, repeatEnd: f32) -> vec3f {
-    let layerUv = backgroundUv(uv, vec2f(2.0, 2.0), position);
-    let bars = 0.03;
-    let x = fract(layerUv.x / repeatEnd) * repeatEnd;
-    let p0 = bars * 2.0;
-    let p1 = bars * 3.0;
-    let p2 = bars * 3.5;
-    let p3 = bars * 4.0;
-    let p4 = bars * 5.0;
-    var value = 0.0;
-    if (x < p0) {
-        value = 0.0;
-    } else if (x < p1) {
-        value = cssLinearGradientStop(x, p0, 0.0, p1, 0.70);
-    } else if (x < p2) {
-        value = cssLinearGradientStop(x, p1, 0.70, p2, 0.0);
-    } else if (x < p3) {
-        value = cssLinearGradientStop(x, p2, 0.0, p3, 0.70);
-    } else if (x < p4) {
-        value = cssLinearGradientStop(x, p3, 0.70, p4, 0.0);
+// :before — two 90deg beam layers, screen-blended, then hard-light.
+fn beamLayer(uv: vec2f) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let pos1 = vec2f((0.5 - bg.x) * 1.65 + 0.5 + bg.y * 0.5, bg.x);
+    let pos2 = vec2f((0.5 - bg.x) * -0.9 + 0.5 - bg.y * 0.75, bg.y);
+    let x1 = backgroundSampleUv(uv, vec2f(2.0, 2.0), pos1).x;
+    let x2 = backgroundSampleUv(uv, vec2f(2.0, 2.0), pos2).x;
+    let layer = screenBlend(barGradient(x2, 0.30), barGradient(x1, 0.42));
+    return applyFilter(layer, 1.15, 1.1, 1.0);
+}
+
+// :after — luminosity radial with per-stop alpha (0.8 / 0.1 / 1.0).
+fn luminosityRadial(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let light = vec4f(0.90, 0.90, 0.90, 0.8);
+    let mid = vec4f(0.78, 0.78, 0.78, 0.1);
+    let dark = vec4f(0.0, 0.0, 0.0, 1.0);
+    if (t < 0.25) {
+        return mix(light, mid, linearStep(0.0, 0.25, t));
     }
-    return vec3f(value);
+    return mix(mid, dark, linearStep(0.25, 0.90, t));
 }
 
-fn movingBeamLineDetail(uv: vec2f, position: vec2f, repeatEnd: f32) -> vec3f {
-    let layerUv = backgroundUv(uv, vec2f(2.0, 2.0), position);
-    let beamPhase = fract(layerUv.x / repeatEnd);
-    let fine = 1.0 - smoothstep(0.020, 0.045, fract(beamPhase * 18.0));
-    let withinBeam = smoothstep(0.14, 0.22, beamPhase) * (1.0 - smoothstep(0.38, 0.52, beamPhase));
-    return vec3f(fine * withinBeam * 0.22);
-}
-
-fn shineAfterLayer(uv: vec2f) -> vec3f {
-    let dist = distance(uv, uniforms.pointer);
-    let t = clamp(dist / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
-    var gray: f32;
-    if (t < 0.34) {
-        gray = mix(0.98, 0.80, t / 0.34);
-    } else {
-        gray = mix(0.80, 0.0, clamp((t - 0.34) / 0.76, 0.0, 1.0));
+// Artwork clip: 0 = basic (--clip), 1 = stage, 2 = trainer/item/supporter.
+fn artworkClip(uv: vec2f) -> f32 {
+    if (uniforms.clipMode < 0.5) {
+        return select(0.0, 1.0, uv.x >= 0.08 && uv.x <= 0.92 && uv.y >= 0.0985 && uv.y <= 0.4715);
     }
-    return applyFilter(vec3f(gray), 0.86, 4.45, 1.0);
-}
-
-fn shineAfterAlpha(uv: vec2f) -> f32 {
-    let dist = distance(uv, uniforms.pointer);
-    let t = clamp(dist / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
-    if (t < 0.34) {
-        return mix(0.96, 0.20, t / 0.34);
+    if (uniforms.clipMode < 1.5) {
+        let base = uv.x >= 0.08 && uv.x <= 0.92 && uv.y >= 0.16 && uv.y <= 0.4715;
+        let topLeft = uv.x >= 0.12 && uv.x < 0.17 && uv.y >= mix(0.16, 0.12, linearStep(0.12, 0.17, uv.x)) && uv.y <= 0.4715;
+        let topMid = uv.x >= 0.17 && uv.x < 0.54 && uv.y >= 0.12 && uv.y <= 0.4715;
+        let topRight = uv.x >= 0.54 && uv.x < 0.57 && uv.y >= mix(0.12, 0.0985, linearStep(0.54, 0.57, uv.x)) && uv.y <= 0.4715;
+        let right = uv.x >= 0.57 && uv.x <= 0.915 && uv.y >= 0.0985 && uv.y <= 0.4715;
+        return select(0.0, 1.0, base || topLeft || topMid || topRight || right);
     }
-    return mix(0.20, 1.0, clamp((t - 0.34) / 0.76, 0.0, 1.0));
+    return select(0.0, 1.0, uv.x >= 0.085 && uv.x <= 0.915 && uv.y >= 0.145 && uv.y <= 0.518);
 }
 
-fn glareAfterLayer(uv: vec2f) -> vec3f {
-    let dist = distance(uv, uniforms.pointer);
-    let t = clamp(dist / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
-    let c1 = vec3f(0.90, 1.0, 1.0);
-    let c2 = vec3f(0.39);
-    let c3 = vec3f(0.0);
-    var color: vec3f;
-    if (t < 0.05) {
-        color = c1;
-    } else if (t < 0.55) {
-        color = mix(c1, c2, (t - 0.05) / 0.50);
-    } else {
-        color = mix(c2, c3, clamp((t - 0.55) / 0.55, 0.0, 1.0));
+// Base .card__glare radial: white(0.8) 10%, white(0.65) 20%, black(0.5) 90%.
+fn glareRadial(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    if (t < 0.10) {
+        return vec4f(1.0, 1.0, 1.0, 0.8);
     }
-    return applyFilter(color, 0.48, 2.4, 1.0);
+    if (t < 0.20) {
+        return vec4f(1.0, 1.0, 1.0, mix(0.8, 0.65, linearStep(0.10, 0.20, t)));
+    }
+    let f = linearStep(0.20, 0.90, t);
+    return vec4f(vec3f(1.0 - f), mix(0.65, 0.5, f));
 }
 
-fn baseGlareLayer(uv: vec2f) -> vec3f {
-    let dist = distance(uv, uniforms.pointer);
-    let t = clamp(dist / max(farthestCornerDist(uniforms.pointer), 0.001), 0.0, 1.0);
-    let color = mix(vec3f(1.0), vec3f(0.0), smoothstep(0.20, 0.90, t));
-    return applyFilter(color, 0.72, 1.38, 1.0);
+// Glare :after radial: cyan-white 5%, gray(0.25) 55%, black(0.36) 110%.
+fn glareAfterRadial(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let light = vec4f(0.90, 1.00, 1.00, 1.0);
+    let mid = vec4f(0.39, 0.39, 0.39, 0.25);
+    let dark = vec4f(0.0, 0.0, 0.0, 0.36);
+    if (t < 0.55) {
+        return mix(light, mid, linearStep(0.05, 0.55, t));
+    }
+    return mix(mid, dark, linearStep(0.55, 1.10, t));
 }
 
 @fragment
@@ -274,7 +263,6 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let cardSize = getCardSize();
     let cornerRadius = 0.04;
     let pxToLocal = 2.0 * uniforms.dpr / uniforms.resolution.y;
-
     let dist = sdRoundedRect(localPos, cardSize, cornerRadius);
 
     let shadowOffset = 22.0 * pxToLocal;
@@ -295,49 +283,49 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let textureColor = textureSampleLevel(cardTexture, linearSampler, cardUV, 0.0);
     let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
     let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
-    let foilMask = maskColor.a;
-    let holoMask = isInArtworkArea(cardUV) * foilMask * cardMask;
+    let foilMask = select(1.0, maskColor.a, uniforms.hasMask > 0.5);
+    let clipMask = artworkClip(cardUV);
+    let cardBox = vec2f(0.718, 1.0);
+
+    // Shine group: rainbow (overlay) over scanlines, beams hard-light,
+    // luminosity radial, then the parent filter over the composite.
+    var group = overlayBlend(scanlines(cardUV), holoRainbow(cardUV, cardBox));
+    group = hardLightBlend(group, beamLayer(cardUV));
+    let lumRadial = luminosityRadial(cardUV);
+    let lumFiltered = applyFilter(lumRadial.rgb, 0.6, 4.0, 1.0);
+    group = mix(group, luminosityBlend(group, lumFiltered), lumRadial.a);
+    group = applyFilter(group, 1.1, 1.1, 1.2);
 
     var cardRgb = textureColor.rgb;
-    let bg = cssBackground();
-
-    let rainbow = rainbowLayer(cardUV);
-    var shine = overlayBlend(rainbow, scanlineLayer(cardUV, cardSize));
-    shine = applyFilter(shine, 1.1, 1.1, 0.35);
-
-    let barPos1 = vec2f((((0.5 - bg.x) * 1.65) + 0.5) + (bg.y * 0.5), bg.x);
-    let barPos2 = vec2f((((0.5 - bg.x) * -0.9) + 0.5) - (bg.y * 0.75), bg.y);
-    let bars1 = barPattern(cardUV, barPos1, 0.42);
-    let bars2 = barPattern(cardUV, barPos2, 0.30);
-    var bars = screenBlend(bars1, bars2);
-    bars = applyFilter(bars, 1.08, 1.18, 1.0);
-    let movingLines = screenBlend(
-        movingBeamLineDetail(cardUV, barPos1, 0.42),
-        movingBeamLineDetail(cardUV, barPos2, 0.30)
+    cardRgb = mix(
+        cardRgb,
+        colorDodgeBlend(cardRgb, group),
+        clipMask * foilMask * uniforms.opacity * cardMask
     );
 
-    var shineGroup = hardLightBlend(shine, bars);
-    shineGroup = screenBlend(shineGroup, movingLines);
-
-    let luminosity = shineAfterLayer(cardUV);
-    let luminosityCoverage = shineAfterAlpha(cardUV);
-    shineGroup = mix(shineGroup, luminosityBlend(shineGroup, luminosity), luminosityCoverage);
-    let shineCoverage = smoothstep(0.05, 0.66, luma(shineGroup));
-    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shineGroup), uniforms.opacity * holoMask * shineCoverage * 0.82);
-
-    let glare = baseGlareLayer(cardUV);
-    cardRgb = mix(cardRgb, overlayBlend(cardRgb, glare), uniforms.opacity * cardMask * 0.68);
-
-    let glareAfter = glareAfterLayer(cardUV);
-    let glareAfterCoverage = smoothstep(0.10, 0.78, luma(glareAfter));
-    cardRgb = mix(cardRgb, overlayBlend(cardRgb, glareAfter), uniforms.opacity * holoMask * glareAfterCoverage * 0.42);
+    // Glare group: :after overlays onto the base glare radial, parent filter
+    // brightness(0.8) contrast(1.5), overlay onto the card at 0.8 opacity.
+    let glareBg = glareRadial(cardUV);
+    var glareAfter = glareAfterRadial(cardUV);
+    var afterAlpha = glareAfter.a;
+    // Stage/trainer cards clip the glare :after to the artwork.
+    if (uniforms.clipMode > 0.5) {
+        afterAlpha *= clipMask;
+    }
+    let glareAfterFiltered = applyFilter(glareAfter.rgb, 0.6, 3.0, 1.0);
+    let glareRgb = applyFilter(
+        mix(glareBg.rgb, overlayBlend(glareBg.rgb, glareAfterFiltered), afterAlpha),
+        0.8, 1.5, 1.0
+    );
+    let glareAlpha = afterAlpha + glareBg.a * (1.0 - afterAlpha);
+    cardRgb = mix(
+        cardRgb,
+        overlayBlend(cardRgb, glareRgb),
+        glareAlpha * 0.8 * uniforms.opacity * cardMask
+    );
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
-    let finalColor = vec4f(
-        mix(shadowColor.rgb, finalCard.rgb, finalCard.a),
-        max(shadowColor.a, finalCard.a)
-    );
-
+    let finalColor = alphaOver(shadowColor, finalCard);
     if (finalColor.a <= 0.0) { discard; }
     return finalColor;
 }

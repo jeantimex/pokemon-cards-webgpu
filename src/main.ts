@@ -4,12 +4,14 @@ import './effects/galaxy-cosmos-holofoil/index.css';
 import './effects/holofoil-amazing-rare/index.css';
 import './effects/holofoil-rare/index.css';
 import './effects/trainer-gallery-holo/index.css';
-import './effects/trainer-holo/index.css';
 import './effects/secret-rare/index.css';
 import './effects/reverse-holo/index.css';
 import './effects/pokemon-v/index.css';
 import './effects/pokemon-v-full-art/index.css';
 import './effects/pokemon-v-alternate-art/index.css';
+// trainer-holo must load after the v-full-art styles: its equal-specificity
+// overrides for supporter cards win by order, matching the original project.
+import './effects/trainer-holo/index.css';
 import './effects/v-max/index.css';
 import './effects/v-max-alt/index.css';
 import './effects/v-star/index.css';

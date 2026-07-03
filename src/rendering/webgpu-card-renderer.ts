@@ -27,7 +27,8 @@ function getArtworkClipMode(card: Card) {
   return 0;
 }
 
-function getShinyVaultKind(categoryName: string, card: Card) {
+function getEffectKind(categoryName: string, card: Card) {
+  if (categoryName === 'Secret Rare (Gold)' && card.number.match(/^[tg]g/i)) return 1;
   if (categoryName !== 'Shiny Vault' || !card.number.toLowerCase().startsWith('sv')) return 0;
   const subtypes = new Set((card.subtypes ?? []).map((subtype) => subtype.toLowerCase()));
   if (subtypes.has('vmax')) return 2;
@@ -232,8 +233,10 @@ export async function createWebGpuCardRenderer({
   let activeAuxiliaryTextures = await getAuxiliaryTextures(initialEffect);
   let bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture, activeAuxiliaryTextures);
 
-  let mouseX = 0.5;
-  let mouseY = 0.5;
+  let targetMouseX = 0.5;
+  let targetMouseY = 0.5;
+  let currentMouseX = 0.5;
+  let currentMouseY = 0.5;
   let targetRotationX = 0;
   let targetRotationY = 0;
   let currentRotationX = 0;
@@ -241,8 +244,8 @@ export async function createWebGpuCardRenderer({
   let targetOpacity = 0;
   let currentOpacity = 0;
   let foilBrightness = 0.55;
-  let patternScaleX = 0.476;
-  let patternScaleY = 0.476;
+  let patternScaleX = 2.1;
+  let patternScaleY = 2.1;
   let cosmosOffsetX = 0;
   let cosmosOffsetY = 0;
   let artworkClipMode = 0;
@@ -255,8 +258,8 @@ export async function createWebGpuCardRenderer({
 
   function resetPointer() {
     window.clearTimeout(resetTimer);
-    mouseX = 0.5;
-    mouseY = 0.5;
+    targetMouseX = 0.5;
+    targetMouseY = 0.5;
     targetRotationX = 0;
     targetRotationY = 0;
     targetOpacity = 0;
@@ -278,10 +281,10 @@ export async function createWebGpuCardRenderer({
 
   function setPointer(pointer: CardPointer) {
     window.clearTimeout(resetTimer);
-    mouseX = Math.min(Math.max(pointer.x, 0), 1);
-    mouseY = Math.min(Math.max(pointer.y, 0), 1);
-    const centerX = mouseX - 0.5;
-    const centerY = mouseY - 0.5;
+    targetMouseX = Math.min(Math.max(pointer.x, 0), 1);
+    targetMouseY = Math.min(Math.max(pointer.y, 0), 1);
+    const centerX = targetMouseX - 0.5;
+    const centerY = targetMouseY - 0.5;
     targetRotationX = (-(centerX * 100) / 3.5) * (Math.PI / 180);
     targetRotationY = (-(centerY * 100) / 3.5) * (Math.PI / 180);
     targetOpacity = 1;
@@ -374,7 +377,7 @@ export async function createWebGpuCardRenderer({
     cosmosOffsetX = patternSeed.cosmosPixels.x;
     cosmosOffsetY = patternSeed.cosmosPixels.y;
     artworkClipMode = getArtworkClipMode(card);
-    shinyKind = getShinyVaultKind(categoryName, card);
+    shinyKind = getEffectKind(categoryName, card);
     activeHasMask = maskUrl ? 1 : 0;
     bindGroup = createBindGroup(cardTexture, foilTexture, maskTexture, activeAuxiliaryTextures);
     previousCardTexture.destroy();
@@ -383,6 +386,8 @@ export async function createWebGpuCardRenderer({
   }
 
   function render() {
+    currentMouseX += (targetMouseX - currentMouseX) * 0.15;
+    currentMouseY += (targetMouseY - currentMouseY) * 0.15;
     currentRotationX += (targetRotationX - currentRotationX) * 0.15;
     currentRotationY += (targetRotationY - currentRotationY) * 0.15;
     currentOpacity += (targetOpacity - currentOpacity) * 0.15;
@@ -391,7 +396,7 @@ export async function createWebGpuCardRenderer({
     const cssPerspective = 600 * ((2 * devicePixelRatio) / renderHeight);
     const uniformData = new Float32Array([
       renderWidth, renderHeight,
-      mouseX, mouseY,
+      currentMouseX, currentMouseY,
       currentRotationX, currentRotationY,
       time, devicePixelRatio,
       cssPerspective, currentOpacity,

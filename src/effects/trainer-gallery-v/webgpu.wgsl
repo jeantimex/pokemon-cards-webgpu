@@ -258,27 +258,15 @@ fn shineRadial(uv: vec2f) -> vec4f {
     return vec4f(0.0, 0.0, 0.0, alpha);
 }
 
-// Rare-ultra glare: v-full-art radial colors in a 120% x 150% centered layer,
-// hard-light with brightness(1) contrast(1.2) at 0.75 opacity.
-fn glareGradient(uv: vec2f) -> vec3f {
-    let size = vec2f(1.2, 1.5);
-    let layerUv = backgroundSampleUv(uv, size, vec2f(0.5, 0.5));
-    let boxAspect = vec2f(0.718, 1.0) * size;
-    let d = length((layerUv - uniforms.pointer) * boxAspect);
-    let c0 = abs(vec2f(0.0, 0.0) - uniforms.pointer) * boxAspect;
-    let c1 = abs(vec2f(1.0, 0.0) - uniforms.pointer) * boxAspect;
-    let c2 = abs(vec2f(0.0, 1.0) - uniforms.pointer) * boxAspect;
-    let c3 = abs(vec2f(1.0, 1.0) - uniforms.pointer) * boxAspect;
-    let farthest = max(max(length(c0), length(c1)), max(length(c2), length(c3)));
-    let t = d / max(farthest, 0.001);
-
-    let light = vec3f(0.750, 0.750, 0.750);
-    let mid = vec3f(0.332, 0.356, 0.367);
-    let dark = vec3f(0.140, 0.060, 0.113);
-    if (t < 0.60) {
-        return mix(light, mid, linearStep(0.05, 0.60, t));
+fn glareGradient(uv: vec2f) -> vec4f {
+    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let white = vec4f(1.0, 1.0, 1.0, 1.0);
+    let grayish = vec4f(0.533, 0.541, 0.549, 0.33);
+    let dark = vec4f(0.2, 0.2, 0.2, 0.9);
+    if (t < 0.45) {
+        return mix(white, grayish, linearStep(0.0, 0.45, t));
     }
-    return mix(mid, dark, linearStep(0.60, 1.50, t));
+    return mix(grayish, dark, linearStep(0.45, 1.30, t));
 }
 
 // CSS background-blend-mode compositing: the blend result only applies where
@@ -336,21 +324,6 @@ fn shineLayer(uv: vec2f, afterLayer: bool) -> vec3f {
     return layer.rgb;
 }
 
-fn overlayBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return mix(
-        2.0 * base * blend,
-        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
-        step(vec3f(0.5), base)
-    );
-}
-
-// :before — white radial (0% -> transparent 40%), overlay at 0.75 opacity,
-// explicitly unmasked in the CSS. Removed entirely for unmasked cards.
-fn beforeGlowAlpha(uv: vec2f) -> f32 {
-    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
-    return (1.0 - linearStep(0.0, 0.4, t)) * 0.75;
-}
-
 fn combinedShine(uv: vec2f) -> vec3f {
     let noMask = uniforms.hasMask < 0.5;
     let pfc = pointerFromCenter();
@@ -362,10 +335,8 @@ fn combinedShine(uv: vec2f) -> vec3f {
         let combined = exclusionBlend(front, afterFiltered);
         return applyFilter(combined, pfc * 0.3 + 0.35, 2.0, 1.5);
     }
-    let beforeAlpha = beforeGlowAlpha(uv);
-    var combined = mix(front, overlayBlend(front, vec3f(1.0)), beforeAlpha);
     let afterFiltered = applyFilter(after, pfc * 0.4 + 0.8, 1.5, 1.25);
-    combined = exclusionBlend(combined, afterFiltered);
+    let combined = exclusionBlend(front, afterFiltered);
     return applyFilter(combined, pfc * 0.4 + 0.4, 1.4, 2.25);
 }
 
@@ -402,22 +373,12 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let shine = combinedShine(cardUV);
     cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shine), shineMask * uniforms.opacity);
 
-    // Outside the mask only the unmasked white :before glow paints.
-    if (uniforms.hasMask > 0.5) {
-        let pfc = pointerFromCenter();
-        let shineOut = applyFilter(vec3f(1.0), pfc * 0.4 + 0.4, 1.4, 2.25);
-        cardRgb = mix(
-            cardRgb,
-            colorDodgeBlend(cardRgb, shineOut),
-            (1.0 - foilMask) * beforeGlowAlpha(cardUV) * uniforms.opacity * cardMask
-        );
-    }
-
-    let glare = applyFilter(glareGradient(cardUV), 1.0, 1.2, 1.0);
+    let glare = glareGradient(cardUV);
+    let glareFiltered = applyFilter(glare.rgb, 0.9, 1.75, 1.0);
     cardRgb = mix(
         cardRgb,
-        hardLightBlend(cardRgb, glare),
-        0.75 * uniforms.opacity * cardMask
+        hardLightBlend(cardRgb, glareFiltered),
+        glare.a * uniforms.opacity * 0.4 * cardMask
     );
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);

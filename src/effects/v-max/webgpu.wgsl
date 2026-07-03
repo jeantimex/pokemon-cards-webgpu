@@ -23,7 +23,7 @@ struct Uniforms {
 @group(0) @binding(2) var cardTexture: texture_2d<f32>;
 @group(0) @binding(3) var foilTexture: texture_2d<f32>;
 @group(0) @binding(4) var maskTexture: texture_2d<f32>;
-@group(0) @binding(5) var illusionTexture: texture_2d<f32>;
+@group(0) @binding(5) var vmaxBgTexture: texture_2d<f32>;
 
 struct VertexOutput {
     @builtin(position) position: vec4f,
@@ -132,13 +132,23 @@ fn softLightBlend(base: vec3f, blend: vec3f) -> vec3f {
     );
 }
 
-fn exclusionBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return base + blend - 2.0 * base * blend;
+fn differenceBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return abs(base - blend);
+}
+
+fn lightenBlend(base: vec3f, blend: vec3f) -> vec3f {
+    return max(base, blend);
 }
 
 fn colorDodgeBlend(base: vec3f, blend: vec3f) -> vec3f {
     let dodged = min(base / max(vec3f(1.0) - blend, vec3f(0.0001)), vec3f(1.0));
     return select(dodged, vec3f(1.0), blend >= vec3f(1.0));
+}
+
+fn luminosityBlend(base: vec3f, blend: vec3f) -> vec3f {
+    let baseLum = dot(base, vec3f(0.299, 0.587, 0.114));
+    let blendLum = dot(blend, vec3f(0.299, 0.587, 0.114));
+    return clamp(base + (blendLum - baseLum), vec3f(0.0), vec3f(1.0));
 }
 
 fn rgb2hsl(c: vec3f) -> vec3f {
@@ -204,6 +214,29 @@ fn alphaOver(bottom: vec4f, top: vec4f) -> vec4f {
     return vec4f(rgb, a);
 }
 
+// CSS background-blend-mode compositing: the blend result only applies where
+// the backdrop has coverage; over transparent backdrop the source paints as-is.
+// mode: 0 soft-light, 1 hue, 2 hard-light, 3 difference, 4 luminosity
+fn compositeBackgroundLayer(bottom: vec4f, top: vec4f, mode: i32) -> vec4f {
+    var blended: vec3f;
+    if (mode == 0) {
+        blended = softLightBlend(bottom.rgb, top.rgb);
+    } else if (mode == 1) {
+        blended = hueBlend(bottom.rgb, top.rgb);
+    } else if (mode == 2) {
+        blended = hardLightBlend(bottom.rgb, top.rgb);
+    } else if (mode == 3) {
+        blended = differenceBlend(bottom.rgb, top.rgb);
+    } else {
+        blended = luminosityBlend(bottom.rgb, top.rgb);
+    }
+    let co = top.a * (1.0 - bottom.a) * top.rgb
+        + top.a * bottom.a * blended
+        + (1.0 - top.a) * bottom.a * bottom.rgb;
+    let ao = top.a + bottom.a * (1.0 - top.a);
+    return vec4f(co / max(ao, 0.00001), ao);
+}
+
 const SUNPILLAR_1: vec3f = vec3f(0.973, 0.459, 0.459);
 const SUNPILLAR_2: vec3f = vec3f(0.969, 0.878, 0.376);
 const SUNPILLAR_3: vec3f = vec3f(0.608, 0.969, 0.376);
@@ -211,9 +244,9 @@ const SUNPILLAR_4: vec3f = vec3f(0.518, 1.0, 0.835);
 const SUNPILLAR_5: vec3f = vec3f(0.478, 0.569, 0.969);
 const SUNPILLAR_6: vec3f = vec3f(0.780, 0.459, 0.973);
 
-fn sunpillarColor(index: i32, afterLayer: bool) -> vec3f {
-    let wrapped = ((index % 6) + 6) % 6;
-    let shifted = select(wrapped, (wrapped + 5) % 6, afterLayer);
+// The :after box uses the base.css :after custom-property rotation (+5).
+fn sunpillarColor(index: i32) -> vec3f {
+    let shifted = ((((index % 6) + 6) % 6) + 5) % 6;
     switch shifted {
         case 0: { return SUNPILLAR_1; }
         case 1: { return SUNPILLAR_2; }
@@ -224,16 +257,70 @@ fn sunpillarColor(index: i32, afterLayer: bool) -> vec3f {
     }
 }
 
-fn verticalSunpillar(layerUv: vec2f, afterLayer: bool) -> vec3f {
+fn verticalSunpillar(layerUv: vec2f) -> vec3f {
     let t = fract((1.0 - layerUv.y) / 0.35) * 7.0;
     let idx = i32(floor(t));
     let f = fract(t);
-    return mix(sunpillarColor(idx, afterLayer), sunpillarColor(idx + 1, afterLayer), f);
+    return mix(sunpillarColor(idx), sunpillarColor(idx + 1), f);
 }
 
-// 133deg repeating stripe, projected in the layer's px box so both the
-// front and :after layers render parallel beams (only spacing differs).
-fn diagonalStripeColor(layerUv: vec2f, box: vec2f) -> vec3f {
+// Element layer 4 (bottom): pastel radial, four stops all at alpha 0.6.
+fn pastelRadial(layerUv: vec2f) -> vec3f {
+    let t = distance(layerUv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
+    let cyan = vec3f(0.595, 0.892, 0.945);
+    let mint = vec3f(0.634, 0.906, 0.756);
+    let lavender = vec3f(0.696, 0.519, 0.861);
+    let pink = vec3f(0.877, 0.563, 0.589);
+    if (t < 0.25) { return mix(cyan, mint, linearStep(0.0, 0.25, t)); }
+    if (t < 0.50) { return mix(mint, lavender, linearStep(0.25, 0.50, t)); }
+    return mix(lavender, pink, linearStep(0.50, 0.75, t));
+}
+
+// Element layer 3: repeating-linear-gradient(133deg, navy(0.5) 0%, gray 2.5%,
+// green 5%, gray 7.5%, navy(0.5) 10%, navy(0.5) 15%) — color + alpha.
+fn stripe133(tRaw: f32) -> vec4f {
+    let navy = vec3f(0.056, 0.084, 0.184);
+    let gray = vec3f(0.450, 0.550, 0.550);
+    let green = vec3f(0.391, 0.525, 0.175);
+    let ph = fract(tRaw / 0.15) * 0.15;
+    if (ph < 0.025) {
+        let f = linearStep(0.0, 0.025, ph);
+        return vec4f(mix(navy, gray, f), mix(0.5, 1.0, f));
+    }
+    if (ph < 0.05) {
+        return vec4f(mix(gray, green, linearStep(0.025, 0.05, ph)), 1.0);
+    }
+    if (ph < 0.075) {
+        return vec4f(mix(green, gray, linearStep(0.05, 0.075, ph)), 1.0);
+    }
+    if (ph < 0.10) {
+        let f = linearStep(0.075, 0.10, ph);
+        return vec4f(mix(gray, navy, f), mix(1.0, 0.5, f));
+    }
+    return vec4f(navy, 0.5);
+}
+
+// Element layer 2: repeating-linear-gradient(-33deg, 5 colors at 6% spacing),
+// tile spans 6%..36% of the gradient line.
+fn rainbowColor(index: i32) -> vec3f {
+    switch (((index % 5) + 5) % 5) {
+        case 0: { return vec3f(0.799, 0.163, 0.141); }
+        case 1: { return vec3f(0.424, 0.510, 0.856); }
+        case 2: { return vec3f(0.175, 0.605, 0.576); }
+        case 3: { return vec3f(0.112, 0.588, 0.136); }
+        default: { return vec3f(0.710, 0.248, 0.892); }
+    }
+}
+
+fn rainbow33(tRaw: f32) -> vec3f {
+    let phase = fract((tRaw - 0.06) / 0.30) * 5.0;
+    let idx = i32(floor(phase));
+    let f = phase - floor(phase);
+    return mix(rainbowColor(idx), rainbowColor(idx + 1), f);
+}
+
+// :after bottom layer: the v-full-art 133deg stripe (12% cycle).
+fn afterStripeColor(layerUv: vec2f, box: vec2f) -> vec3f {
     let cycle = fract(cssLinearGradientT(layerUv, 133.0, box) / 0.12);
     let dark = vec3f(0.055, 0.082, 0.18);
     let gray = vec3f(0.557, 0.612, 0.612);
@@ -245,128 +332,54 @@ fn diagonalStripeColor(layerUv: vec2f, box: vec2f) -> vec3f {
     return dark;
 }
 
-fn shineRadial(uv: vec2f) -> vec4f {
-    let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
-    var alpha: f32;
-    if (t < 0.12) {
-        alpha = 0.1;
-    } else if (t < 0.20) {
-        alpha = mix(0.1, 0.15, linearStep(0.12, 0.20, t));
-    } else {
-        alpha = mix(0.15, 0.25, linearStep(0.20, 1.20, t));
-    }
-    return vec4f(0.0, 0.0, 0.0, alpha);
-}
-
-// Rare-ultra glare: v-full-art radial colors in a 120% x 150% centered layer,
-// hard-light with brightness(1) contrast(1.2) at 0.75 opacity.
-fn glareGradient(uv: vec2f) -> vec3f {
-    let size = vec2f(1.2, 1.5);
-    let layerUv = backgroundSampleUv(uv, size, vec2f(0.5, 0.5));
-    let boxAspect = vec2f(0.718, 1.0) * size;
-    let d = length((layerUv - uniforms.pointer) * boxAspect);
-    let c0 = abs(vec2f(0.0, 0.0) - uniforms.pointer) * boxAspect;
-    let c1 = abs(vec2f(1.0, 0.0) - uniforms.pointer) * boxAspect;
-    let c2 = abs(vec2f(0.0, 1.0) - uniforms.pointer) * boxAspect;
-    let c3 = abs(vec2f(1.0, 1.0) - uniforms.pointer) * boxAspect;
-    let farthest = max(max(length(c0), length(c1)), max(length(c2), length(c3)));
-    let t = d / max(farthest, 0.001);
-
-    let light = vec3f(0.750, 0.750, 0.750);
-    let mid = vec3f(0.332, 0.356, 0.367);
-    let dark = vec3f(0.140, 0.060, 0.113);
-    if (t < 0.60) {
-        return mix(light, mid, linearStep(0.05, 0.60, t));
-    }
-    return mix(mid, dark, linearStep(0.60, 1.50, t));
-}
-
-// CSS background-blend-mode compositing: the blend result only applies where
-// the backdrop has coverage; over transparent backdrop the source paints as-is.
-fn compositeBackgroundLayer(bottom: vec4f, top: vec4f, mode: i32) -> vec4f {
-    var blended: vec3f;
-    if (mode == 0) {
-        blended = softLightBlend(bottom.rgb, top.rgb);
-    } else if (mode == 1) {
-        blended = hueBlend(bottom.rgb, top.rgb);
-    } else if (mode == 2) {
-        blended = hardLightBlend(bottom.rgb, top.rgb);
-    } else {
-        blended = exclusionBlend(bottom.rgb, top.rgb);
-    }
-    let co = top.a * (1.0 - bottom.a) * top.rgb
-        + top.a * bottom.a * blended
-        + (1.0 - top.a) * bottom.a * bottom.rgb;
-    let ao = top.a + bottom.a * (1.0 - top.a);
-    return vec4f(co / max(ao, 0.00001), ao);
-}
-
-fn sampleFoilOrIllusion(uv: vec2f) -> vec4f {
+fn sampleFoil(uv: vec2f) -> vec4f {
     if (uniforms.hasMask > 0.5) {
         return textureSampleLevel(foilTexture, linearSampler, uv, 0.0);
     }
-    return textureSampleLevel(illusionTexture, linearSampler, fract(uv / 0.33), 0.0);
+    // No-mask fallback: vmaxbg tiled at 60% x 30%.
+    return textureSampleLevel(vmaxBgTexture, linearSampler, fract(uv / vec2f(0.6, 0.3)), 0.0);
 }
 
-// Raw (unfiltered) shine background stack:
-// foil (soft-light) over sunpillar (hue) over diagonal stripe (hard-light)
-// over a pointer-following radial. Filters are applied by the caller, because
-// in CSS the :after layer is filtered first, blended (exclusion) into the
-// shine element, and the element's own filter applies to that composite.
-fn shineLayer(uv: vec2f, afterLayer: bool) -> vec3f {
+// Shine element background: foil (difference) over rainbow (luminosity) over
+// 133deg stripe (soft-light) over the pastel radial (alpha 0.6).
+fn shineBackground(uv: vec2f, cardBox: vec2f) -> vec4f {
     let bg = cssBackgroundPosition();
-    let noMask = uniforms.hasMask < 0.5;
-    let diagonalPos = vec2f(bg.x + bg.y * 0.2, bg.y);
-    let layerDiagonalPos = select(diagonalPos, -diagonalPos, afterLayer);
-    let sunSize = select(vec2f(2.0, 7.0), vec2f(2.0, 4.0), afterLayer);
-    let diagonalSize = select(vec2f(3.0, 1.0), vec2f(1.95, 1.0), afterLayer);
 
-    var layer = shineRadial(backgroundSampleUv(uv, vec2f(2.0, 1.0), bg));
-    let diagonal = vec4f(diagonalStripeColor(
-        backgroundSampleUv(uv, diagonalSize, layerDiagonalPos),
-        vec2f(0.718, 1.0) * diagonalSize,
-    ), 1.0);
-    let sun = vec4f(verticalSunpillar(backgroundSampleUv(uv, sunSize, vec2f(0.0, bg.y)), afterLayer), 1.0);
-    let foil = sampleFoilOrIllusion(uv);
+    let radialUv = backgroundSampleUv(uv, vec2f(2.0, 2.0), bg);
+    var layer = vec4f(pastelRadial(radialUv), 0.6);
 
-    layer = compositeBackgroundLayer(layer, diagonal, 2);
-    layer = compositeBackgroundLayer(layer, sun, 1);
-    layer = compositeBackgroundLayer(layer, foil, select(0, 3, noMask));
+    let stripeUv = backgroundSampleUv(uv, vec2f(6.0, 6.0), bg);
+    let stripe = stripe133(cssLinearGradientT(stripeUv, 133.0, cardBox * 6.0));
+    layer = compositeBackgroundLayer(layer, stripe, 0);
 
-    return layer.rgb;
+    let rainbowUv = backgroundSampleUv(uv, vec2f(11.0, 11.0), bg);
+    let rainbow = rainbow33(cssLinearGradientT(rainbowUv, -33.0, cardBox * 11.0));
+    layer = compositeBackgroundLayer(layer, vec4f(rainbow, 1.0), 4);
+
+    // Foil luma boosted so the etched marks read as strongly as the CSS pane.
+    let foil = sampleFoil(uv);
+    let boostedFoil = vec4f(min(foil.rgb * 1.5, vec3f(1.0)), foil.a);
+    layer = compositeBackgroundLayer(layer, boostedFoil, 3);
+    return layer;
 }
 
-fn overlayBlend(base: vec3f, blend: vec3f) -> vec3f {
-    return mix(
-        2.0 * base * blend,
-        1.0 - 2.0 * (1.0 - base) * (1.0 - blend),
-        step(vec3f(0.5), base)
-    );
+// :after — shifted sunpillar (hue) over the v-full-art stripe, saturate(1.5),
+// blended lighten into the shine element at 0.3 + 0.5 * pointer-from-center.
+fn afterLayer(uv: vec2f, cardBox: vec2f) -> vec3f {
+    let bg = cssBackgroundPosition();
+    let stripeUv = backgroundSampleUv(uv, vec2f(3.0, 1.0), bg);
+    var layer = vec4f(afterStripeColor(stripeUv, cardBox * vec2f(3.0, 1.0)), 1.0);
+    let sunUv = backgroundSampleUv(uv, vec2f(2.0, 7.0), vec2f(0.0, bg.y));
+    layer = compositeBackgroundLayer(layer, vec4f(verticalSunpillar(sunUv), 1.0), 1);
+    return applyFilter(layer.rgb, 1.0, 1.0, 1.5);
 }
 
-// :before — white radial (0% -> transparent 40%), overlay at 0.75 opacity,
-// explicitly unmasked in the CSS. Removed entirely for unmasked cards.
-fn beforeGlowAlpha(uv: vec2f) -> f32 {
+// VMAX glare: radial white(0.75) 0% -> black(1.0) 120%, hard-light,
+// opacity 0.2 + 0.8 * pointer-from-center.
+fn glareLayer(uv: vec2f) -> vec4f {
     let t = distance(uv, uniforms.pointer) / max(farthestCornerDist(uniforms.pointer), 0.001);
-    return (1.0 - linearStep(0.0, 0.4, t)) * 0.75;
-}
-
-fn combinedShine(uv: vec2f) -> vec3f {
-    let noMask = uniforms.hasMask < 0.5;
-    let pfc = pointerFromCenter();
-    let front = shineLayer(uv, false);
-    let after = shineLayer(uv, true);
-
-    if (noMask) {
-        let afterFiltered = applyFilter(after, pfc * 0.5 + 0.8, 1.6, 1.4);
-        let combined = exclusionBlend(front, afterFiltered);
-        return applyFilter(combined, pfc * 0.3 + 0.35, 2.0, 1.5);
-    }
-    let beforeAlpha = beforeGlowAlpha(uv);
-    var combined = mix(front, overlayBlend(front, vec3f(1.0)), beforeAlpha);
-    let afterFiltered = applyFilter(after, pfc * 0.4 + 0.8, 1.5, 1.25);
-    combined = exclusionBlend(combined, afterFiltered);
-    return applyFilter(combined, pfc * 0.4 + 0.4, 1.4, 2.25);
+    let f = linearStep(0.0, 1.2, t);
+    return vec4f(vec3f(1.0 - f), mix(0.75, 1.0, f));
 }
 
 @fragment
@@ -395,29 +408,29 @@ fn fragmentMain(@location(0) uv: vec2f, @location(1) localPos: vec2f) -> @locati
     let maskColor = textureSampleLevel(maskTexture, linearSampler, cardUV, 0.0);
     let cardMask = 1.0 - smoothstep(-0.002, 0.002, dist);
     let foilMask = select(1.0, maskColor.a, uniforms.hasMask > 0.5);
-    let shineMask = foilMask * cardMask;
+
+    let pfc = pointerFromCenter();
+    let cardBox = vec2f(0.718, 1.0);
+
+    let shine = shineBackground(cardUV, cardBox);
+    let after = afterLayer(cardUV, cardBox);
+    let afterOpacity = 0.3 + pfc * 0.5;
+
+    let combined = mix(shine.rgb, lightenBlend(shine.rgb, after), afterOpacity);
+    let shineFiltered = applyFilter(combined, pfc * 0.4 + 0.4, 2.0, 1.0);
 
     var cardRgb = textureColor.rgb;
-
-    let shine = combinedShine(cardUV);
-    cardRgb = mix(cardRgb, colorDodgeBlend(cardRgb, shine), shineMask * uniforms.opacity);
-
-    // Outside the mask only the unmasked white :before glow paints.
-    if (uniforms.hasMask > 0.5) {
-        let pfc = pointerFromCenter();
-        let shineOut = applyFilter(vec3f(1.0), pfc * 0.4 + 0.4, 1.4, 2.25);
-        cardRgb = mix(
-            cardRgb,
-            colorDodgeBlend(cardRgb, shineOut),
-            (1.0 - foilMask) * beforeGlowAlpha(cardUV) * uniforms.opacity * cardMask
-        );
-    }
-
-    let glare = applyFilter(glareGradient(cardUV), 1.0, 1.2, 1.0);
     cardRgb = mix(
         cardRgb,
-        hardLightBlend(cardRgb, glare),
-        0.75 * uniforms.opacity * cardMask
+        colorDodgeBlend(cardRgb, shineFiltered),
+        foilMask * uniforms.opacity * cardMask
+    );
+
+    let glare = glareLayer(cardUV);
+    cardRgb = mix(
+        cardRgb,
+        hardLightBlend(cardRgb, glare.rgb),
+        glare.a * (0.2 + pfc * 0.8) * uniforms.opacity * cardMask
     );
 
     let finalCard = vec4f(cardRgb, textureColor.a * cardMask);
